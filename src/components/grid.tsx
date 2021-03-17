@@ -88,6 +88,10 @@ export function Grid(props: GridProps) {
       </div> */}
       <div
         className="flex-1 w-full h-full"
+        style={{
+          background: `linear-gradient(to bottom, #E5E7EB 1px, transparent 1px) 0 -4px`,
+          backgroundSize: `100% 40px`,
+        }}
         onMouseLeave={() => handleFocusedRowIndexChange(undefined)}
       >
         <AutoSizer>
@@ -100,6 +104,7 @@ export function Grid(props: GridProps) {
               columnCount={columnNames.length}
               rowHeight={rowHeightCallback}
               columnWidths={columnWidths}
+              overscanRowCount={5}
               itemData={{
                 filteredData,
                 focusedRowIndex,

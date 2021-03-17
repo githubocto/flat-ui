@@ -69,11 +69,36 @@ function useInnerElementType(
           itemData.columnNames.length;
         const shownRowsCount = shownIndicies.to.row - shownIndicies.from.row;
 
-        const shownColumns = new Array(shownColumnsCount + 1).fill(0);
+        const shownColumns = new Array(shownColumnsCount).fill(0);
         const shownRows = new Array(shownRowsCount || 1).fill(0);
+        const columnWidths = shownColumns.map((_, i) =>
+          columnWidth(i + shownIndicies.from.column)
+        );
+        let runningX = 0;
+        // const horizontalGradient = [
+        //   `repeating-linear-gradient(to right,`,
+        //   ...columnWidths
+        //     .map(width => {
+        //       const str = `green ${runningX}px ${runningX +
+        //         1}px, transparent ${runningX + 1}px ${runningX + 1 + width}px`;
+        //       runningX += 1 + width;
+        //       return str;
+        //     })
+        //     .join(','),
+        //   `)`,
+        // ].join('');
+        // const totalWidth = columnWidths.reduce((a, b) => a + b, 0);
+        // console.log(horizontalGradient);
 
         return (
-          <div ref={ref} style={props.style}>
+          <div
+            ref={ref}
+            style={{
+              ...props.style,
+              background: `linear-gradient(to bottom, #E5E7EB 1px, white 1px) 0 -4px`,
+              backgroundSize: `100% ${rowHeight(1)}px`,
+            }}
+          >
             {/* top left cell */}
             <HeaderComponent
               key="0:0"

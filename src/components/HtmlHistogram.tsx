@@ -47,11 +47,6 @@ export function HtmlHistogram(props: HistogramProps) {
     .range([0, 100]);
 
   const rangeValues = value ? [xScale(value[0]), xScale(value[1])] : [0, 100];
-  if (bins.length < 3)
-    console.log(
-      extent(bins, d => d.length),
-      bins
-    );
 
   const focusedBinIndex =
     focusedValue &&
