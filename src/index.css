@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body,
+html,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-gray-200;
+}
+
+.menu-item {
+  @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 space-x-1;
+}
+
+.html-histogram__thumb {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+.html-histogram:hover .html-histogram__thumb {
+  opacity: 1;
+}
+.html-histogram:not(:hover) .html-histogram__range--base {
+  transform: scaleY(
+    0.3
+  ) !important; /* please forgive me! react-range made me do it */
+  transition: all 0.3s ease-out;
+}
+/* .html-histogram:hover .html-histogram__range--base {
+  transform: none !important;
+} */
+
+.html-histogram__numbers {
+  transition: transform 0.3s ease-out;
+}
+/* .html-histogram__numbers--filtered {
+  transform: translateY(-1.4em);
+} */
+.html-histogram__numbers {
+  transform: translateY(-0.8em);
+}
+.html-histogram:hover .html-histogram__numbers {
+  transform: none;
+}
+
+.header__title {
+  width: fit-content;
+  opacity: 0;
+  min-width: 100%;
+  z-index: 50;
+}
+
+.header:hover .header__title {
+  opacity: 1;
+}
+.header__pin {
+  opacity: 0;
+}
+
+.header:hover .header__pin {
+  opacity: 1;
+}
+
+.sticky-grid__header:hover {
+  z-index: 100 !important;
+}
