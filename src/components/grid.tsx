@@ -260,7 +260,7 @@ const HeaderWrapper = function(props: CellProps) {
 
   const focusedValue =
     typeof focusedRowIndex == 'number' && filteredData[0]
-      ? filteredData[focusedRowIndex][columnName]
+      ? (filteredData[focusedRowIndex] || {})[columnName]
       : undefined;
 
   const activeSortDirection = sort[0] == columnName ? sort[1] : undefined;

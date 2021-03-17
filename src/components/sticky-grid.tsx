@@ -74,27 +74,14 @@ function useInnerElementType(
         const columnWidths = shownColumns.map((_, i) =>
           columnWidth(i + shownIndicies.from.column)
         );
-        let runningX = 0;
-        // const horizontalGradient = [
-        //   `repeating-linear-gradient(to right,`,
-        //   ...columnWidths
-        //     .map(width => {
-        //       const str = `green ${runningX}px ${runningX +
-        //         1}px, transparent ${runningX + 1}px ${runningX + 1 + width}px`;
-        //       runningX += 1 + width;
-        //       return str;
-        //     })
-        //     .join(','),
-        //   `)`,
-        // ].join('');
-        // const totalWidth = columnWidths.reduce((a, b) => a + b, 0);
-        // console.log(horizontalGradient);
+        const totalColumnWidths = columnWidths.reduce((a, b) => a + b, 0);
 
         return (
           <div
             ref={ref}
             style={{
               ...props.style,
+              minWidth: totalColumnWidths,
               background: `linear-gradient(to bottom, #E5E7EB 1px, white 1px) 0 -4px`,
               backgroundSize: `100% ${rowHeight(1)}px`,
             }}
