@@ -7,6 +7,7 @@ import { FilterValue } from '../types';
 import { StickyGrid } from './sticky-grid';
 import { Header } from './header';
 import { Cell } from './cell';
+import { Loader } from './loader';
 import { useGridStore, cellTypeMap } from '../store';
 
 interface GridProps {
@@ -77,7 +78,23 @@ export function Grid(props: GridProps) {
     width: number;
   }
 
-  if (!schema) return <div>Loading...</div>;
+  if (!schema)
+    return (
+      <div className="flex justify-center bg-white w-full h-full">
+        <div className="flex flex-col justify-center items-center p-4 z-10">
+          <Loader />
+          <div className="font-bold text-lg italic pt-2">Loading...</div>
+        </div>
+
+        <div
+          className="absolute inset-0 z-0 animate-pulse"
+          style={{
+            background: `linear-gradient(to bottom, #E5E7EB 1px, white 1px) 0 -4px`,
+            backgroundSize: '100% 40px',
+          }}
+        />
+      </div>
+    );
 
   return (
     <div className="flex flex-col h-full bg-white">
