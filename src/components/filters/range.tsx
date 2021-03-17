@@ -1,7 +1,7 @@
-import React from "react";
-import { Filter } from "../../types";
+import React from 'react';
+import { Filter } from '../../types';
 // import { Histogram } from "../Histogram";
-import { HtmlHistogram } from "../HtmlHistogram";
+import { HtmlHistogram } from '../HtmlHistogram';
 
 interface RangeFilterProps {
   id: string;
@@ -23,12 +23,12 @@ export function RangeFilter(props: RangeFilterProps) {
     onChange,
   } = props;
   const filteredHistogramData = filteredData
-    .map((row) => row[id])
-    .filter(Number);
+    .map(row => row[id])
+    .filter(Number.isFinite);
 
   const originalHistogramData = originalData
-    .map((row) => row[id])
-    .filter(Number);
+    .map(row => row[id])
+    .filter(Number.isFinite);
 
   return (
     <HtmlHistogram

@@ -1,7 +1,7 @@
 import React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 // @ts-ignore
-import { format as d3Format, timeFormat, extent, scaleLinear } from 'd3';
+import { extent, max, min, scaleLinear } from 'd3';
 
 import { FilterValue } from '../types';
 import { StickyGrid } from './sticky-grid';
@@ -44,8 +44,8 @@ export function Grid(props: GridProps) {
         const values = data.map(
           d => cellInfo.format(d[columnName] || '').length
         );
-        const maxLength = Math.max(...values);
-        const numberOfChars = Math.min(maxLength + 3, 15);
+        const maxLength = max(values);
+        const numberOfChars = min([maxLength + 3, 15]);
         return Math.max(cellInfo.minWidth || 100, numberOfChars * 12);
       }),
     [columnNames, data]
@@ -78,7 +78,6 @@ export function Grid(props: GridProps) {
   }
 
   if (!schema) return <div>Loading...</div>;
-  console.log(schema);
 
   return (
     <div className="flex flex-col h-full bg-white">

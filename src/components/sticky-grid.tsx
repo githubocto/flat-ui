@@ -179,7 +179,7 @@ interface StickyGridProps {
   itemData: StickyGridDataProps;
 }
 const StickyGrid = function(props: StickyGridProps) {
-  const ref = useRespondToColumnChange(props.columnWidths);
+  const ref = useRespondToColumnChange([props.columnWidths]);
 
   return (
     <VariableSizeGrid
@@ -197,7 +197,7 @@ const StickyGrid = function(props: StickyGridProps) {
 };
 export { StickyGrid };
 
-function useRespondToColumnChange(columns) {
+function useRespondToColumnChange(deps) {
   const ref = React.useRef();
 
   React.useEffect(() => {
@@ -208,7 +208,7 @@ function useRespondToColumnChange(columns) {
         shouldForceUpdate: true,
       });
     }
-  }, [columns]);
+  }, deps);
 
   return ref;
 }
