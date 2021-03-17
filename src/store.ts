@@ -1,14 +1,8 @@
 import create, { StateCreator } from 'zustand';
 import produce from 'immer';
-import {
-  quicktype,
-  InputData,
-  jsonInputForTargetLanguage,
-  JSONSchemaInput,
-  FetchingJSONSchemaStore,
-  TargetLanguage,
-} from 'quicktype-core';
 import { format as d3Format, timeFormat } from 'd3';
+import fromPairs from 'lodash.frompairs';
+import isValid from 'date-fns/isValid';
 
 import { FilterValue } from './types';
 import { matchSorter } from 'match-sorter';
@@ -57,39 +51,52 @@ export const useGridStore = create<GridState>(
         draft.stickyColumnName = columnName;
       }),
     handleDataChange: data =>
-      set(async draft => {
+      set(draft => {
         // @ts-ignore
-        draft.schema = 'SHUT UP';
         draft.schema = undefined;
 
-        const schema = await quicktypeJSON('schema', '', JSON.stringify(data));
+        const schema = generateSchema(data);
 
-        set(draft => {
-          draft.schema = schema;
+        draft.schema = schema;
 
-          // @ts-ignore
-          const propertyMap = schema.definitions['Element'].properties;
-          const accessorsWithTypeInformation = Object.keys(propertyMap);
+        // @ts-ignore
+        const propertyMap = schema;
+        const accessorsWithTypeInformation = Object.keys(propertyMap);
 
-          draft.cellTypes = accessorsWithTypeInformation.reduce(
-            (acc, accessor) => {
-              // @ts-ignore
-              const entry = propertyMap[accessor];
-              let cellType = entry.format ? entry.format : entry.type;
-              // @ts-ignore
-              if (!cellTypeMap[cellType]) cellType = 'string';
+        draft.cellTypes = accessorsWithTypeInformation.reduce(
+          (acc, accessor) => {
+            // @ts-ignore
+            let cellType = propertyMap[accessor];
+            // @ts-ignore
+            if (!cellTypeMap[cellType]) cellType = 'string';
 
-              // @ts-ignore
-              acc[accessor] = cellType;
-              return acc;
-            },
-            {}
-          );
+            // @ts-ignore
+            acc[accessor] = cellType;
+            return acc;
+          },
+          {}
+        );
 
-          draft.data = data;
-          const columnNames = data.length ? Object.keys(data[0]) : [];
-          draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
-        });
+        const dateTypes = Object.keys(draft.cellTypes).filter(
+          d => draft.cellTypes[d] === 'date'
+        );
+        console.log(dateTypes, draft.cellTypes);
+
+        const parseData = (data: any) =>
+          data.map((d: any) => {
+            return {
+              ...d,
+              ...fromPairs(
+                dateTypes.map(metric => [metric, Date.parse(d[metric])])
+              ),
+            };
+          });
+
+        draft.data = parseData(data);
+        const columnNames = data.length ? Object.keys(data[0]) : [];
+        draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
+
+        console.log(draft.schema, draft.cellTypes);
       }),
     focusedRowIndex: undefined,
     handleFocusedRowIndexChange: rowIndex =>
@@ -187,30 +194,40 @@ const getSortFunction = (sort: string[]) => (a: object, b: object) => {
   return (aValue - bValue) * (direction == 'desc' ? -1 : 1);
 };
 
-async function quicktypeJSON(
-  targetLanguage: string,
-  typeName: string,
-  jsonString: string
-) {
-  const jsonInput = jsonInputForTargetLanguage(targetLanguage);
+function generateSchema(data: any[]) {
+  const metrics = Object.keys(data[0]);
 
-  // We could add multiple samples for the same desired
-  // type, or many sources for other types. Here we're
-  // just making one type from one piece of sample JSON.
-  await jsonInput.addSource({
-    name: typeName,
-    samples: [jsonString],
-  });
+  const schema = fromPairs(
+    metrics.map((metric: any) => {
+      const getFirstValue = data =>
+        data.find(d => d[metric] !== undefined && d[metric] !== null);
 
-  const inputData = new InputData();
-  inputData.addInput(jsonInput);
+      const value = getFirstValue(data)[metric];
 
-  const res = await quicktype({
-    inputData,
-    lang: targetLanguage,
-  });
+      if (!value) return 'string';
 
-  return JSON.parse(res.lines.join(''));
+      const isDate = value => {
+        try {
+          if (typeof value === 'string') {
+            return isValid(new Date(value));
+          } else {
+            return false;
+            // return isValid(value);
+          }
+        } catch (e) {
+          return false;
+        }
+      };
+      const type = isDate(value)
+        ? 'date'
+        : Number.isFinite(value)
+        ? 'number'
+        : 'string';
+
+      return [metric, type];
+    })
+  );
+  return schema;
 }
 
 export const cellTypeMap = {

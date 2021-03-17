@@ -78,6 +78,7 @@ export function Grid(props: GridProps) {
   }
 
   if (!schema) return <div>Loading...</div>;
+  console.log(schema);
 
   return (
     <div className="flex flex-col h-full bg-white">

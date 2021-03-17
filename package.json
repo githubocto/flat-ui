@@ -12,10 +12,10 @@
   },
   "scripts": {
     "start": "tsdx watch --transpileOnly",
-    "build": "tsdx build --transpileOnly",
+    "build": "NODE_ENV=production tsdx build --transpileOnly",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
-    "prepare": "tsdx build",
+    "prepare": "NODE_ENV=production tsdx build --transpileOnly",
     "size": "size-limit",
     "analyze": "size-limit --why",
     "storybook": "start-storybook -p 6006",
@@ -36,7 +36,7 @@
     "trailingComma": "es5"
   },
   "name": "flat-ui",
-  "author": "Matt Rothenberg",
+  "author": "GitHub OCTO",
   "module": "dist/flat-ui.esm.js",
   "size-limit": [
     {
@@ -58,6 +58,7 @@
     "@storybook/react": "^6.1.21",
     "@types/d3": "^6.3.0",
     "@types/d3-array": "^2.9.0",
+    "@types/lodash.frompairs": "^4.0.6",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.2",
     "@types/react-virtualized": "^9.21.11",
@@ -84,13 +85,14 @@
     "@types/react-window": "^1.8.2",
     "classcat": "^5.0.3",
     "d3": "^6.6.0",
+    "date-fns": "^2.19.0",
+    "immer": "^8.0.2",
+    "lodash.frompairs": "^4.0.1",
     "match-sorter": "^6.3.0",
-    "quicktype-core": "^6.0.70",
     "react-range": "^1.8.7",
     "react-use": "^17.2.0",
     "react-virtualized-auto-sizer": "^1.0.5",
     "react-window": "^1.8.6",
-    "use-immer": "^0.4.2",
     "zustand": "^3.3.3"
   }
 }
