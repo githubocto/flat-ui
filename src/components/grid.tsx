@@ -7,7 +7,7 @@ import { FilterValue } from '../types';
 import { StickyGrid } from './sticky-grid';
 import { Header } from './header';
 import { Cell } from './cell';
-import { useGridStore } from '../store';
+import { useGridStore, cellTypeMap } from '../store';
 
 interface GridProps {
   data: any[];
@@ -26,7 +26,7 @@ export function Grid(props: GridProps) {
     handleFocusedRowIndexChange,
     schema,
     cellTypes,
-  } = useGridStore();
+  } = useGridStore(state => state);
 
   React.useEffect(() => {
     handleDataChange(props.data);

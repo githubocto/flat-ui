@@ -41,14 +41,14 @@ type GridState = {
   handleSortChange: (columnName: string, direction: string) => void;
   focusedRowIndex?: number;
   handleFocusedRowIndexChange: (rowIndex?: number) => void;
-  schema: object;
+  schema?: object;
   cellTypes: Record<string, string>;
 };
 
 export const useGridStore = create<GridState>(
   immer(set => ({
     data: [],
-    schema: {},
+    schema: undefined,
     cellTypes: {},
     stickyColumnName: undefined,
     columnNames: [],
@@ -58,33 +58,38 @@ export const useGridStore = create<GridState>(
       }),
     handleDataChange: data =>
       set(async draft => {
-        draft.schema = {};
+        // @ts-ignore
+        draft.schema = 'SHUT UP';
+        draft.schema = undefined;
 
         const schema = await quicktypeJSON('schema', '', JSON.stringify(data));
-        console.log(schema);
 
-        // @ts-ignore
-        const propertyMap = schema.definitions['Element'].properties;
-        const accessorsWithTypeInformation = Object.keys(propertyMap);
+        set(draft => {
+          draft.schema = schema;
 
-        draft.cellTypes = accessorsWithTypeInformation.reduce(
-          (acc, accessor) => {
-            // @ts-ignore
-            const entry = propertyMap[accessor];
-            let cellType = entry.format ? entry.format : entry.type;
-            // @ts-ignore
-            if (!cellTypeMap[cellType]) cellType = 'string';
+          // @ts-ignore
+          const propertyMap = schema.definitions['Element'].properties;
+          const accessorsWithTypeInformation = Object.keys(propertyMap);
 
-            // @ts-ignore
-            acc[accessor] = cellType;
-            return acc;
-          },
-          {}
-        );
+          draft.cellTypes = accessorsWithTypeInformation.reduce(
+            (acc, accessor) => {
+              // @ts-ignore
+              const entry = propertyMap[accessor];
+              let cellType = entry.format ? entry.format : entry.type;
+              // @ts-ignore
+              if (!cellTypeMap[cellType]) cellType = 'string';
 
-        draft.data = data;
-        const columnNames = data.length ? Object.keys(data[0]) : [];
-        draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
+              // @ts-ignore
+              acc[accessor] = cellType;
+              return acc;
+            },
+            {}
+          );
+
+          draft.data = data;
+          const columnNames = data.length ? Object.keys(data[0]) : [];
+          draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
+        });
       }),
     focusedRowIndex: undefined,
     handleFocusedRowIndexChange: rowIndex =>
