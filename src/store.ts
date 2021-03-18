@@ -17,7 +17,7 @@ export type FilterMap<T> = Record<string, T>;
 export const immer = <T extends {}>(
   config: StateCreator<T, (fn: (draft: T) => void) => void>
 ): StateCreator<T> => (set, get, api) =>
-    config(fn => set(produce(fn) as (state: T) => T), get, api);
+  config(fn => set(produce(fn) as (state: T) => T), get, api);
 
 type GridState = {
   data: any[];
@@ -90,7 +90,6 @@ export const useGridStore = create<GridState>(
         draft.data = parseData(data);
         const columnNames = data.length ? Object.keys(data[0]) : [];
         draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
-
       }),
     focusedRowIndex: undefined,
     handleFocusedRowIndexChange: rowIndex =>
@@ -203,7 +202,6 @@ function generateSchema(data: any[]) {
       const isDate = value => {
         try {
           if (typeof value === 'string') {
-            console.log(value, isValid(new Date(value)))
             return isValid(new Date(value));
           } else {
             return false;
@@ -213,15 +211,17 @@ function generateSchema(data: any[]) {
           return false;
         }
       };
-      const isFirstValueADate = isDate(value)
+      const isFirstValueADate = isDate(value);
       if (isFirstValueADate) {
-        const values = data.map(d => d[metric]).filter(d => d).slice(0, 10)
-        const areMultipleValuesDates = values.filter(isDate).length == values.length
-        if (areMultipleValuesDates) return "date"
+        const values = data
+          .map(d => d[metric])
+          .filter(d => d)
+          .slice(0, 10);
+        const areMultipleValuesDates =
+          values.filter(isDate).length == values.length;
+        if (areMultipleValuesDates) return [metric, 'date'];
       }
-      const type = Number.isFinite(+value)
-        ? 'number'
-        : 'string';
+      const type = Number.isFinite(+value) ? 'number' : 'string';
 
       return [metric, type];
     })
