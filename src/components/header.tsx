@@ -59,7 +59,7 @@ export function Header(props: HeaderProps) {
 
         // ref={popoverAnchorRef}
       >
-        <div className="header__title group absolute top-0 left-0 bottom-0 z-10 bg-gray-100 shadow-md flex items-center">
+        <div className="header__title group absolute top-0 left-0 bottom-0 z-10 bg-gray-100 text-gray-600 shadow-md flex items-center">
           <button
             onClick={onStickyLocal}
             className={`h-10 p-2 border-b border-gray-200 focus:bg-gray-200 hover:bg-gray-200 bg-gray-50 appearance-none ${
@@ -76,7 +76,7 @@ export function Header(props: HeaderProps) {
           >
             <span
               className={cc([
-                'text-sm text-gray-600 font-medium truncate text-left',
+                'text-sm font-medium truncate text-left',
                 { 'text-right': ['integer', 'number'].includes(cellType) },
               ])}
               style={{ minWidth: 'calc(100% - 1.5em)' }}
@@ -84,9 +84,11 @@ export function Header(props: HeaderProps) {
               {columnName}
             </span>
             <div
-              className={`header__icon header__icon--${
-                activeSortDirection ? 'active' : 'inactive'
-              } flex items-center justify-center pl-1 pr-2 text-gray-600 -mr-2 h-10`}
+              className={`header__icon flex items-center justify-center pl-1 pr-2 -mr-2 ${
+                activeSortDirection
+                  ? 'opacity-100'
+                  : 'opacity-0 group-hover:opacity-40'
+              }`}
             >
               {activeSortDirection == 'asc' ? (
                 <ArrowUpIcon />
@@ -97,7 +99,7 @@ export function Header(props: HeaderProps) {
           </button>
         </div>
         {/* <DropdownMenu.Root>
-          <DropdownMenu.Trigger className="flex h-full items-center justify-center px-1 text-gray-600 focus:outline-none focus:ring focus:bg-gray-200 hover:bg-gray-200">
+          <DropdownMenu.Trigger className="flex h-full items-center justify-center px-1 focus:outline-none focus:ring focus:bg-gray-200 hover:bg-gray-200">
             {activeSortDirection == "desc" ? <ArrowDownIcon /> :
               activeSortDirection == "asc" ? <ArrowUpIcon /> :
                 <ChevronDownIcon />

@@ -1,6 +1,6 @@
 import create, { StateCreator } from 'zustand';
 import produce from 'immer';
-import { format as d3Format, timeFormat } from 'd3';
+import { format as d3Format, timeFormat, descending, ascending } from 'd3';
 import fromPairs from 'lodash.frompairs';
 import isValid from 'date-fns/isValid';
 
@@ -174,18 +174,11 @@ const isBetween = (bounds: [number, number], value: number) => {
 
 const getSortFunction = (sort: string[]) => (a: object, b: object) => {
   const [columnName, direction] = sort;
-  if (!a || !b || !columnName) return 0;
-  // @ts-ignore
-  const getValue = (d, sign) =>
-    !d[columnName] && !Number.isFinite(d[columnName])
-      ? Infinity * sign
-      : d[columnName];
-  // @ts-ignore
-  const aValue = getValue(a, direction == 'desc' ? -1 : 1);
-  // @ts-ignore
-  const bValue = getValue(b, direction == 'desc' ? -1 : 1);
-
-  return (aValue - bValue) * (direction == 'desc' ? -1 : 1);
+  return direction == 'desc'
+    ? // @ts-ignore
+      descending(a[columnName], b[columnName])
+    : // @ts-ignore
+      ascending(a[columnName], b[columnName]);
 };
 
 function generateSchema(data: any[]) {
