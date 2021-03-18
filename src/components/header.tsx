@@ -1,6 +1,11 @@
 import React from 'react';
 import cc from 'classcat';
-import { ArrowUpIcon, ArrowDownIcon, PinIcon } from '@primer/octicons-react';
+import {
+  ArrowUpIcon,
+  ArrowDownIcon,
+  InfoIcon,
+  PinIcon,
+} from '@primer/octicons-react';
 import { FilterValue } from '../types';
 
 interface HeaderProps {
@@ -9,6 +14,7 @@ interface HeaderProps {
   cellType: string;
   columnName: string;
   activeSortDirection?: string;
+  metadata?: string;
   originalData: any[];
   filteredData: any[];
   filter?: FilterValue;
@@ -24,6 +30,7 @@ export function Header(props: HeaderProps) {
     style,
     columnName,
     activeSortDirection,
+    metadata,
     originalData,
     filteredData,
     filter,
@@ -42,13 +49,6 @@ export function Header(props: HeaderProps) {
   // @ts-ignore
   const { filter: FilterComponent } = cellInfo;
 
-  const onStickyLocal = (e: React.MouseEvent) => {
-    e.preventDefault();
-    console.log('HI');
-    e.stopPropagation();
-    onSticky();
-  };
-
   return (
     <div
       className="sticky-grid__header border-b border-r bg-white border-gray-200 flex flex-col"
@@ -61,7 +61,7 @@ export function Header(props: HeaderProps) {
       >
         <div className="header__title group absolute top-0 left-0 bottom-0 z-10 bg-gray-100 text-gray-600 shadow-md flex items-center">
           <button
-            onClick={onStickyLocal}
+            onClick={() => onSticky()}
             className={`h-10 p-2 border-b border-gray-200 focus:bg-gray-200 hover:bg-gray-200 bg-gray-50 appearance-none ${
               isSticky ? 'opacity-100' : 'opacity-0 -ml-6 shadow-md'
             } group-hover:opacity-100`}
@@ -71,7 +71,7 @@ export function Header(props: HeaderProps) {
           <button
             className="group flex justify-between items-center h-10 p-2 border-b border-gray-200 focus:bg-gray-200 hover:bg-gray-200 appearance-none bg-gray-100 flex-1 min-w-0"
             onClick={() =>
-              onSort(columnName, activeSortDirection == 'desc' ? 'asc' : 'desc')
+              onSort(columnName, activeSortDirection == 'asc' ? 'desc' : 'asc')
             }
           >
             <span
@@ -79,9 +79,15 @@ export function Header(props: HeaderProps) {
                 'text-sm font-medium truncate text-left',
                 { 'text-right': ['integer', 'number'].includes(cellType) },
               ])}
+              title={columnName}
               style={{ minWidth: 'calc(100% - 1.5em)' }}
             >
               {columnName}
+              {!!metadata && (
+                <span className="pl-2 inline-block text-gray-300">
+                  <InfoIcon />
+                </span>
+              )}
             </span>
             <div
               className={`header__icon flex items-center justify-center pl-1 pr-2 -mr-2 ${
@@ -90,13 +96,21 @@ export function Header(props: HeaderProps) {
                   : 'opacity-0 group-hover:opacity-40'
               }`}
             >
-              {activeSortDirection == 'asc' ? (
-                <ArrowUpIcon />
-              ) : (
+              {activeSortDirection == 'desc' ? (
                 <ArrowDownIcon />
+              ) : (
+                <ArrowUpIcon />
               )}
             </div>
           </button>
+          {!!metadata && (
+            <div className="text-sm absolute bottom-0 bg-white p-4 text-indigo-500 transform translate-y-full border border-indigo-300 py-3 shadow-md left-0 right-0 pointer-events-none opacity-0 group-hover:opacity-100">
+              <div className="pr-2 inline-block text-indigo-200">
+                <InfoIcon />
+              </div>
+              {metadata}
+            </div>
+          )}
         </div>
         {/* <DropdownMenu.Root>
           <DropdownMenu.Trigger className="flex h-full items-center justify-center px-1 focus:outline-none focus:ring focus:bg-gray-200 hover:bg-gray-200">

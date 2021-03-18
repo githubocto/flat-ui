@@ -27,6 +27,8 @@ type GridState = {
   filteredData: any[];
   // focusedRowIndex?: number;
   filters: FilterMap<FilterValue>;
+  metadata: Record<string, string>;
+  handleMetadataChange: (metadata: Record<string, string>) => void;
   handleFilterChange: (column: string, value: FilterValue) => void;
   handleDataChange: (data: any[]) => void;
   handleDiffDataChange: (data: any[]) => void;
@@ -45,6 +47,7 @@ export const useGridStore = create<GridState>(
     data: [],
     schema: undefined,
     cellTypes: {},
+    metadata: {},
     stickyColumnName: undefined,
     columnNames: [],
     handleStickyColumnNameChange: columnName =>
@@ -78,6 +81,10 @@ export const useGridStore = create<GridState>(
         const columnNames = data.length ? Object.keys(data[0]) : [];
         draft.stickyColumnName = columnNames[0];
         draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
+      }),
+    handleMetadataChange: metadata =>
+      set(draft => {
+        draft.metadata = metadata;
       }),
     handleDiffDataChange: (diffedData: any[]) =>
       set(draft => {

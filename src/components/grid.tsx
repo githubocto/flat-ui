@@ -13,6 +13,7 @@ import { useGridStore, cellTypeMap } from '../store';
 interface GridProps {
   data: any[];
   diffData?: any[];
+  metadata?: Record<string, string>;
 }
 
 export function Grid(props: GridProps) {
@@ -28,6 +29,7 @@ export function Grid(props: GridProps) {
     filters,
     focusedRowIndex,
     handleFocusedRowIndexChange,
+    handleMetadataChange,
     schema,
     cellTypes,
   } = useGridStore(state => state);
@@ -35,6 +37,10 @@ export function Grid(props: GridProps) {
   React.useEffect(() => {
     handleDataChange(props.data);
   }, [props.data]);
+
+  React.useEffect(() => {
+    if (props.metadata) handleMetadataChange(props.metadata);
+  }, [props.metadata]);
 
   React.useEffect(() => {
     if (props.diffData) handleDiffDataChange(props.diffData);
@@ -284,6 +290,7 @@ const HeaderWrapper = function(props: CellProps) {
     filters,
     handleFilterChange,
     filteredData,
+    metadata,
     sort,
     handleSortChange,
     focusedRowIndex,
@@ -324,6 +331,7 @@ const HeaderWrapper = function(props: CellProps) {
       focusedValue={focusedValue}
       showFilters={showFilters}
       isSticky={isSticky}
+      metadata={metadata[columnName]}
       onSort={handleSortChange}
       onSticky={() => handleStickyColumnNameChange(columnName)}
       onFilterChange={(value: FilterValue) =>
@@ -339,6 +347,7 @@ interface HeaderComputedProps {
   cellType: string;
   columnName: string;
   activeSortDirection?: string;
+  metadata?: string;
   originalData: any[];
   filteredData: any[];
   filter?: FilterValue;
