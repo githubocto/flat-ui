@@ -81,7 +81,7 @@ export const useGridStore = create<GridState>(
       }),
     handleDiffDataChange: (diffedData: any[]) =>
       set(draft => {
-        if (!diffedData || !diffedData.length) return;
+        if (!diffedData.length) return;
 
         const data = draft.data;
 

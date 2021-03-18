@@ -12,7 +12,7 @@ import { useGridStore, cellTypeMap } from '../store';
 
 interface GridProps {
   data: any[];
-  diffData: any[];
+  diffData?: any[];
 }
 
 export function Grid(props: GridProps) {
@@ -37,7 +37,7 @@ export function Grid(props: GridProps) {
   }, [props.data]);
 
   React.useEffect(() => {
-    handleDiffDataChange(props.diffData);
+    if (props.diffData) handleDiffDataChange(props.diffData);
   }, [props.diffData]);
 
   const columnWidths = React.useMemo(
