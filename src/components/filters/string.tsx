@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 // @ts-ignore
-import { format } from "d3";
+import { format } from 'd3';
 
-const formatNumber = format(",")
+const formatNumber = format(',');
 interface StringFilterProps {
   value?: string;
   filteredData: any[];
@@ -16,9 +16,9 @@ export function StringFilter(props: StringFilterProps) {
 
   return (
     <input
-      className="w-full overflow-ellipsis pl-2"
+      className="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white outline-none focus:outline-none focus:shadow-outline w-full overflow-ellipsis"
       onChange={handleChange}
-      value={props?.value || ""}
+      value={props?.value || ''}
       placeholder={`Filter ${formatNumber(props.filteredData.length)} records`}
     />
   );

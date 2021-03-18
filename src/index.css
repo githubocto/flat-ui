@@ -47,13 +47,22 @@ body {
 }
 
 .header__title {
-  width: fit-content;
-  opacity: 0;
+  right: 0;
   min-width: 100%;
   z-index: 50;
 }
+.header__icon {
+  opacity: 0;
+}
 
+.header:not(:hover) .header__title {
+  box-shadow: none;
+}
 .header:hover .header__title {
+  right: auto;
+}
+.header__icon--active,
+.header:hover .header__icon {
   opacity: 1;
 }
 .header__pin {

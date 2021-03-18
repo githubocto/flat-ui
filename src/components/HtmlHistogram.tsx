@@ -7,6 +7,7 @@ import cc from 'classcat';
 
 interface HistogramProps {
   shortFormat: (value: number) => string;
+  longFormat: (value: number) => string;
   filtered: number[];
   original: number[];
   id: string;
@@ -22,6 +23,7 @@ export function HtmlHistogram(props: HistogramProps) {
     value,
     focusedValue,
     shortFormat,
+    longFormat,
     onChange,
   } = props;
   const height = 30;
@@ -65,6 +67,14 @@ export function HtmlHistogram(props: HistogramProps) {
     bins.length > 1 ? xScale(bins[1].x1) - xScale(bins[0].x1) : 100;
 
   const isFiltered = rangeValues[0] !== 0 || rangeValues[1] !== 100;
+
+  if (isOneValue) {
+    return (
+      <div className="px-2 tabular-nums text-md text-gray-400">
+        {longFormat(xScale.invert(rangeValues[0]))}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -204,11 +214,9 @@ export function HtmlHistogram(props: HistogramProps) {
         <div className={cc({ 'text-indigo-500': rangeValues[0] != 0 })}>
           {shortFormat(xScale.invert(rangeValues[0]))}
         </div>
-        {!isOneValue && (
-          <div className={cc({ 'text-indigo-500': rangeValues[1] != 100 })}>
-            {shortFormat(xScale.invert(rangeValues[1]))}
-          </div>
-        )}
+        <div className={cc({ 'text-indigo-500': rangeValues[1] != 100 })}>
+          {shortFormat(xScale.invert(rangeValues[1]))}
+        </div>
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ interface HeaderProps {
   filter?: FilterValue;
   focusedValue?: number;
   showFilters: boolean;
+  isSticky: boolean;
   onFilterChange: Function;
   onSort: Function;
   onSticky: Function;
@@ -30,19 +31,13 @@ export function Header(props: HeaderProps) {
     cellInfo,
     focusedValue,
     showFilters,
+    isSticky,
     onFilterChange,
     onSort,
     onSticky,
   } = props;
 
   // const popoverAnchorRef = React.createRef<HTMLDivElement>();
-
-  const headingClass = cc([
-    'text-sm text-gray-600 font-medium truncate',
-    {
-      'text-right block': cellType === 'integer',
-    },
-  ]);
 
   // @ts-ignore
   const { filter: FilterComponent } = cellInfo;
@@ -59,41 +54,47 @@ export function Header(props: HeaderProps) {
       className="sticky-grid__header border-b border-r bg-white border-gray-200 flex flex-col"
       style={{ ...style }}
     >
-      <button
-        className="header relative border-b border-gray-200 bg-gray-50 flex justify-between items-center h-10 focus:bg-gray-200 hover:bg-gray-200 appearance-none"
-        onClick={() =>
-          onSort(columnName, activeSortDirection == 'desc' ? 'asc' : 'desc')
-        }
+      <div
+        className="header relative border-b border-gray-200 bg-gray-50 flex items-center h-10"
+
         // ref={popoverAnchorRef}
       >
-        <div
-          className="text-right flex items-center pl-4 truncate"
-          title={columnName}
-        >
-          <button onClick={onStickyLocal} className="header__pin mr-1 -ml-3">
+        <div className="header__title group absolute top-0 left-0 bottom-0 z-10 bg-gray-100 shadow-md flex items-center">
+          <button
+            onClick={onStickyLocal}
+            className={`h-10 p-2 border-b border-gray-200 focus:bg-gray-200 hover:bg-gray-200 bg-gray-50 appearance-none ${
+              isSticky ? 'opacity-100' : 'opacity-0 -ml-6 shadow-md'
+            } group-hover:opacity-100`}
+          >
             <PinIcon />
           </button>
-          <span className={headingClass}>{columnName}</span>
-        </div>
-        <div className="header__title absolute top-0 left-0 bottom-0 z-10 bg-gray-100 border-r border-gray-200 shadow-md text-right flex items-center pl-4 pr-4 pointer-events-none">
-          <button onClick={onStickyLocal} className=" mr-1 -ml-3">
-            <PinIcon />
+          <button
+            className="group flex justify-between items-center h-10 p-2 border-b border-gray-200 focus:bg-gray-200 hover:bg-gray-200 appearance-none bg-gray-100 flex-1 min-w-0"
+            onClick={() =>
+              onSort(columnName, activeSortDirection == 'desc' ? 'asc' : 'desc')
+            }
+          >
+            <span
+              className={cc([
+                'text-sm text-gray-600 font-medium truncate text-left',
+                { 'text-right': ['integer', 'number'].includes(cellType) },
+              ])}
+              style={{ minWidth: 'calc(100% - 1.5em)' }}
+            >
+              {columnName}
+            </span>
+            <div
+              className={`header__icon header__icon--${
+                activeSortDirection ? 'active' : 'inactive'
+              } flex items-center justify-center pl-1 pr-2 text-gray-600 -mr-2 h-10`}
+            >
+              {activeSortDirection == 'asc' ? (
+                <ArrowUpIcon />
+              ) : (
+                <ArrowDownIcon />
+              )}
+            </div>
           </button>
-          <span className={headingClass}>{columnName}</span>
-          <div className="flex h-full items-center justify-center px-1 pl-2 pr-0 text-gray-600">
-            {activeSortDirection == 'desc' ? (
-              <ArrowDownIcon />
-            ) : activeSortDirection == 'asc' ? (
-              <ArrowUpIcon />
-            ) : null}
-          </div>
-        </div>
-        <div className="flex h-full items-center justify-center px-1 text-gray-600">
-          {activeSortDirection == 'desc' ? (
-            <ArrowDownIcon />
-          ) : activeSortDirection == 'asc' ? (
-            <ArrowUpIcon />
-          ) : null}
         </div>
         {/* <DropdownMenu.Root>
           <DropdownMenu.Trigger className="flex h-full items-center justify-center px-1 text-gray-600 focus:outline-none focus:ring focus:bg-gray-200 hover:bg-gray-200">
@@ -118,7 +119,7 @@ export function Header(props: HeaderProps) {
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Root> */}
-      </button>
+      </div>
       {showFilters && (
         <div className="flex-1 flex flex-col p-2 justify-center items-start">
           <FilterComponent
@@ -129,6 +130,8 @@ export function Header(props: HeaderProps) {
             value={filter}
             // @ts-ignore
             shortFormat={cellInfo.shortFormat}
+            // @ts-ignore
+            longFormat={cellInfo.format}
             focusedValue={focusedValue}
           />
         </div>

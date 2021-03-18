@@ -89,6 +89,7 @@ export const useGridStore = create<GridState>(
 
         draft.data = parseData(data);
         const columnNames = data.length ? Object.keys(data[0]) : [];
+        draft.stickyColumnName = columnNames[0];
         draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
       }),
     focusedRowIndex: undefined,

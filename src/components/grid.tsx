@@ -23,6 +23,7 @@ export function Grid(props: GridProps) {
     columnNames,
     handleDataChange,
     filteredData,
+    filters,
     focusedRowIndex,
     handleFocusedRowIndexChange,
     schema,
@@ -142,6 +143,15 @@ export function Grid(props: GridProps) {
             </StickyGrid>
           )}
         </AutoSizer>
+
+        {Object.keys(filters).length && !filteredData.length && (
+          <div
+            className="absolute w-full flex justify-center italic text-gray-400"
+            style={{ marginTop: 165 }}
+          >
+            No data with those filters
+          </div>
+        )}
       </div>
     </div>
   );
@@ -253,6 +263,7 @@ const HeaderWrapper = function(props: CellProps) {
   const {
     data: originalData,
     columnNames,
+    stickyColumnName,
     handleStickyColumnNameChange,
     filters,
     handleFilterChange,
@@ -282,6 +293,8 @@ const HeaderWrapper = function(props: CellProps) {
 
   const activeSortDirection = sort[0] == columnName ? sort[1] : undefined;
 
+  const isSticky = stickyColumnName === columnName;
+
   return (
     <HeaderWrapperComputed
       style={style}
@@ -294,6 +307,7 @@ const HeaderWrapper = function(props: CellProps) {
       filter={filters[columnName]}
       focusedValue={focusedValue}
       showFilters={showFilters}
+      isSticky={isSticky}
       onSort={handleSortChange}
       onSticky={() => handleStickyColumnNameChange(columnName)}
       onFilterChange={(value: FilterValue) =>
@@ -314,6 +328,7 @@ interface HeaderComputedProps {
   filter?: FilterValue;
   focusedValue?: number;
   showFilters: boolean;
+  isSticky: boolean;
   onFilterChange: Function;
   onSort: Function;
   onSticky: Function;
@@ -328,6 +343,7 @@ const HeaderWrapperComputed = React.memo(
     if (props.activeSortDirection != newProps.activeSortDirection) return false;
     if (props.filteredData != newProps.filteredData) return false;
     if (props.filter != newProps.filter) return false;
+    if (props.isSticky != newProps.isSticky) return false;
     if (props.focusedValue != newProps.focusedValue) return false;
     if (props.style.width != newProps.style.width) return false;
     if (props.style.left != newProps.style.left) return false;
