@@ -116,7 +116,7 @@ export function Grid(props: GridProps) {
             <StickyGrid
               height={height}
               width={width}
-              rowCount={filteredData.length}
+              rowCount={filteredData.length + 1}
               columnWidth={columnWidthCallback}
               columnCount={columnNames.length}
               rowHeight={rowHeightCallback}
