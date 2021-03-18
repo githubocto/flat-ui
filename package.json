@@ -35,7 +35,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "flat-ui",
+  "name": "@githubocto/flat-ui",
   "author": "GitHub OCTO",
   "module": "dist/flat-ui.esm.js",
   "size-limit": [
