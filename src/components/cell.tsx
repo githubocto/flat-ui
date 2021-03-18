@@ -7,6 +7,7 @@ interface CellProps {
   type: string;
   value: any;
   style?: {};
+  status?: string;
   background?: string;
   onMouseEnter?: Function;
 }
@@ -14,6 +15,7 @@ export const Cell = React.memo(function(props: CellProps) {
   const {
     type,
     value,
+    status,
     background,
     style = {},
     onMouseEnter = () => {},
@@ -25,14 +27,19 @@ export const Cell = React.memo(function(props: CellProps) {
 
   const { cell: CellComponent } = cellInfo;
 
-  const rowClass = cc([
-    'flex flex-none items-center px-4 border-b border-r border-gray-200',
-    { 'text-gray-300': typeof value === 'undefined' },
+  const cellClass = cc([
+    'flex flex-none items-center px-4 border-b border-r',
+    {
+      'text-gray-300': typeof value === 'undefined',
+      'border-green-200': status === 'new',
+      'border-pink-200': status === 'old',
+      'border-gray-200': !status,
+    },
   ]);
 
   return (
     <div
-      className={rowClass}
+      className={cellClass}
       onMouseEnter={() => onMouseEnter()}
       style={{
         ...style,

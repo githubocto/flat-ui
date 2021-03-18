@@ -12,6 +12,7 @@ import { useGridStore, cellTypeMap } from '../store';
 
 interface GridProps {
   data: any[];
+  diffData: any[];
 }
 
 export function Grid(props: GridProps) {
@@ -22,6 +23,7 @@ export function Grid(props: GridProps) {
     data,
     columnNames,
     handleDataChange,
+    handleDiffDataChange,
     filteredData,
     filters,
     focusedRowIndex,
@@ -33,6 +35,10 @@ export function Grid(props: GridProps) {
   React.useEffect(() => {
     handleDataChange(props.data);
   }, [props.data]);
+
+  React.useEffect(() => {
+    handleDiffDataChange(props.diffData);
+  }, [props.diffData]);
 
   const columnWidths = React.useMemo(
     () =>
@@ -208,15 +214,22 @@ const CellWrapper = function(props: CellProps) {
   if (!filteredData[rowIndex]) return null;
 
   const value = filteredData[rowIndex][name];
+  const status = filteredData[rowIndex].__status__;
 
   // @ts-ignore®
   const scale = columnScales && columnScales[name];
+  const statusColors = new Map([
+    ['new', '#ECFDF5'],
+    ['old', '#FDF2F8'],
+  ]);
+  const statusColor = statusColors.get(status);
+
   const backgroundColor =
     focusedColumnIndex == columnIndex && scale
       ? scale(value)
       : focusedRowIndex == rowIndex
       ? '#f3f4f6'
-      : '#fff';
+      : statusColor || '#fff';
 
   return (
     <CellWrapperComputed
@@ -224,6 +237,7 @@ const CellWrapper = function(props: CellProps) {
       value={value}
       background={backgroundColor}
       style={style}
+      status={status}
       onMouseEnter={() => {
         setFocusedColumnIndex(columnIndex);
         handleFocusedRowIndexChange(rowIndex);
@@ -237,6 +251,7 @@ interface CellComputedProps {
   value: any;
   style: StyleObject;
   background?: string;
+  status?: string;
   onMouseEnter?: Function;
 }
 const CellWrapperComputed = React.memo(
@@ -248,6 +263,7 @@ const CellWrapperComputed = React.memo(
     if (props.type != newProps.type) return false;
     if (props.background != newProps.background) return false;
     if (props.style != newProps.style) return false;
+    if (props.status != newProps.status) return false;
     if (props.style.left != newProps.style.left) return false;
     if (props.style.top != newProps.style.top) return false;
     if (props.style.position != newProps.style.position) return false;

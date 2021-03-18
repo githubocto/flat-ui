@@ -29,6 +29,7 @@ type GridState = {
   filters: FilterMap<FilterValue>;
   handleFilterChange: (column: string, value: FilterValue) => void;
   handleDataChange: (data: any[]) => void;
+  handleDiffDataChange: (data: any[]) => void;
   // columnWidths: number[];
   // showFilters: boolean;
   sort: string[];
@@ -73,24 +74,56 @@ export const useGridStore = create<GridState>(
           {}
         );
 
-        const dateTypes = Object.keys(draft.cellTypes).filter(
-          d => draft.cellTypes[d] === 'date'
-        );
-
-        const parseData = (data: any) =>
-          data.map((d: any) => {
-            return {
-              ...d,
-              ...fromPairs(
-                dateTypes.map(metric => [metric, Date.parse(d[metric])])
-              ),
-            };
-          });
-
-        draft.data = parseData(data);
+        draft.data = parseData(data, draft.cellTypes);
         const columnNames = data.length ? Object.keys(data[0]) : [];
         draft.stickyColumnName = columnNames[0];
         draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
+      }),
+    handleDiffDataChange: (diffedData: any[]) =>
+      set(draft => {
+        if (!diffedData || !diffedData.length) return;
+
+        const data = draft.data;
+
+        // get string column with most unique values
+        const columnNames = data.length ? Object.keys(data[0]) : [];
+        const columnNameUniques = columnNames
+          .filter(columnName => typeof draft.cellTypes[columnName] === 'string')
+          .map(columnName => {
+            const values = new Set(data.map(d => d[columnName]));
+            return [columnName, values.size];
+          });
+        const sortedColumnsByUniqueness = columnNameUniques.sort((a, b) =>
+          descending(a[1], b[1])
+        );
+        if (
+          !sortedColumnsByUniqueness.length ||
+          // there must be as many unique values as rows
+          sortedColumnsByUniqueness[0][1] !== data.length
+        )
+          return;
+
+        const mostUniqueId = sortedColumnsByUniqueness[0][0];
+        const idColumnName = mostUniqueId;
+
+        const diffedDataMap = new Map(
+          diffedData.map(i => [i[idColumnName], i])
+        );
+        const newDataMap = new Map(data.map(i => [i[idColumnName], i]));
+
+        let newData = data.map(d => {
+          const id = d[idColumnName];
+          const isNew = !diffedDataMap.get(id);
+          if (isNew) return { ...d, __status__: 'new' };
+          return d;
+        });
+        const oldData = parseData(
+          diffedData
+            .filter(d => !newDataMap.get(d[idColumnName]))
+            .map(d => ({ ...d, __status__: 'old' })),
+          draft.cellTypes
+        );
+        draft.data = [...newData, ...oldData];
       }),
     focusedRowIndex: undefined,
     handleFocusedRowIndexChange: rowIndex =>
@@ -249,4 +282,14 @@ export const cellTypeMap = {
     format: timeFormat('%B %-d %Y'),
     shortFormat: timeFormat('%-m/%-d'),
   },
+};
+
+const parseData = (data: any, cellTypes: Record<string, string>) => {
+  const dateTypes = Object.keys(cellTypes).filter(d => cellTypes[d] === 'date');
+  return data.map((d: any) => {
+    return {
+      ...d,
+      ...fromPairs(dateTypes.map(metric => [metric, Date.parse(d[metric])])),
+    };
+  });
 };
