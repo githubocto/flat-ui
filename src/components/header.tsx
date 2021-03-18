@@ -20,6 +20,7 @@ interface HeaderProps {
   filter?: FilterValue;
   focusedValue?: number;
   showFilters: boolean;
+  isFirstColumn: boolean;
   isSticky: boolean;
   onFilterChange: Function;
   onSort: Function;
@@ -38,6 +39,7 @@ export function Header(props: HeaderProps) {
     cellInfo,
     focusedValue,
     showFilters,
+    isFirstColumn,
     isSticky,
     onFilterChange,
     onSort,
@@ -137,7 +139,14 @@ export function Header(props: HeaderProps) {
         </DropdownMenu.Root> */}
       </div>
       {showFilters && (
-        <div className="flex-1 flex flex-col p-2 justify-center items-start">
+        <div
+          className={cc([
+            'flex-1 flex flex-col p-2 justify-center items-start',
+            {
+              'pl-8': isFirstColumn,
+            },
+          ])}
+        >
           <FilterComponent
             id={columnName}
             onChange={onFilterChange}

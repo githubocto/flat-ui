@@ -1,7 +1,15 @@
 import React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 // @ts-ignore
-import { extent, max, min, scaleLinear } from 'd3';
+import {
+  extent,
+  filter,
+  bisector,
+  max,
+  min,
+  scaleLinear,
+  bisectLeft,
+} from 'd3';
 
 import { FilterValue } from '../types';
 import { StickyGrid } from './sticky-grid';
@@ -9,7 +17,11 @@ import { Header } from './header';
 import { Cell } from './cell';
 import { Loader } from './loader';
 import { useGridStore, cellTypeMap } from '../store';
+import { ArrowRightIcon, ArrowLeftIcon } from '@primer/octicons-react';
 
+interface ScrollRefType {
+  current: number;
+}
 interface GridProps {
   data: any[];
   diffData?: any[];
@@ -18,6 +30,10 @@ interface GridProps {
 
 export function Grid(props: GridProps) {
   const [focusedColumnIndex, setFocusedColumnIndex] = React.useState<number>();
+  const [highlightedDiffIndex, setHighlightedDiffIndex] = React.useState<
+    number
+  >();
+  const currentScrollYOffset = React.useRef<ScrollRefType>();
   // const [showFilters, setShowFilters] = React.useState(true);
   const showFilters = true;
   const {
@@ -25,6 +41,8 @@ export function Grid(props: GridProps) {
     columnNames,
     handleDataChange,
     handleDiffDataChange,
+    uniqueColumnName,
+    diffs,
     filteredData,
     filters,
     focusedRowIndex,
@@ -48,7 +66,7 @@ export function Grid(props: GridProps) {
 
   const columnWidths = React.useMemo(
     () =>
-      columnNames.map((columnName: string) => {
+      columnNames.map((columnName: string, columnIndex: number) => {
         // @ts-ignore
         const cellType = cellTypes[columnName];
         // @ts-ignore
@@ -60,7 +78,10 @@ export function Grid(props: GridProps) {
         );
         const maxLength = max(values);
         const numberOfChars = min([maxLength + 3, 15]);
-        return Math.max(cellInfo.minWidth || 100, numberOfChars * 12);
+        return (
+          Math.max(cellInfo.minWidth || 100, numberOfChars * 12) +
+          (columnIndex === 0 ? 30 : 0)
+        );
       }),
     [columnNames, data]
   );
@@ -90,6 +111,68 @@ export function Grid(props: GridProps) {
     height: number;
     width: number;
   }
+
+  // @ts-ignore
+  const positiveDiffs = diffs.filter(d => d.__status__ === 'new');
+  // @ts-ignore
+  const negativeDiffs = diffs.filter(d => d.__status__ === 'old');
+
+  const ref = useRespondToColumnChange([columnWidths]);
+
+  const handleHighlightDiffChange = (delta: number = 0) => {
+    let newHighlight = 0;
+    if (
+      typeof highlightedDiffIndex !== 'number' &&
+      typeof currentScrollYOffset.current === 'number'
+    ) {
+      if (currentScrollYOffset.current === 0) {
+        newHighlight = diffs.length;
+      } else {
+        const currentRowIndex =
+          Math.round((currentScrollYOffset.current - 117) / 40) + 6;
+        const nearestDiffIndex = bisectLeft(
+          // @ts-ignore
+          diffs.map(d => d.__rowIndex__),
+          currentRowIndex
+        );
+        newHighlight = delta < 0 ? nearestDiffIndex - 1 : nearestDiffIndex;
+      }
+    } else {
+      newHighlight = ((highlightedDiffIndex || 0) + delta) % diffs.length;
+    }
+
+    if (newHighlight < 0) newHighlight = diffs.length + newHighlight;
+    setHighlightedDiffIndex(newHighlight);
+    const highlightedDiff = diffs[newHighlight] || {};
+    if (!uniqueColumnName) return;
+    const rowIndex = filteredData.findIndex(
+      // @ts-ignore
+      d => d[uniqueColumnName] === highlightedDiff[uniqueColumnName]
+    );
+    if (!ref.current) return;
+
+    // @ts-ignore
+    ref.current.scrollToItem({
+      // columnIndex: 0,
+      rowIndex: rowIndex,
+      align: 'center',
+    });
+    handleFocusedRowIndexChange(rowIndex);
+    setFocusedColumnIndex(undefined);
+  };
+
+  interface ScrollType {
+    scrollTop: number;
+    scrollUpdateWasRequested: boolean;
+  }
+  const onScroll = (scrollInfo: ScrollType) => {
+    const { scrollTop, scrollUpdateWasRequested } = scrollInfo;
+    if (scrollUpdateWasRequested) return;
+    // @ts-ignore
+    currentScrollYOffset.current = scrollTop;
+    if (typeof highlightedDiffIndex !== 'number') return;
+    setHighlightedDiffIndex(undefined);
+  };
 
   if (!schema)
     return (
@@ -127,6 +210,7 @@ export function Grid(props: GridProps) {
         <AutoSizer>
           {({ height, width }: AutoSizerType) => (
             <StickyGrid
+              ref={ref}
               height={height}
               width={width}
               rowCount={filteredData.length + 1}
@@ -135,6 +219,7 @@ export function Grid(props: GridProps) {
               rowHeight={rowHeightCallback}
               columnWidths={columnWidths}
               overscanRowCount={5}
+              onScroll={onScroll}
               itemData={{
                 filteredData,
                 focusedRowIndex,
@@ -165,6 +250,40 @@ export function Grid(props: GridProps) {
           </div>
         )}
       </div>
+
+      {!!diffs.length && (
+        <div
+          className="absolute right-0 bottom-0 bg-gray-100
+      border border-gray-300 flex justify-center items-center px-4 text-gray-600"
+        >
+          Changes:
+          {!!positiveDiffs.length && (
+            <div className="px-5 py-2 pr-1 text-green-500 font-semibold">
+              +{positiveDiffs.length} row{positiveDiffs.length === 1 ? '' : 's'}
+            </div>
+          )}
+          {!!negativeDiffs.length && (
+            <div className="px-5 py-2 pl-1 text-pink-500 font-semibold">
+              -{negativeDiffs.length} row{negativeDiffs.length === 1 ? '' : 's'}
+            </div>
+          )}
+          <button
+            className="text-gray-900"
+            onClick={() => handleHighlightDiffChange(-1)}
+          >
+            <ArrowLeftIcon />
+          </button>
+          <div className="tabular-nums px-1 w-5 text-center">
+            {highlightedDiffIndex}
+          </div>
+          <button
+            className="text-gray-900"
+            onClick={() => handleHighlightDiffChange(1)}
+          >
+            <ArrowRightIcon />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -244,6 +363,7 @@ const CellWrapper = function(props: CellProps) {
       background={backgroundColor}
       style={style}
       status={status}
+      isFirstColumn={columnIndex === 0}
       onMouseEnter={() => {
         setFocusedColumnIndex(columnIndex);
         handleFocusedRowIndexChange(rowIndex);
@@ -258,6 +378,7 @@ interface CellComputedProps {
   style: StyleObject;
   background?: string;
   status?: string;
+  isFirstColumn?: boolean;
   onMouseEnter?: Function;
 }
 const CellWrapperComputed = React.memo(
@@ -332,6 +453,7 @@ const HeaderWrapper = function(props: CellProps) {
       showFilters={showFilters}
       isSticky={isSticky}
       metadata={metadata[columnName]}
+      isFirstColumn={columnIndex === 0}
       onSort={handleSortChange}
       onSticky={() => handleStickyColumnNameChange(columnName)}
       onFilterChange={(value: FilterValue) =>
@@ -353,6 +475,7 @@ interface HeaderComputedProps {
   filter?: FilterValue;
   focusedValue?: number;
   showFilters: boolean;
+  isFirstColumn: boolean;
   isSticky: boolean;
   onFilterChange: Function;
   onSort: Function;
@@ -380,3 +503,20 @@ const HeaderWrapperComputed = React.memo(
     return true;
   }
 );
+
+function useRespondToColumnChange(deps: any[]) {
+  const ref = React.useRef();
+
+  React.useEffect(() => {
+    if (ref.current) {
+      // @ts-ignore
+      ref.current.resetAfterIndices({
+        columnIndex: 0,
+        rowIndex: 0,
+        shouldForceUpdate: true,
+      });
+    }
+  }, deps);
+
+  return ref;
+}

@@ -81,6 +81,7 @@ function useInnerElementType(
             ref={ref}
             style={{
               ...props.style,
+              height: props.style.height + 60,
               minWidth: totalColumnWidths,
               background: `linear-gradient(to bottom, #E5E7EB 1px, white 1px) 0 -4px`,
               backgroundSize: `100% ${rowHeight(1)}px`,
@@ -185,14 +186,12 @@ interface StickyGridProps {
   width: number;
   rowCount: number;
   columnCount: number;
+  columnWidths: number[];
   rowHeight: Function;
   columnWidth: Function;
-  columnWidths: number[];
   itemData: StickyGridDataProps;
 }
-const StickyGrid = function(props: StickyGridProps) {
-  const ref = useRespondToColumnChange([props.columnWidths]);
-
+const StickyGrid = React.forwardRef((props: StickyGridProps, ref) => {
   return (
     <VariableSizeGrid
       {...props}
@@ -206,21 +205,5 @@ const StickyGrid = function(props: StickyGridProps) {
       )}
     />
   );
-};
+});
 export { StickyGrid };
-
-function useRespondToColumnChange(deps) {
-  const ref = React.useRef();
-
-  React.useEffect(() => {
-    if (ref.current) {
-      ref.current.resetAfterIndices({
-        columnIndex: 0,
-        rowIndex: 0,
-        shouldForceUpdate: true,
-      });
-    }
-  }, deps);
-
-  return ref;
-}

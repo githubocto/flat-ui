@@ -25,6 +25,8 @@ type GridState = {
   handleStickyColumnNameChange: (columnName: string) => void;
   columnNames: string[];
   filteredData: any[];
+  diffs: object[];
+  uniqueColumnName?: string;
   // focusedRowIndex?: number;
   filters: FilterMap<FilterValue>;
   metadata: Record<string, string>;
@@ -86,11 +88,14 @@ export const useGridStore = create<GridState>(
       set(draft => {
         draft.metadata = metadata;
       }),
+    diffs: [],
+    uniqueColumnName: undefined,
     handleDiffDataChange: (diffedData: any[]) =>
       set(draft => {
         if (!diffedData.length) return;
 
         const data = draft.data;
+        draft.uniqueColumnName = undefined;
 
         // get string column with most unique values
         const columnNames = data.length ? Object.keys(data[0]) : [];
@@ -112,6 +117,8 @@ export const useGridStore = create<GridState>(
 
         const mostUniqueId = sortedColumnsByUniqueness[0][0];
         const idColumnName = mostUniqueId;
+        // @ts-ignore
+        draft.uniqueColumnName = mostUniqueId;
 
         const diffedDataMap = new Map(
           diffedData.map(i => [i[idColumnName], i])
@@ -131,6 +138,7 @@ export const useGridStore = create<GridState>(
           draft.cellTypes
         );
         draft.data = [...newData, ...oldData];
+        draft.diffs = draft.data.filter(d => !!d.__status__);
       }),
     focusedRowIndex: undefined,
     handleFocusedRowIndexChange: rowIndex =>
@@ -162,9 +170,10 @@ export const useGridStore = create<GridState>(
 useGridStore.subscribe(
   (draft: GridState) => {
     const sortFunction = getSortFunction(draft.sort);
-    draft.filteredData = [...filterData(draft.data, draft.filters)].sort(
-      sortFunction
-    );
+    draft.filteredData = [...filterData(draft.data, draft.filters)]
+      .sort(sortFunction)
+      .map((d, i) => ({ ...d, __rowIndex__: i }));
+    draft.diffs = draft.filteredData.filter(d => !!d.__status__);
   }
   // (state: GridState) => [state.data, state.filters, state.sort]
 );

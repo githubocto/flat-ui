@@ -2,12 +2,14 @@ import React from 'react';
 import { areEqual } from 'react-window';
 import cc from 'classcat';
 import { cellTypeMap } from '../store';
+import { DashIcon, PlusIcon } from '@primer/octicons-react';
 
 interface CellProps {
   type: string;
   value: any;
   style?: {};
   status?: string;
+  hasStatusIndicator?: boolean;
   background?: string;
   onMouseEnter?: Function;
 }
@@ -16,6 +18,7 @@ export const Cell = React.memo(function(props: CellProps) {
     type,
     value,
     status,
+    isFirstColumn,
     background,
     style = {},
     onMouseEnter = () => {},
@@ -46,6 +49,20 @@ export const Cell = React.memo(function(props: CellProps) {
         background: background || '#fff',
       }}
     >
+      {isFirstColumn && (
+        <div
+          className={`w-6 ${
+            status === 'new' ? 'text-green-400' : 'text-pink-400'
+          }`}
+        >
+          {status === 'new' ? (
+            <PlusIcon />
+          ) : status === 'old' ? (
+            <DashIcon />
+          ) : null}
+        </div>
+      )}
+
       <CellComponent value={value} />
     </div>
   );
