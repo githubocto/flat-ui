@@ -383,14 +383,12 @@ const CellWrapper = function(props: CellProps) {
       ? focusedStatusColors.get(status)
       : statusColors.get(status);
 
+  // prettier-ignore
   const backgroundColor =
-    focusedColumnIndex == columnIndex && scale
-      ? scale(value)
-      : statusColor
-      ? statusColor
-      : focusedRowIndex == rowIndex
-      ? '#f3f4f6'
-      : '#fff';
+    focusedColumnIndex == columnIndex && scale ? scale(value) :
+    statusColor                                ? statusColor  :
+    focusedRowIndex == rowIndex                ? '#f3f4f6'    :
+                                                 '#fff';
 
   return (
     <CellWrapperComputed

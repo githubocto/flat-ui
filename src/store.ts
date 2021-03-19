@@ -92,12 +92,9 @@ export const useGridStore = create<GridState>(
         draft.stickyColumnName = columnNames[0];
         draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
 
-        // @ts-ignore
         draft.categoryValues = fromPairs(
           categoryColumnNames.map(columnName => {
             const values = new Set(draft.data.map(d => d[columnName]));
-
-            // @ts-ignore
             return [columnName, Array.from(values)].filter(d => d);
           })
         );
@@ -346,11 +343,9 @@ export const cellTypeMap = {
     format: (d: string) => d,
     shortFormat: (d: string) => d,
     parseValueFunction: (d: any[]) =>
-      Array.isArray(d)
-        ? `[${d.length} item${d.length === 1 ? '' : 's'}]`
-        : typeof d === 'string'
-        ? d
-        : '',
+      // prettier-ignore
+      Array.isArray(d) ? `[${d.length} item${d.length === 1 ? '' : 's'}]` :
+      typeof d === 'string' ? d : '',
   },
   'short-array': {
     cell: StringCell,

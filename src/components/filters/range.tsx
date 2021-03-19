@@ -1,6 +1,4 @@
 import React from 'react';
-import { Filter } from '../../types';
-// import { Histogram } from "../Histogram";
 import { HtmlHistogram } from '../HtmlHistogram';
 
 interface RangeFilterProps {
