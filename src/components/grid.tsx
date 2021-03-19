@@ -1,15 +1,7 @@
 import React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 // @ts-ignore
-import {
-  extent,
-  filter,
-  bisector,
-  max,
-  min,
-  scaleLinear,
-  bisectLeft,
-} from 'd3';
+import { extent, max, min, scaleLinear, bisectLeft } from 'd3';
 
 import { FilterValue } from '../types';
 import { StickyGrid } from './sticky-grid';
@@ -286,7 +278,9 @@ export function Grid(props: GridProps) {
             <ArrowLeftIcon />
           </button>
           <div className="tabular-nums px-1 w-5 text-center">
-            {highlightedDiffIndex + 1}
+            {typeof highlightedDiffIndex === 'number'
+              ? highlightedDiffIndex + 1
+              : ''}
           </div>
           <button
             className="text-gray-900"

@@ -7,8 +7,10 @@ import { DashIcon, PlusIcon } from '@primer/octicons-react';
 interface CellProps {
   type: string;
   value: any;
+  formattedValue: any;
   style?: {};
   status?: string;
+  isFirstColumn?: boolean;
   hasStatusIndicator?: boolean;
   background?: string;
   onMouseEnter?: Function;
@@ -18,6 +20,7 @@ export const Cell = React.memo(function(props: CellProps) {
     type,
     value,
     status,
+    formattedValue,
     isFirstColumn,
     background,
     style = {},
@@ -52,7 +55,7 @@ export const Cell = React.memo(function(props: CellProps) {
     >
       {isFirstColumn && (
         <div
-          className={`w-6 ${
+          className={`w-6 flex-none ${
             status === 'new' ? 'text-green-400' : 'text-pink-400'
           }`}
         >
@@ -64,7 +67,7 @@ export const Cell = React.memo(function(props: CellProps) {
         </div>
       )}
 
-      <CellComponent value={value} />
+      <CellComponent value={value} formattedValue={formattedValue} />
     </div>
   );
 }, areEqual);

@@ -256,14 +256,16 @@ function generateSchema(data: any[]) {
 
   const schema = fromPairs(
     metrics.map((metric: string) => {
-      const getFirstValue = data =>
-        data.find(d => d[metric] !== undefined && d[metric] !== null);
+      const getFirstValue = (data: any[]) =>
+        data.find(
+          d => d[metric] !== undefined && d[metric] !== null && d[metric] !== ''
+        );
 
       const value = getFirstValue(data)[metric];
 
       if (!value && value !== 0) return [metric, 'string'];
 
-      const isDate = value => {
+      const isDate = (value: any) => {
         try {
           if (typeof value === 'string') {
             return isValid(new Date(value));
@@ -285,6 +287,18 @@ function generateSchema(data: any[]) {
           values.filter(isDate).length == values.length;
         if (areMultipleValuesDates) return [metric, 'date'];
       }
+      const isFirstValueAnArray = Array.isArray(value);
+      if (isFirstValueAnArray) {
+        const values = data.map(d => d[metric]).filter(d => d);
+        const lengthOfArrays = values.map(d => d.length);
+        const areAnyArraysLong = !!lengthOfArrays.find(d => d > 1);
+        return [
+          metric,
+          areAnyArraysLong || typeof value[0] !== 'string'
+            ? 'array'
+            : 'short-array',
+        ];
+      }
       const type = Number.isFinite(+value) ? 'number' : 'string';
 
       return [metric, type];
@@ -299,6 +313,25 @@ export const cellTypeMap = {
     filter: StringFilter,
     format: (d: string) => d,
     shortFormat: (d: string) => d,
+  },
+  array: {
+    cell: StringCell,
+    filter: StringFilter,
+    format: (d: string) => d,
+    shortFormat: (d: string) => d,
+    parseValueFunction: (d: any[]) =>
+      Array.isArray(d)
+        ? `[${d.length} item${d.length === 1 ? '' : 's'}]`
+        : typeof d === 'string'
+        ? d
+        : '',
+  },
+  'short-array': {
+    cell: StringCell,
+    filter: StringFilter,
+    format: (d: string) => d,
+    shortFormat: (d: string) => d,
+    parseValueFunction: (d: [string]) => (Array.isArray(d) ? d[0] : d),
   },
   number: {
     cell: NumberCell,
@@ -318,15 +351,27 @@ export const cellTypeMap = {
     filter: RangeFilter,
     format: timeFormat('%B %-d %Y'),
     shortFormat: timeFormat('%-m/%-d'),
+    parseValueFunction: Date.parse,
   },
 };
 
 const parseData = (data: any, cellTypes: Record<string, string>) => {
-  const dateTypes = Object.keys(cellTypes).filter(d => cellTypes[d] === 'date');
+  const columnParseFunctions = Object.keys(cellTypes).map(columnName => {
+    const cellType = cellTypes[columnName];
+    // @ts-ignore
+    const cellInfo = cellTypeMap[cellType] || {};
+    const parseFunction = cellInfo.parseValueFunction || ((d: any) => d);
+    return [columnName, parseFunction];
+  });
   return data.map((d: any) => {
     return {
       ...d,
-      ...fromPairs(dateTypes.map(metric => [metric, Date.parse(d[metric])])),
+      ...fromPairs(
+        columnParseFunctions.map(([columnName, parseFunction]) => [
+          columnName,
+          parseFunction(d[columnName]),
+        ])
+      ),
     };
   });
 };
