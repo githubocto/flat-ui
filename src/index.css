@@ -46,6 +46,10 @@ body {
 /* .html-histogram__numbers--filtered {
   transform: translateY(-1.4em);
 } */
+.cell:hover {
+  z-index: 50;
+}
+
 .cell:hover .cell__long-value {
   pointer-events: all;
 }
