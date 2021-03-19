@@ -21,7 +21,7 @@ export function CategoryCell(props: CategoryCellProps) {
 
   return (
     <span
-      className={`overflow-ellipsis block whitespace-nowrap overflow-hidden bg-${color}-100 text-${color}-600 rounded-full px-3`}
+      className={`overflow-ellipsis block whitespace-nowrap overflow-hidden bg-${color}-100 text-${color}-600 rounded-full px-4 py-1 -ml-2 -mr-2`}
       title={props.value}
     >
       {props.value}
