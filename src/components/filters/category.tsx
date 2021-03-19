@@ -25,11 +25,13 @@ export function CategoryFilter(props: CategoryFilterProps) {
         props.filteredData.length
       )} records`}</option>
       {props.possibleValues &&
-        props.possibleValues.map(value => (
-          <option key={value} value={value}>
-            {value}
-          </option>
-        ))}
+        props.possibleValues
+          .filter(d => d)
+          .map(value => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
     </select>
   );
 }
