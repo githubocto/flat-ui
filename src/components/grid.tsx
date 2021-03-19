@@ -9,7 +9,11 @@ import { Header } from './header';
 import { Cell } from './cell';
 import { Loader } from './loader';
 import { useGridStore, cellTypeMap } from '../store';
-import { ArrowRightIcon, ArrowLeftIcon } from '@primer/octicons-react';
+import {
+  ArrowRightIcon,
+  ArrowLeftIcon,
+  DiffModifiedIcon,
+} from '@primer/octicons-react';
 
 interface ScrollRefType {
   current: number;
@@ -53,7 +57,10 @@ export function Grid(props: GridProps) {
   }, [props.metadata]);
 
   React.useEffect(() => {
-    if (props.diffData) handleDiffDataChange(props.diffData);
+    let diffData = props.data.slice(2).map(d => ({ ...d }));
+    diffData[2]['Census2019'] = 123;
+    handleDiffDataChange(diffData);
+    // if (props.diffData) handleDiffDataChange(props.diffData);
   }, [props.diffData]);
 
   const columnWidths = React.useMemo(
@@ -84,7 +91,7 @@ export function Grid(props: GridProps) {
       // @ts-ignore
       const cellType = cellTypes[columnName];
       // @ts-ignore
-      const cellInfo = cellTypeMap[cellType];
+      const cellInfo = cellTypeMap[cellType] || {};
       if (!cellInfo.hasScale) return;
 
       const scale = scaleLinear()
@@ -255,7 +262,7 @@ export function Grid(props: GridProps) {
       border border-gray-300 flex justify-center items-center px-4 text-gray-600"
         >
           Changes:
-          <div className="px-2">
+          <div className="flex px-2">
             {!!positiveDiffs.length && (
               <div className="px-1 py-2 text-green-500 font-semibold">
                 +{positiveDiffs.length} row
@@ -264,7 +271,7 @@ export function Grid(props: GridProps) {
             )}
             {!!modifiedDiffs.length && (
               <div className="px-1 py-2 text-yellow-500 font-semibold">
-                ∆{modifiedDiffs.length} row
+                <DiffModifiedIcon /> {modifiedDiffs.length} row
                 {modifiedDiffs.length === 1 ? '' : 's'}
               </div>
             )}
@@ -366,7 +373,15 @@ const CellWrapper = function(props: CellProps) {
     ['old', '#FDF2F8'],
     ['modified', '#FEFBEB'],
   ]);
-  const statusColor = statusColors.get(status);
+  const focusedStatusColors = new Map([
+    ['new', '#D1FBE5'],
+    ['old', '#FBE7F3'],
+    ['modified', '#FEF2C7'],
+  ]);
+  const statusColor =
+    focusedRowIndex == rowIndex
+      ? focusedStatusColors.get(status)
+      : statusColors.get(status);
 
   const backgroundColor =
     focusedColumnIndex == columnIndex && scale
