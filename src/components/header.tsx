@@ -17,6 +17,7 @@ interface HeaderProps {
   metadata?: string;
   originalData: any[];
   filteredData: any[];
+  possibleValues?: any[];
   filter?: FilterValue;
   focusedValue?: number;
   showFilters: boolean;
@@ -34,6 +35,7 @@ export function Header(props: HeaderProps) {
     metadata,
     originalData,
     filteredData,
+    possibleValues,
     filter,
     cellType,
     cellInfo,
@@ -153,6 +155,7 @@ export function Header(props: HeaderProps) {
             originalData={originalData}
             filteredData={filteredData}
             value={filter}
+            possibleValues={possibleValues}
             // @ts-ignore
             shortFormat={cellInfo.shortFormat}
             // @ts-ignore

@@ -83,10 +83,14 @@ export function Grid(props: GridProps) {
     columnNames.forEach((columnName: string) => {
       // @ts-ignore
       const cellType = cellTypes[columnName];
-      if (cellType == 'string') return;
+      // @ts-ignore
+      const cellInfo = cellTypeMap[cellType];
+      if (!cellInfo.hasScale) return;
+
       const scale = scaleLinear()
         // @ts-ignore
         .domain(extent(data, (d: object) => d[columnName]))
+        // @ts-ignore
         .range(['rgba(200,200,200,0)', 'rgba(224,231,255,1)']);
       // @ts-ignore
       scales[columnName] = scale;
@@ -326,6 +330,7 @@ const CellWrapper = function(props: CellProps) {
   const {
     columnNames,
     filteredData,
+    categoryValues,
     focusedRowIndex,
     handleFocusedRowIndexChange,
     cellTypes,
@@ -343,6 +348,8 @@ const CellWrapper = function(props: CellProps) {
   const type = cellTypes[name];
 
   if (!filteredData[rowIndex]) return null;
+
+  let possibleValues = type === 'category' ? categoryValues[name] : undefined;
 
   const value = filteredData[rowIndex][name];
   let status = filteredData[rowIndex].__status__;
@@ -364,14 +371,17 @@ const CellWrapper = function(props: CellProps) {
   const backgroundColor =
     focusedColumnIndex == columnIndex && scale
       ? scale(value)
+      : statusColor
+      ? statusColor
       : focusedRowIndex == rowIndex
       ? '#f3f4f6'
-      : statusColor || '#fff';
+      : '#fff';
 
   return (
     <CellWrapperComputed
       type={type}
       value={value}
+      possibleValues={possibleValues}
       background={backgroundColor}
       style={style}
       status={status}
@@ -389,6 +399,7 @@ interface CellComputedProps {
   value: any;
   style: StyleObject;
   background?: string;
+  possibleValues?: string[];
   status?: string;
   isFirstColumn?: boolean;
   onMouseEnter?: Function;
@@ -402,6 +413,7 @@ const CellWrapperComputed = React.memo(
     if (props.type != newProps.type) return false;
     if (props.background != newProps.background) return false;
     if (props.style != newProps.style) return false;
+    if (props.possibleValues != newProps.possibleValues) return false;
     if (props.status != newProps.status) return false;
     if (props.style.left != newProps.style.left) return false;
     if (props.style.top != newProps.style.top) return false;
@@ -425,6 +437,7 @@ const HeaderWrapper = function(props: CellProps) {
     filteredData,
     metadata,
     sort,
+    categoryValues,
     handleSortChange,
     focusedRowIndex,
     cellTypes,
@@ -451,6 +464,9 @@ const HeaderWrapper = function(props: CellProps) {
 
   const isSticky = stickyColumnName === columnName;
 
+  let possibleValues =
+    cellType === 'category' ? categoryValues[columnName] : undefined;
+
   return (
     <HeaderWrapperComputed
       style={style}
@@ -463,6 +479,7 @@ const HeaderWrapper = function(props: CellProps) {
       filter={filters[columnName]}
       focusedValue={focusedValue}
       showFilters={showFilters}
+      possibleValues={possibleValues}
       isSticky={isSticky}
       metadata={metadata[columnName]}
       isFirstColumn={columnIndex === 0}
@@ -484,6 +501,7 @@ interface HeaderComputedProps {
   metadata?: string;
   originalData: any[];
   filteredData: any[];
+  possibleValues?: any[];
   filter?: FilterValue;
   focusedValue?: number;
   showFilters: boolean;

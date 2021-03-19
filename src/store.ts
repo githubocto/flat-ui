@@ -9,7 +9,9 @@ import { matchSorter } from 'match-sorter';
 import { DateCell } from './components/cells/date';
 import { NumberCell } from './components/cells/number';
 import { StringCell } from './components/cells/string';
+import { CategoryCell } from './components/cells/category';
 import { StringFilter } from './components/filters/string';
+import { CategoryFilter } from './components/filters/category';
 import { RangeFilter } from './components/filters/range';
 
 export type FilterMap<T> = Record<string, T>;
@@ -36,6 +38,7 @@ type GridState = {
   handleDiffDataChange: (data: any[]) => void;
   // columnWidths: number[];
   // showFilters: boolean;
+  categoryValues: Record<string, []>;
   sort: string[];
   handleSortChange: (columnName: string, direction: string) => void;
   focusedRowIndex?: number;
@@ -52,6 +55,7 @@ export const useGridStore = create<GridState>(
     metadata: {},
     stickyColumnName: undefined,
     columnNames: [],
+    categoryValues: {},
     handleStickyColumnNameChange: columnName =>
       set(draft => {
         draft.stickyColumnName = columnName;
@@ -60,6 +64,10 @@ export const useGridStore = create<GridState>(
       set(draft => {
         // @ts-ignore
         draft.schema = generateSchema(data);
+        const categoryColumnNames = Object.keys(draft.schema).filter(
+          // @ts-ignore
+          columnName => draft.schema[columnName] === 'category'
+        );
 
         // @ts-ignore
         const propertyMap = draft.schema;
@@ -83,6 +91,16 @@ export const useGridStore = create<GridState>(
         const columnNames = data.length ? Object.keys(data[0]) : [];
         draft.stickyColumnName = columnNames[0];
         draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
+
+        // @ts-ignore
+        draft.categoryValues = fromPairs(
+          categoryColumnNames.map(columnName => {
+            const values = new Set(draft.data.map(d => d[columnName]));
+
+            // @ts-ignore
+            return [columnName, Array.from(values)];
+          })
+        );
       }),
     handleMetadataChange: metadata =>
       set(draft => {
@@ -299,7 +317,11 @@ function generateSchema(data: any[]) {
             : 'short-array',
         ];
       }
-      const type = Number.isFinite(+value) ? 'number' : 'string';
+      let type = Number.isFinite(+value) ? 'number' : 'string';
+      if (type === 'string') {
+        const uniqueValues = new Set(data.map(d => d[metric]));
+        if (uniqueValues.size < 8) type = 'category';
+      }
 
       return [metric, type];
     })
@@ -333,18 +355,27 @@ export const cellTypeMap = {
     shortFormat: (d: string) => d,
     parseValueFunction: (d: [string]) => (Array.isArray(d) ? d[0] : d),
   },
+  category: {
+    cell: CategoryCell,
+    filter: CategoryFilter,
+    format: (d: string) => d,
+    shortFormat: (d: string) => d,
+    parseValueFunction: (d: [string]) => d,
+  },
   number: {
     cell: NumberCell,
     filter: RangeFilter,
     format: (d: number) => d + '',
     shortFormat: d3Format(',.2s'),
     minWidth: 126,
+    hasScale: true,
   },
   integer: {
     cell: NumberCell,
     filter: RangeFilter,
     format: (d: number) => d + '',
     shortFormat: d3Format(',.2s'),
+    hasScale: true,
   },
   date: {
     cell: DateCell,
@@ -352,6 +383,7 @@ export const cellTypeMap = {
     format: timeFormat('%B %-d %Y'),
     shortFormat: timeFormat('%-m/%-d'),
     parseValueFunction: Date.parse,
+    hasScale: true,
   },
 };
 
