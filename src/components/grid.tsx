@@ -399,6 +399,8 @@ const CellWrapper = function(props: CellProps) {
       style={style}
       status={status}
       isFirstColumn={columnIndex === 0}
+      isNearRightEdge={columnIndex > columnNames.length - 3}
+      isNearBottomEdge={rowIndex > filteredData.length - 3}
       onMouseEnter={() => {
         setFocusedColumnIndex(columnIndex);
         handleFocusedRowIndexChange(rowIndex);
@@ -415,6 +417,8 @@ interface CellComputedProps {
   possibleValues?: string[];
   status?: string;
   isFirstColumn?: boolean;
+  isNearRightEdge?: boolean;
+  isNearBottomEdge?: boolean;
   onMouseEnter?: Function;
 }
 const CellWrapperComputed = React.memo(
@@ -428,6 +432,8 @@ const CellWrapperComputed = React.memo(
     if (props.style != newProps.style) return false;
     if (props.possibleValues != newProps.possibleValues) return false;
     if (props.status != newProps.status) return false;
+    if (props.isNearRightEdge != newProps.isNearRightEdge) return false;
+    if (props.isNearBottomEdge != newProps.isNearBottomEdge) return false;
     if (props.style.left != newProps.style.left) return false;
     if (props.style.top != newProps.style.top) return false;
     if (props.style.position != newProps.style.position) return false;

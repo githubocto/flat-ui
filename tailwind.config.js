@@ -2,10 +2,14 @@ module.exports = {
   purge: ['./src/**/*.tsx', './**/*.tsx'],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
+    extend: {
+      lineClamp: {
+        9: '9',
+      },
+    },
   },
   variants: {
     extend: {},
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/line-clamp')],
 };

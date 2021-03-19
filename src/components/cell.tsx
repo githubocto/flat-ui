@@ -11,6 +11,8 @@ interface CellProps {
   possibleValues?: string[];
   style?: {};
   status?: string;
+  isNearRightEdge?: boolean;
+  isNearBottomEdge?: boolean;
   isFirstColumn?: boolean;
   hasStatusIndicator?: boolean;
   background?: string;
@@ -24,6 +26,8 @@ export const Cell = React.memo(function(props: CellProps) {
     possibleValues,
     status,
     isFirstColumn,
+    isNearRightEdge,
+    isNearBottomEdge,
     background,
     style = {},
     onMouseEnter = () => {},
@@ -36,15 +40,17 @@ export const Cell = React.memo(function(props: CellProps) {
   const { cell: CellComponent } = cellInfo;
 
   const cellClass = cc([
-    'flex flex-none items-center px-4 border-b border-r',
+    'group flex flex-none items-center px-4 border-b border-r',
     {
       'text-gray-300': typeof value === 'undefined',
       'border-green-200': status === 'new',
       'border-pink-200': status === 'old',
-      'border-indigo-200': status === 'modified',
+      'border-yellow-200': status === 'modified',
       'border-gray-200': !status,
     },
   ]);
+
+  const isLongValue = (formattedValue || value || '').length > 20;
 
   return (
     <div
@@ -74,6 +80,21 @@ export const Cell = React.memo(function(props: CellProps) {
         formattedValue={formattedValue}
         possibleValues={possibleValues}
       />
+
+      {isLongValue && (
+        <div
+          className={`absolute ${isNearBottomEdge ? 'bottom-0' : 'top-0'} ${
+            isNearRightEdge ? 'right-0' : 'left-0'
+          } p-4 py-2 bg-white opacity-0 group-hover:opacity-100 z-30 border border-gray-200 shadow-md pointer-events-none`}
+          style={{
+            width: 'max-content',
+            maxWidth: '27em',
+            margin: -1,
+          }}
+        >
+          <div className="line-clamp-9">{formattedValue || value}</div>
+        </div>
+      )}
     </div>
   );
 }, areEqual);
