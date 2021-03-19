@@ -61,11 +61,9 @@ export function Grid(props: GridProps) {
   }, [props.metadata]);
 
   React.useEffect(() => {
-    let diffData = props.data.slice(2).map(d => ({ ...d }));
-    diffData[2]['Census2019'] = 123;
-    handleDiffDataChange(diffData);
-    // if (props.diffData) handleDiffDataChange(props.diffData);
+    if (props.diffData) handleDiffDataChange(props.diffData);
   }, [props.diffData]);
+
   React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(updateFilteredColumns, [data, filters, sort]);
 
