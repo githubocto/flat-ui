@@ -320,7 +320,11 @@ function generateSchema(data: any[]) {
       let type = Number.isFinite(+value) ? 'number' : 'string';
       if (type === 'string') {
         const uniqueValues = new Set(data.map(d => d[metric]));
-        if (uniqueValues.size < 8) type = 'category';
+        const maxUniqueValuesForCategory = Math.min(
+          Math.floor(data.length / 3),
+          20
+        );
+        if (uniqueValues.size < maxUniqueValuesForCategory) type = 'category';
       }
 
       return [metric, type];
