@@ -39,11 +39,15 @@ export function Grid(props: GridProps) {
     handleDiffDataChange,
     uniqueColumnName,
     diffs,
+    stickyColumnName,
+    sort,
     filteredData,
     filters,
     focusedRowIndex,
     handleFocusedRowIndexChange,
     handleMetadataChange,
+    updateFilteredColumns,
+    updateColumnNames,
     schema,
     cellTypes,
   } = useGridStore(state => state);
@@ -62,6 +66,8 @@ export function Grid(props: GridProps) {
     handleDiffDataChange(diffData);
     // if (props.diffData) handleDiffDataChange(props.diffData);
   }, [props.diffData]);
+  React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
+  React.useEffect(updateFilteredColumns, [data, filters, sort]);
 
   const columnWidths = React.useMemo(
     () =>

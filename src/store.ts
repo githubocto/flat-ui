@@ -45,6 +45,8 @@ type GridState = {
   handleFocusedRowIndexChange: (rowIndex?: number) => void;
   schema?: object;
   cellTypes: Record<string, string>;
+  updateColumnNames: () => void;
+  updateFilteredColumns: () => void;
 };
 
 export const useGridStore = create<GridState>(
@@ -200,39 +202,34 @@ export const useGridStore = create<GridState>(
           draft.sort = [];
         }
       }),
+
+    updateFilteredColumns: () =>
+      set(draft => {
+        const sortFunction = getSortFunction(draft.sort);
+        draft.filteredData = [...filterData(draft.data, draft.filters)]
+          .sort(sortFunction)
+          .map((d, i) => ({ ...d, __rowIndex__: i }));
+        draft.diffs = draft.filteredData.filter(d => !!d.__status__);
+      }),
+    updateColumnNames: () =>
+      set(draft => {
+        if (!draft.data.length) {
+          draft.columnNames = [];
+          draft.stickyColumnName = undefined;
+          return;
+        }
+
+        const rawColumnNames = Object.keys(draft.data[0]);
+        if (!draft.stickyColumnName) {
+          draft.columnNames = rawColumnNames;
+        } else {
+          draft.columnNames = [
+            draft.stickyColumnName,
+            ...rawColumnNames.filter(d => d !== draft.stickyColumnName),
+          ];
+        }
+      }),
   }))
-);
-
-useGridStore.subscribe(
-  (draft: GridState) => {
-    const sortFunction = getSortFunction(draft.sort);
-    draft.filteredData = [...filterData(draft.data, draft.filters)]
-      .sort(sortFunction)
-      .map((d, i) => ({ ...d, __rowIndex__: i }));
-    draft.diffs = draft.filteredData.filter(d => !!d.__status__);
-  }
-  // (state: GridState) => [state.data, state.filters, state.sort]
-);
-useGridStore.subscribe(
-  (draft: GridState) => {
-    if (!draft.data.length) {
-      draft.columnNames = [];
-      draft.stickyColumnName = undefined;
-      return;
-    }
-
-    const rawColumnNames = Object.keys(draft.data[0]);
-    if (!draft.stickyColumnName) {
-      draft.columnNames = rawColumnNames;
-    } else {
-      draft.columnNames = [
-        draft.stickyColumnName,
-        ...rawColumnNames.filter(d => d !== draft.stickyColumnName),
-      ];
-    }
-  }
-  // https://github.com/pmndrs/zustand
-  // (state: GridState) => [state.data]
 );
 
 function filterData(data: any[], filters: FilterMap<FilterValue>) {
