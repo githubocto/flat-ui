@@ -17,7 +17,7 @@ export function CategoryFilter(props: CategoryFilterProps) {
 
   return (
     <select
-      className="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white outline-none focus:outline-none focus:shadow-outline w-full overflow-ellipsis"
+      className="px-3 py-3 placeholder-gray-400 border-none text-gray-700 bg-white outline-none focus:outline-none focus:shadow-outline w-full overflow-ellipsis"
       onChange={handleChange}
       value={props?.value || ''}
     >

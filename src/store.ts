@@ -98,7 +98,7 @@ export const useGridStore = create<GridState>(
             const values = new Set(draft.data.map(d => d[columnName]));
 
             // @ts-ignore
-            return [columnName, Array.from(values)];
+            return [columnName, Array.from(values)].filter(d => d);
           })
         );
       }),
