@@ -16,6 +16,13 @@ body {
   @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 space-x-1;
 }
 
+::-moz-selection {
+  @apply bg-indigo-100;
+}
+::selection {
+  @apply bg-indigo-100;
+}
+
 .html-histogram__thumb {
   opacity: 0;
   transition: opacity 0.3s ease-out;
@@ -39,6 +46,10 @@ body {
 /* .html-histogram__numbers--filtered {
   transform: translateY(-1.4em);
 } */
+.cell:hover .cell__long-value {
+  pointer-events: all;
+}
+
 .html-histogram__numbers {
   transform: translateY(-0.8em);
 }
