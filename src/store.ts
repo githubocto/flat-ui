@@ -90,9 +90,9 @@ export const useGridStore = create<GridState>(
       }),
     diffs: [],
     uniqueColumnName: undefined,
-    handleDiffDataChange: (diffedData: any[]) =>
+    handleDiffDataChange: (diffData: any[]) =>
       set(draft => {
-        if (!diffedData.length) return;
+        if (!diffData.length) return;
 
         const data = draft.data;
         draft.uniqueColumnName = undefined;
@@ -120,19 +120,40 @@ export const useGridStore = create<GridState>(
         // @ts-ignore
         draft.uniqueColumnName = mostUniqueId;
 
-        const diffedDataMap = new Map(
-          diffedData.map(i => [i[idColumnName], i])
+        const diffDataMap = new Map(
+          parseData(diffData, draft.cellTypes).map((d: object) => [
+            // @ts-ignore
+            d[idColumnName],
+            d,
+          ])
         );
         const newDataMap = new Map(data.map(i => [i[idColumnName], i]));
 
         let newData = data.map(d => {
           const id = d[idColumnName];
-          const isNew = !diffedDataMap.get(id);
+          const isNew = !diffDataMap.get(id);
           if (isNew) return { ...d, __status__: 'new' };
+          const modifiedFields = columnNames.filter(columnName => {
+            const type = draft.cellTypes[columnName];
+            const oldValue =
+              type === 'date' ? d[columnName].toString() : d[columnName];
+            const newD = diffDataMap.get(id);
+            const newValue =
+              // @ts-ignore
+              type === 'date' ? newD[columnName].toString() : newD[columnName];
+            return oldValue !== newValue;
+          });
+          if (modifiedFields.length) {
+            return {
+              ...d,
+              __status__: 'modified',
+              __modifiedColumnNames__: modifiedFields,
+            };
+          }
           return d;
         });
         const oldData = parseData(
-          diffedData
+          diffData
             .filter(d => !newDataMap.get(d[idColumnName]))
             .map(d => ({ ...d, __status__: 'old' })),
           draft.cellTypes

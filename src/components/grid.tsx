@@ -116,6 +116,8 @@ export function Grid(props: GridProps) {
   const positiveDiffs = diffs.filter(d => d.__status__ === 'new');
   // @ts-ignore
   const negativeDiffs = diffs.filter(d => d.__status__ === 'old');
+  // @ts-ignore
+  const modifiedDiffs = diffs.filter(d => d.__status__ === 'modified');
 
   const ref = useRespondToColumnChange([columnWidths]);
 
@@ -257,16 +259,26 @@ export function Grid(props: GridProps) {
       border border-gray-300 flex justify-center items-center px-4 text-gray-600"
         >
           Changes:
-          {!!positiveDiffs.length && (
-            <div className="px-5 py-2 pr-1 text-green-500 font-semibold">
-              +{positiveDiffs.length} row{positiveDiffs.length === 1 ? '' : 's'}
-            </div>
-          )}
-          {!!negativeDiffs.length && (
-            <div className="px-5 py-2 pl-1 text-pink-500 font-semibold">
-              -{negativeDiffs.length} row{negativeDiffs.length === 1 ? '' : 's'}
-            </div>
-          )}
+          <div className="px-2">
+            {!!positiveDiffs.length && (
+              <div className="px-1 py-2 text-green-500 font-semibold">
+                +{positiveDiffs.length} row
+                {positiveDiffs.length === 1 ? '' : 's'}
+              </div>
+            )}
+            {!!modifiedDiffs.length && (
+              <div className="px-1 py-2 text-yellow-500 font-semibold">
+                ∆{modifiedDiffs.length} row
+                {modifiedDiffs.length === 1 ? '' : 's'}
+              </div>
+            )}
+            {!!negativeDiffs.length && (
+              <div className="px-1 py-2 text-pink-500 font-semibold">
+                -{negativeDiffs.length} row
+                {negativeDiffs.length === 1 ? '' : 's'}
+              </div>
+            )}
+          </div>
           <button
             className="text-gray-900"
             onClick={() => handleHighlightDiffChange(-1)}
@@ -274,7 +286,7 @@ export function Grid(props: GridProps) {
             <ArrowLeftIcon />
           </button>
           <div className="tabular-nums px-1 w-5 text-center">
-            {highlightedDiffIndex}
+            {highlightedDiffIndex + 1}
           </div>
           <button
             className="text-gray-900"
@@ -339,13 +351,19 @@ const CellWrapper = function(props: CellProps) {
   if (!filteredData[rowIndex]) return null;
 
   const value = filteredData[rowIndex][name];
-  const status = filteredData[rowIndex].__status__;
+  let status = filteredData[rowIndex].__status__;
+  if (status === 'modified') {
+    const modifiedColumnNames =
+      filteredData[rowIndex].__modifiedColumnNames__ || [];
+    status = modifiedColumnNames.includes(name) ? 'modified' : undefined;
+  }
 
   // @ts-ignore®
   const scale = columnScales && columnScales[name];
   const statusColors = new Map([
     ['new', '#ECFDF5'],
     ['old', '#FDF2F8'],
+    ['modified', '#FEFBEB'],
   ]);
   const statusColor = statusColors.get(status);
 

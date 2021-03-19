@@ -36,6 +36,7 @@ export const Cell = React.memo(function(props: CellProps) {
       'text-gray-300': typeof value === 'undefined',
       'border-green-200': status === 'new',
       'border-pink-200': status === 'old',
+      'border-indigo-200': status === 'modified',
       'border-gray-200': !status,
     },
   ]);
