@@ -214,7 +214,7 @@ export function Grid(props: GridProps) {
 
   if (!schema)
     return (
-      <div className="flex justify-center bg-white w-full h-full">
+      <div className="relative flex justify-center bg-white w-full h-full">
         <div className="flex flex-col justify-center items-center p-4 z-10">
           <Loader />
           <div className="font-bold text-lg italic pt-2">Loading...</div>

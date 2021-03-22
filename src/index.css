@@ -47,7 +47,8 @@ body {
   transform: translateY(-1.4em);
 } */
 .cell:hover {
-  z-index: 50;
+  /* to get around an inline style */
+  z-index: 50 !important;
 }
 
 .cell:hover .cell__long-value {
