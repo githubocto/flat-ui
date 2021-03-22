@@ -24,6 +24,7 @@ interface GridProps {
   diffData?: any[];
   metadata?: Record<string, string>;
   canDownload: Boolean;
+  defaultFilters: Record<string, string | number>;
 }
 
 export function Grid(props: GridProps) {
@@ -51,6 +52,7 @@ export function Grid(props: GridProps) {
     focusedRowIndex,
     handleFocusedRowIndexChange,
     handleMetadataChange,
+    handleFiltersChange,
     updateFilteredColumns,
     updateColumnNames,
     schema,
@@ -68,6 +70,10 @@ export function Grid(props: GridProps) {
   React.useEffect(() => {
     if (props.diffData) handleDiffDataChange(props.diffData);
   }, [props.diffData]);
+
+  React.useEffect(() => {
+    if (props.defaultFilters) handleFiltersChange(props.defaultFilters);
+  }, [props.defaultFilters]);
 
   React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(updateFilteredColumns, [data, filters, sort]);

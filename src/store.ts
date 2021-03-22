@@ -34,6 +34,7 @@ type GridState = {
   metadata: Record<string, string>;
   handleMetadataChange: (metadata: Record<string, string>) => void;
   handleFilterChange: (column: string, value: FilterValue) => void;
+  handleFiltersChange: (newFilters?: FilterMap<FilterValue>) => void;
   handleDataChange: (data: any[]) => void;
   handleDiffDataChange: (data: any[]) => void;
   // columnWidths: number[];
@@ -197,6 +198,10 @@ export const useGridStore = create<GridState>(
         } else {
           draft.filters[column] = value;
         }
+      }),
+    handleFiltersChange: newFilters =>
+      set(draft => {
+        draft.filters = newFilters || {};
       }),
     sort: [],
     handleSortChange: (columnName: string, direction: string) =>
