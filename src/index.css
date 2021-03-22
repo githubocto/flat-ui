@@ -83,5 +83,5 @@ body {
 }
 
 .sticky-grid__header:hover {
-  z-index: 100 !important;
+  z-index: 150 !important;
 }
