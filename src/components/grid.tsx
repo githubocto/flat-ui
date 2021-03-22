@@ -35,7 +35,7 @@ interface GridProps {
   diffData?: any[];
   metadata?: Record<string, string>;
   canDownload?: Boolean;
-  defaultFilters?: Record<string, string | number>;
+  defaultFilters?: FilterMap<FilterValue>;
   defaultSort?: string[];
   defaultStickyColumnName?: string;
   onChange?: (currentState: GridStateObject) => void;
