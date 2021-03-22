@@ -29,7 +29,6 @@ type GridState = {
   filteredData: any[];
   diffs: object[];
   uniqueColumnName?: string;
-  // focusedRowIndex?: number;
   filters: FilterMap<FilterValue>;
   metadata: Record<string, string>;
   handleMetadataChange: (metadata: Record<string, string>) => void;
@@ -37,8 +36,6 @@ type GridState = {
   handleFiltersChange: (newFilters?: FilterMap<FilterValue>) => void;
   handleDataChange: (data: any[]) => void;
   handleDiffDataChange: (data: any[]) => void;
-  // columnWidths: number[];
-  // showFilters: boolean;
   categoryValues: Record<string, []>;
   sort: string[];
   handleSortChange: (columnName: string, direction: string) => void;

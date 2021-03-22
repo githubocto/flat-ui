@@ -20,12 +20,14 @@ import {
 interface ScrollRefType {
   current: number;
 }
+
 interface GridProps {
   data: any[];
   diffData?: any[];
   metadata?: Record<string, string>;
-  canDownload: Boolean;
-  defaultFilters: Record<string, string | number>;
+  canDownload?: Boolean;
+  defaultFilters?: Record<string, string | number>;
+  onChange?: (currentState: Object) => void;
 }
 
 export function Grid(props: GridProps) {
@@ -78,6 +80,23 @@ export function Grid(props: GridProps) {
 
   React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(updateFilteredColumns, [data, filters, sort]);
+  React.useEffect(() => {
+    if (typeof props.onChange !== 'function') return;
+    const currentState = {
+      data,
+      columnNames,
+      uniqueColumnName,
+      diffs,
+      stickyColumnName,
+      sort,
+      filteredData,
+      filters,
+      focusedRowIndex,
+      schema,
+      cellTypes,
+    };
+    props.onChange(currentState);
+  }, [filteredData]);
 
   const scrollToTop = () => {
     // @ts-ignore
