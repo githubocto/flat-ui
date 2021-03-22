@@ -68,7 +68,7 @@ export function Header(props: HeaderProps) {
             onClick={() => onSticky()}
             className={`h-10 p-2 border-b border-indigo-100 focus:bg-indigo-100 hover:bg-indigo-100 bg-gray-50 appearance-none ${
               isSticky ? 'opacity-100' : 'opacity-0 -ml-6 shadow-md'
-            } group-hover:opacity-100 text-indigo-400 bg-indigo-50`}
+            } focus:opacity-100 group-hover:opacity-100 text-indigo-400 bg-indigo-50 focus:ring-indigo-300`}
           >
             <PinIcon />
           </button>

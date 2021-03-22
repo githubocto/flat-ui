@@ -27,25 +27,27 @@ body {
   opacity: 0;
   transition: opacity 0.3s ease-out;
 }
+.html-histogram:focus-within .html-histogram__thumb,
 .html-histogram:hover .html-histogram__thumb {
   opacity: 1;
 }
-.html-histogram:not(:hover) .html-histogram__range--base {
+.html-histogram:not(:hover):not(:focus-within) .html-histogram__range--base {
   transform: scaleY(
     0.3
   ) !important; /* please forgive me! react-range made me do it */
   transition: all 0.3s ease-out;
 }
-/* .html-histogram:hover .html-histogram__range--base {
-  transform: none !important;
-} */
-
 .html-histogram__numbers {
   transition: transform 0.3s ease-out;
 }
-/* .html-histogram__numbers--filtered {
-  transform: translateY(-1.4em);
-} */
+.html-histogram__numbers {
+  transform: translateY(-0.8em);
+}
+.html-histogram:focus-within .html-histogram__numbers,
+.html-histogram:hover .html-histogram__numbers {
+  transform: none;
+}
+
 .cell:hover {
   /* to get around an inline style */
   z-index: 50 !important;
@@ -53,13 +55,6 @@ body {
 
 .cell:hover .cell__long-value {
   pointer-events: all;
-}
-
-.html-histogram__numbers {
-  transform: translateY(-0.8em);
-}
-.html-histogram:hover .html-histogram__numbers {
-  transform: none;
 }
 
 .header__title {
