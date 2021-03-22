@@ -13,6 +13,7 @@ import {
   ArrowRightIcon,
   ArrowLeftIcon,
   DiffModifiedIcon,
+  DownloadIcon,
 } from '@primer/octicons-react';
 
 interface ScrollRefType {
@@ -22,9 +23,12 @@ interface GridProps {
   data: any[];
   diffData?: any[];
   metadata?: Record<string, string>;
+  canDownload: Boolean;
 }
 
 export function Grid(props: GridProps) {
+  const { canDownload = true } = props;
+
   const [focusedColumnIndex, setFocusedColumnIndex] = React.useState<number>();
   const [highlightedDiffIndex, setHighlightedDiffIndex] = React.useState<
     number
@@ -32,6 +36,7 @@ export function Grid(props: GridProps) {
   const currentScrollYOffset = React.useRef<ScrollRefType>();
   // const [showFilters, setShowFilters] = React.useState(true);
   const showFilters = true;
+
   const {
     data,
     columnNames,
@@ -61,11 +66,16 @@ export function Grid(props: GridProps) {
   }, [props.metadata]);
 
   React.useEffect(() => {
-    if (props.diffData) handleDiffDataChange(props.diffData);
+    let diffData = props.data.slice(2);
+    diffData[2]['Census2019'] = 123;
+    handleDiffDataChange(diffData);
+    // if (props.diffData) handleDiffDataChange(props.diffData);
   }, [props.diffData]);
 
   React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(updateFilteredColumns, [data, filters, sort]);
+
+  const isFiltered = Object.keys(filters).length > 0;
 
   const columnWidths = React.useMemo(
     () =>
@@ -183,6 +193,25 @@ export function Grid(props: GridProps) {
     setHighlightedDiffIndex(undefined);
   };
 
+  const handleDownload = () => {
+    let csvContent = [
+      columnNames.map(columnName => columnName),
+      filteredData
+        .map(d => columnNames.map(columnName => d[columnName]).join(','))
+        .join('\n'),
+    ].join('\n');
+    var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    const date = new Date().toDateString();
+    link.setAttribute('download', `flat-ui__data-${date}.csv`);
+    document.body.appendChild(link); // Required for FF
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (!schema)
     return (
       <div className="flex justify-center bg-white w-full h-full">
@@ -260,51 +289,59 @@ export function Grid(props: GridProps) {
         )}
       </div>
 
-      {!!diffs.length && (
-        <div
-          className="absolute right-0 bottom-0 bg-gray-100
-      border border-gray-300 flex justify-center items-center px-4 text-gray-600"
-        >
-          Changes:
-          <div className="flex px-2">
-            {!!positiveDiffs.length && (
-              <div className="px-1 py-2 text-green-500 font-semibold">
-                +{positiveDiffs.length} row
-                {positiveDiffs.length === 1 ? '' : 's'}
-              </div>
-            )}
-            {!!modifiedDiffs.length && (
-              <div className="px-1 py-2 text-yellow-500 font-semibold">
-                <DiffModifiedIcon /> {modifiedDiffs.length} row
-                {modifiedDiffs.length === 1 ? '' : 's'}
-              </div>
-            )}
-            {!!negativeDiffs.length && (
-              <div className="px-1 py-2 text-pink-500 font-semibold">
-                -{negativeDiffs.length} row
-                {negativeDiffs.length === 1 ? '' : 's'}
-              </div>
-            )}
+      <div className="absolute bottom-0 right-0 left-0 flex align-middle justify-between z-20 bg-gray-800 text-white border-t border-gray-200 text-sm">
+        {!!diffs.length && (
+          <div className="flex justify-center items-center px-4 ">
+            Changes:
+            <div className="flex px-2">
+              {!!positiveDiffs.length && (
+                <div className="px-1 py-2 text-green-500 font-semibold">
+                  +{positiveDiffs.length} row
+                  {positiveDiffs.length === 1 ? '' : 's'}
+                </div>
+              )}
+              {!!modifiedDiffs.length && (
+                <div className="px-1 py-2 text-yellow-500 font-semibold">
+                  <span style={{ marginRight: 1 }}>
+                    <DiffModifiedIcon />
+                  </span>
+                  {modifiedDiffs.length} row
+                  {modifiedDiffs.length === 1 ? '' : 's'}
+                </div>
+              )}
+              {!!negativeDiffs.length && (
+                <div className="px-1 py-2 text-pink-500 font-semibold">
+                  -{negativeDiffs.length} row
+                  {negativeDiffs.length === 1 ? '' : 's'}
+                </div>
+              )}
+            </div>
+            <button className="" onClick={() => handleHighlightDiffChange(-1)}>
+              <ArrowLeftIcon />
+            </button>
+            <div className="tabular-nums px-1 text-center">
+              {typeof highlightedDiffIndex === 'number'
+                ? highlightedDiffIndex + 1
+                : ''}
+            </div>
+            <button className="" onClick={() => handleHighlightDiffChange(1)}>
+              <ArrowRightIcon />
+            </button>
           </div>
+        )}
+
+        {canDownload && (
           <button
-            className="text-gray-900"
-            onClick={() => handleHighlightDiffChange(-1)}
+            className="mr-2 p-2 px-6 flex justify-center items-center m-2 bg-black rounded-full"
+            onClick={handleDownload}
           >
-            <ArrowLeftIcon />
+            <span className="mr-2">
+              <DownloadIcon />
+            </span>
+            Download {isFiltered ? 'filtered ' : ''}data
           </button>
-          <div className="tabular-nums px-1 w-5 text-center">
-            {typeof highlightedDiffIndex === 'number'
-              ? highlightedDiffIndex + 1
-              : ''}
-          </div>
-          <button
-            className="text-gray-900"
-            onClick={() => handleHighlightDiffChange(1)}
-          >
-            <ArrowRightIcon />
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

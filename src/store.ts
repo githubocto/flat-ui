@@ -90,7 +90,10 @@ export const useGridStore = create<GridState>(
         );
 
         draft.data = parseData(data, draft.cellTypes);
-        const columnNames = data.length ? Object.keys(data[0]) : [];
+
+        const columnNames = data.length
+          ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
+          : [];
         draft.stickyColumnName = columnNames[0];
         draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
 
@@ -115,7 +118,9 @@ export const useGridStore = create<GridState>(
         draft.uniqueColumnName = undefined;
 
         // get string column with most unique values
-        const columnNames = data.length ? Object.keys(data[0]) : [];
+        const columnNames = data.length
+          ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
+          : [];
         const columnNameUniques = columnNames
           .filter(columnName => typeof draft.cellTypes[columnName] === 'string')
           .map(columnName => {
@@ -219,7 +224,9 @@ export const useGridStore = create<GridState>(
           return;
         }
 
-        const rawColumnNames = Object.keys(draft.data[0]);
+        const rawColumnNames = Object.keys(draft.data[0]).filter(
+          d => !utilKeys.includes(d)
+        );
         if (!draft.stickyColumnName) {
           draft.columnNames = rawColumnNames;
         } else {
@@ -232,6 +239,7 @@ export const useGridStore = create<GridState>(
   }))
 );
 
+const utilKeys = ['__status__', '__modifiedColumnNames__', '__rowIndex__'];
 function filterData(data: any[], filters: FilterMap<FilterValue>) {
   return Object.keys(filters).reduce((rows, columnName) => {
     const filterValue = filters[columnName];
