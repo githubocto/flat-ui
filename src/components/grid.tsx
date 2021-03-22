@@ -14,6 +14,7 @@ import {
   ArrowLeftIcon,
   DiffModifiedIcon,
   DownloadIcon,
+  SyncIcon,
 } from '@primer/octicons-react';
 
 interface ScrollRefType {
@@ -77,6 +78,12 @@ export function Grid(props: GridProps) {
 
   React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(updateFilteredColumns, [data, filters, sort]);
+
+  const scrollToTop = () => {
+    // @ts-ignore
+    ref?.current?.scrollToItem({ rowIndex: 0 });
+  };
+  React.useEffect(scrollToTop, [sort]);
 
   const isFiltered = Object.keys(filters).length > 0;
 
@@ -293,57 +300,76 @@ export function Grid(props: GridProps) {
       </div>
 
       <div className="absolute bottom-0 right-0 left-0 flex align-middle justify-between z-20 bg-gray-800 text-white border-t border-gray-200 text-sm">
-        {!!diffs.length && (
-          <div className="flex justify-center items-center px-4 ">
-            Changes:
-            <div className="flex px-2">
-              {!!positiveDiffs.length && (
-                <div className="px-1 py-2 text-green-500 font-semibold">
-                  +{positiveDiffs.length} row
-                  {positiveDiffs.length === 1 ? '' : 's'}
-                </div>
-              )}
-              {!!modifiedDiffs.length && (
-                <div className="px-1 py-2 text-yellow-500 font-semibold">
-                  <span style={{ marginRight: 1 }}>
-                    <DiffModifiedIcon />
-                  </span>
-                  {modifiedDiffs.length} row
-                  {modifiedDiffs.length === 1 ? '' : 's'}
-                </div>
-              )}
-              {!!negativeDiffs.length && (
-                <div className="px-1 py-2 text-pink-500 font-semibold">
-                  -{negativeDiffs.length} row
-                  {negativeDiffs.length === 1 ? '' : 's'}
-                </div>
-              )}
-            </div>
-            <button className="" onClick={() => handleHighlightDiffChange(-1)}>
-              <ArrowLeftIcon />
-            </button>
-            <div className="tabular-nums px-1 text-center">
-              {typeof highlightedDiffIndex === 'number'
-                ? highlightedDiffIndex + 1
-                : ''}
-            </div>
-            <button className="" onClick={() => handleHighlightDiffChange(1)}>
-              <ArrowRightIcon />
-            </button>
-          </div>
-        )}
+        <div className="flex justify-center items-center px-4">
+          {!!diffs.length && (
+            <>
+              Changes:
+              <div className="flex px-2">
+                {!!positiveDiffs.length && (
+                  <div className="px-1 py-2 text-green-500 font-semibold">
+                    +{positiveDiffs.length} row
+                    {positiveDiffs.length === 1 ? '' : 's'}
+                  </div>
+                )}
+                {!!modifiedDiffs.length && (
+                  <div className="px-1 py-2 text-yellow-500 font-semibold">
+                    <span style={{ marginRight: 1 }}>
+                      <DiffModifiedIcon />
+                    </span>
+                    {modifiedDiffs.length} row
+                    {modifiedDiffs.length === 1 ? '' : 's'}
+                  </div>
+                )}
+                {!!negativeDiffs.length && (
+                  <div className="px-1 py-2 text-pink-500 font-semibold">
+                    -{negativeDiffs.length} row
+                    {negativeDiffs.length === 1 ? '' : 's'}
+                  </div>
+                )}
+              </div>
+              <button
+                className=""
+                onClick={() => handleHighlightDiffChange(-1)}
+              >
+                <ArrowLeftIcon />
+              </button>
+              <div className="tabular-nums px-1 text-center">
+                {typeof highlightedDiffIndex === 'number'
+                  ? highlightedDiffIndex + 1
+                  : ''}
+              </div>
+              <button className="" onClick={() => handleHighlightDiffChange(1)}>
+                <ArrowRightIcon />
+              </button>
+            </>
+          )}
+        </div>
 
-        {canDownload && (
-          <button
-            className="mr-2 p-2 px-6 flex justify-center items-center m-2 bg-black rounded-full"
-            onClick={handleDownload}
-          >
-            <span className="mr-2">
-              <DownloadIcon />
-            </span>
-            Download {isFiltered ? 'filtered ' : ''}data
-          </button>
-        )}
+        <div className="flex align-middle space-x-2 m-2">
+          {canDownload && (
+            <button
+              className="p-2 px-6 flex justify-center items-center bg-black rounded-full"
+              onClick={handleDownload}
+            >
+              <span className="mr-2">
+                <DownloadIcon />
+              </span>
+              Download {isFiltered ? 'filtered ' : ''}data
+            </button>
+          )}
+
+          {isFiltered && (
+            <button
+              className="p-2 px-6 flex justify-center items-center bg-black rounded-full"
+              onClick={() => handleFiltersChange()}
+            >
+              <span className="mr-2">
+                <SyncIcon />
+              </span>
+              Clear filters
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
