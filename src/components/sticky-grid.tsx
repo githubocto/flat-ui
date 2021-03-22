@@ -128,7 +128,7 @@ function useInnerElementType(
                     height,
                     position: 'sticky',
                     top: 0,
-                    zIndex: 3,
+                    zIndex: 100,
                   }}
                 />
               );
