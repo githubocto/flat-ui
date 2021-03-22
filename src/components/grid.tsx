@@ -8,7 +8,7 @@ import { StickyGrid } from './sticky-grid';
 import { Header } from './header';
 import { Cell } from './cell';
 import { Loader } from './loader';
-import { useGridStore, cellTypeMap } from '../store';
+import { useGridStore, cellTypeMap, FilterMap } from '../store';
 import {
   ArrowRightIcon,
   ArrowLeftIcon,
@@ -21,13 +21,22 @@ interface ScrollRefType {
   current: number;
 }
 
+interface GridStateObject {
+  stickyColumnName?: string;
+  columnNames: string[];
+  filteredData: any[];
+  diffs: object[];
+  filters: FilterMap<FilterValue>;
+  sort: string[];
+  schema?: object;
+}
 interface GridProps {
   data: any[];
   diffData?: any[];
   metadata?: Record<string, string>;
   canDownload?: Boolean;
   defaultFilters?: Record<string, string | number>;
-  onChange?: (currentState: Object) => void;
+  onChange?: (currentState: GridStateObject) => void;
 }
 
 export function Grid(props: GridProps) {
@@ -80,20 +89,17 @@ export function Grid(props: GridProps) {
 
   React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(updateFilteredColumns, [data, filters, sort]);
+
   React.useEffect(() => {
     if (typeof props.onChange !== 'function') return;
     const currentState = {
-      data,
-      columnNames,
-      uniqueColumnName,
-      diffs,
       stickyColumnName,
-      sort,
+      columnNames,
       filteredData,
+      diffs,
       filters,
-      focusedRowIndex,
+      sort,
       schema,
-      cellTypes,
     };
     props.onChange(currentState);
   }, [filteredData]);
