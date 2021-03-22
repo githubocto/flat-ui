@@ -89,15 +89,15 @@ export function Grid(props: GridProps) {
 
   React.useEffect(() => {
     if (props.defaultFilters) handleFiltersChange(props.defaultFilters);
-  }, [props.defaultFilters]);
+  }, [props.defaultFilters, props.data]);
   React.useEffect(() => {
     if (props.defaultSort)
       handleSortChange(props.defaultSort[0], props.defaultSort[1]);
-  }, [props.defaultSort]);
+  }, [props.defaultSort?.join(','), props.data]);
   React.useEffect(() => {
     if (props.defaultStickyColumnName)
       handleStickyColumnNameChange(props.defaultStickyColumnName);
-  }, [props.defaultStickyColumnName]);
+  }, [props.defaultStickyColumnName, props.data]);
 
   React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(updateFilteredColumns, [data, filters, sort]);
@@ -115,7 +115,7 @@ export function Grid(props: GridProps) {
       schema,
     };
     props.onChange(currentState);
-  }, [filteredData]);
+  }, [filteredData, stickyColumnName]);
 
   const scrollToTop = () => {
     // @ts-ignore
