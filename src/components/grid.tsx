@@ -36,6 +36,8 @@ interface GridProps {
   metadata?: Record<string, string>;
   canDownload?: Boolean;
   defaultFilters?: Record<string, string | number>;
+  defaultSort?: string[];
+  defaultStickyColumnName?: string;
   onChange?: (currentState: GridStateObject) => void;
 }
 
@@ -67,6 +69,8 @@ export function Grid(props: GridProps) {
     handleFiltersChange,
     updateFilteredColumns,
     updateColumnNames,
+    handleSortChange,
+    handleStickyColumnNameChange,
     schema,
     cellTypes,
   } = useGridStore(state => state);
@@ -86,12 +90,21 @@ export function Grid(props: GridProps) {
   React.useEffect(() => {
     if (props.defaultFilters) handleFiltersChange(props.defaultFilters);
   }, [props.defaultFilters]);
+  React.useEffect(() => {
+    if (props.defaultSort)
+      handleSortChange(props.defaultSort[0], props.defaultSort[1]);
+  }, [props.defaultSort]);
+  React.useEffect(() => {
+    if (props.defaultStickyColumnName)
+      handleStickyColumnNameChange(props.defaultStickyColumnName);
+  }, [props.defaultStickyColumnName]);
 
   React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(updateFilteredColumns, [data, filters, sort]);
 
   React.useEffect(() => {
     if (typeof props.onChange !== 'function') return;
+
     const currentState = {
       stickyColumnName,
       columnNames,
