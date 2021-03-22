@@ -145,6 +145,10 @@ export function HtmlHistogram(props: HistogramProps) {
               values={rangeValues}
               draggableTrack
               onChange={newRange => {
+                if (newRange[0] === 0 && newRange[1] === 100) {
+                  onChange(undefined);
+                  return;
+                }
                 const x0 = xScale.invert(newRange[0]);
                 const x1 = xScale.invert(newRange[1]);
                 onChange([x0, x1]);
