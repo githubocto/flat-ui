@@ -290,6 +290,14 @@ export function Grid(props: GridProps) {
         />
       </div>
     );
+  if (!Object.keys(schema).length)
+    return (
+      <div className="relative flex justify-center bg-white w-full h-full">
+        <div className="flex flex-col justify-center items-center p-4 z-10">
+          <div className="font-bold text-lg italic pt-2">No valid data</div>
+        </div>
+      </div>
+    );
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -340,7 +348,7 @@ export function Grid(props: GridProps) {
           )}
         </AutoSizer>
 
-        {Object.keys(filters).length && !filteredData.length && (
+        {!!Object.keys(filters).length && !filteredData.length && (
           <div
             className="absolute w-full flex justify-center italic text-gray-400"
             style={{ marginTop: 165 }}

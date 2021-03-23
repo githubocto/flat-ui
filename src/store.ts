@@ -296,7 +296,7 @@ const getSortFunction = (sort: string[], typeOfValue: string) => {
 };
 
 function generateSchema(data: any[]) {
-  const metrics = Object.keys(data[0]);
+  const metrics = Object.keys(data[0] || {});
 
   const schema = fromPairs(
     metrics.map((metric: string) => {
@@ -399,6 +399,7 @@ export const cellTypeMap = {
     filter: RangeFilter,
     format: (d: number) => d + '',
     shortFormat: d3Format(',.2s'),
+    parseValueFunction: (d: any[]) => +d,
     minWidth: 126,
     hasScale: true,
     sortValueType: 'number',
