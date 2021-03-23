@@ -1,6 +1,6 @@
 import create, { StateCreator } from 'zustand';
 import produce from 'immer';
-import { format as d3Format, timeFormat, descending, ascending } from 'd3';
+import { format as d3Format, timeFormat, descending } from 'd3';
 import fromPairs from 'lodash.frompairs';
 import isValid from 'date-fns/isValid';
 
@@ -212,7 +212,11 @@ export const useGridStore = create<GridState>(
 
     updateFilteredColumns: () =>
       set(draft => {
-        const sortFunction = getSortFunction(draft.sort);
+        const sortFunction = getSortFunction(
+          draft.sort,
+          // @ts-ignore
+          cellTypeMap[draft?.cellTypes[draft.sort[0]]]?.sortValueType
+        );
         draft.filteredData = [...filterData(draft.data, draft.filters)]
           .sort(sortFunction)
           .map((d, i) => ({ ...d, __rowIndex__: i }));
@@ -264,13 +268,31 @@ const isBetween = (bounds: [number, number], value: number) => {
   return value >= bounds[0] && value < bounds[1];
 };
 
-const getSortFunction = (sort: string[]) => (a: object, b: object) => {
+const getSortFunction = (sort: string[], typeOfValue: string) => {
   const [columnName, direction] = sort;
-  return direction == 'desc'
-    ? // @ts-ignore
-      descending(a[columnName], b[columnName])
-    : // @ts-ignore
-      ascending(a[columnName], b[columnName]);
+
+  return (a: object, b: object) => {
+    // @ts-ignore
+    let aVal = a[columnName];
+    if (typeOfValue === 'string') {
+      aVal = (aVal || '').toUpperCase();
+      if (!aVal || aVal === '\n') aVal = direction === 'asc' ? 'zzzzzz' : '';
+      aVal = aVal.trimStart();
+    }
+    // @ts-ignore
+    let bVal = b[columnName];
+    if (typeOfValue === 'string') {
+      bVal = (bVal || '').toUpperCase();
+      if (!bVal || bVal === '\n') bVal = direction === 'asc' ? 'zzzzzz' : '';
+      bVal = bVal.trimStart();
+    }
+
+    return direction == 'desc'
+      ? // @ts-ignore
+        descending(aVal, bVal)
+      : // @ts-ignore
+        descending(bVal, aVal);
+  };
 };
 
 function generateSchema(data: any[]) {
@@ -343,6 +365,7 @@ export const cellTypeMap = {
     filter: StringFilter,
     format: (d: string) => d,
     shortFormat: (d: string) => d,
+    sortValueType: 'string',
   },
   array: {
     cell: StringCell,
@@ -353,6 +376,7 @@ export const cellTypeMap = {
       // prettier-ignore
       Array.isArray(d) ? `[${d.length} item${d.length === 1 ? '' : 's'}]` :
       typeof d === 'string' ? d : '',
+    sortValueType: 'string',
   },
   'short-array': {
     cell: StringCell,
@@ -360,6 +384,7 @@ export const cellTypeMap = {
     format: (d: string) => d,
     shortFormat: (d: string) => d,
     parseValueFunction: (d: [string]) => (Array.isArray(d) ? d[0] : d),
+    sortValueType: 'string',
   },
   category: {
     cell: CategoryCell,
@@ -367,6 +392,7 @@ export const cellTypeMap = {
     format: (d: string) => d,
     shortFormat: (d: string) => d,
     parseValueFunction: (d: [string]) => d,
+    sortValueType: 'string',
   },
   number: {
     cell: NumberCell,
@@ -375,6 +401,7 @@ export const cellTypeMap = {
     shortFormat: d3Format(',.2s'),
     minWidth: 126,
     hasScale: true,
+    sortValueType: 'number',
   },
   integer: {
     cell: NumberCell,
@@ -382,6 +409,7 @@ export const cellTypeMap = {
     format: (d: number) => d + '',
     shortFormat: d3Format(',.2s'),
     hasScale: true,
+    sortValueType: 'number',
   },
   date: {
     cell: DateCell,
@@ -390,6 +418,7 @@ export const cellTypeMap = {
     shortFormat: timeFormat('%-m/%-d'),
     parseValueFunction: Date.parse,
     hasScale: true,
+    sortValueType: 'number',
   },
 };
 
