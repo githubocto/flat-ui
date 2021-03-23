@@ -141,8 +141,9 @@ export function Grid(props: GridProps) {
         const maxLength = max(values);
         const numberOfChars = min([maxLength + 3, 19]);
         return (
-          Math.max(cellInfo.minWidth || 100, numberOfChars * 12) +
-          (columnIndex === 0 ? 30 : 0)
+          Math.max(cellInfo.minWidth || 100, numberOfChars * 15) +
+          (columnIndex === 0 ? 30 : 0) +
+          (cellInfo.extraCellHorizontalPadding || 0)
         );
       }),
     [columnNames, data]

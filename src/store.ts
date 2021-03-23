@@ -475,6 +475,7 @@ export const cellTypeMap = {
     shortFormat: (d: string) => d,
     parseValueFunction: (d: [string]) => d,
     sortValueType: 'string',
+    extraCellHorizontalPadding: 6,
   },
   number: {
     cell: NumberCell,
