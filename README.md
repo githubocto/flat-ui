@@ -1,181 +1,111 @@
-# TSDX React w/ Storybook User Guide
+# flat-ui
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
+Welcome friends! **flat-ui** is a React component that will render your flat dataset (an array of objects) in a table view:
 
-> This TSDX setup is meant for developing React component libraries (not apps!) that can be published to NPM. If you’re looking to build a React-based app, you should use `create-react-app`, `razzle`, `nextjs`, `gatsby`, or `react-static`.
+![screenshot](./screenshot.png)
 
-> If you’re new to TypeScript and React, checkout [this handy cheatsheet](https://github.com/sw-yx/react-typescript-cheatsheet/)
+It will...
 
-## Commands
+- auto-detect types
+- show a distribution of each quantitative column
+- calculate a diff between the main dataset and a `diffData` dataset
+- give more information about a hovered row & column
+- allow the user to...
+  - filter each column
+  - sort by any column
+  - sticky any column to the left
+  - download the filtered & sorted data (csv or json)
+  - cycle through the diffs, scrolling to each changed row
 
-TSDX scaffolds your new library inside `/src`, and also sets up a [Parcel-based](https://parceljs.org) playground for it inside `/example`.
+## Usage
 
-The recommended workflow is to run TSDX in one terminal:
-
-```bash
-npm start # or yarn start
-```
-
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
-
-Then run either Storybook or the example playground:
-
-### Storybook
-
-Run inside another terminal:
+Install using npm or yarn:
 
 ```bash
-yarn storybook
+yarn add flat-ui
 ```
 
-This loads the stories from `./stories`.
+Basic usage:
 
-> NOTE: Stories should reference the components as if using the library, similar to the example playground. This means importing from the root project directory. This has been aliased in the tsconfig and the storybook webpack config as a helper.
+```javascript
+import Grid from 'flat-ui';
 
-### Example
+const MyComponent = () => {
+  const data = [{ column1: 123 }, { column1: 234 }];
 
-Then run the example inside another:
-
-```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
+  return <Grid data={data} />;
+};
 ```
 
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure TSDX is running in watch mode like we recommend above. **No symlinking required**, we use [Parcel's aliasing](https://parceljs.org/module_resolution.html#aliases).
+## Props
 
-To do a one-off build, use `npm run build` or `yarn build`.
+### data
 
-To run tests, use `npm test` or `yarn test`.
+`array`
 
-## Configuration
+Your dataset, formatted as an array of objects, where each object is a row in the table.
 
-Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
+## Optional props
 
-### Jest
+### diffData
 
-Jest tests are set up to run with `npm test` or `yarn test`.
+`array`
 
-### Bundle analysis
+A modified version of your main dataset, formatted as an array of objects, where each object is a row in the table. The table will show "differences" between this dataset and the main dataset:
 
-Calculates the real cost of your library using [size-limit](https://github.com/ai/size-limit) with `npm run size` and visulize it with `npm run analyze`.
+- added lines
+- removed lines
+- modified cells
 
-#### Setup Files
+### metadata
 
-This is the folder structure we set up for you:
+`object`
 
-```txt
-/example
-  index.html
-  index.tsx       # test your component here in a demo app
-  package.json
-  tsconfig.json
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-/stories
-  Thing.stories.tsx # EDIT THIS
-/.storybook
-  main.js
-  preview.js
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
-```
+column names as keys and descriptions as values.
 
-#### React Testing Library
+### canDownload
 
-We do not set up `react-testing-library` for you yet, we welcome contributions and documentation on this.
+`boolean`
 
-### Rollup
+Whether or not the table provides "download csv" and "download json" buttons.
 
-TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
+### defaultFilters
 
-### TypeScript
+`object`
 
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
+column names as keys, with filter values as values:
 
-## Continuous Integration
+- `string` for text columns
+- `array of numbers` for quantitative columns (numbers or dates)
 
-### GitHub Actions
+The user can interact with the table and update the filters, but the table will use the default filters when `defaultFilters` or `data` changes.
 
-Two actions are added by default:
+### defaultSort
 
-- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
-- `size` which comments cost comparison of your library on every pull request using [size-limit](https://github.com/ai/size-limit)
+`string`
 
-## Optimizations
+The name of the column you want the table to initialize sorting by. The user can interact with the table and update the sort, but the table will use the default sort when `defaultSort` or `data` changes.
 
-Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
+### defaultStickyColumnName
 
-```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
+`string`
 
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
+The name of the column you want the table to initialize stickied to the left. The user can interact with the table and update the sticky column, but the table will use the default sticky column when `defaultStickyColumnName` or `data` changes.
+
+### onChange
+
+`function`
+
+A callback function whose first parameter is the grid state:
+
+```javascript
+{
+  stickyColumnName: "",
+  columnNames: ["", ""],
+  filteredData: [{}, {}],
+  diffs: [{}, {}], // where __status__ is "new"|"old"|"modified"
+  filters: {},
+  sort: ["column name", "asc" or "desc"],
+  schema: {}, // column names : array|short-array|category|number|date
 }
 ```
-
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
-
-## Module Formats
-
-CJS, ESModules, and UMD module formats are supported.
-
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
-
-## Deploying the Example Playground
-
-The Playground is just a simple [Parcel](https://parceljs.org) app, you can deploy it anywhere you would normally deploy that. Here are some guidelines for **manually** deploying with the Netlify CLI (`npm i -g netlify-cli`):
-
-```bash
-cd example # if not already in the example folder
-npm run build # builds to dist
-netlify deploy # deploy the dist folder
-```
-
-Alternatively, if you already have a git repo connected, you can set up continuous deployment with Netlify:
-
-```bash
-netlify init
-# build command: yarn build && cd example && yarn && yarn build
-# directory to deploy: example/dist
-# pick yes for netlify.toml
-```
-
-## Named Exports
-
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
-
-## Including Styles
-
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
-
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
-
-## Publishing to NPM
-
-We recommend using [np](https://github.com/sindresorhus/np).
-
-## Usage with Lerna
-
-When creating a new package with TSDX within a project set up with Lerna, you might encounter a `Cannot resolve dependency` error when trying to run the `example` project. To fix that you will need to make changes to the `package.json` file _inside the `example` directory_.
-
-The problem is that due to the nature of how dependencies are installed in Lerna projects, the aliases in the example project's `package.json` might not point to the right place, as those dependencies might have been installed in the root of your Lerna project.
-
-Change the `alias` to point to where those packages are actually installed. This depends on the directory structure of your Lerna project, so the actual path might be different from the diff below.
-
-```diff
-   "alias": {
--    "react": "../node_modules/react",
--    "react-dom": "../node_modules/react-dom"
-+    "react": "../../../node_modules/react",
-+    "react-dom": "../../../node_modules/react-dom"
-   },
-```
-
-An alternative to fixing this problem would be to remove aliases altogether and define the dependencies referenced as aliases as dev dependencies instead. [However, that might cause other problems.](https://github.com/palmerhq/tsdx/issues/64)

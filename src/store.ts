@@ -326,9 +326,9 @@ function generateSchema(data: any[]) {
         const values = data
           .map(d => d[metric])
           .filter(d => d)
-          .slice(0, 10);
+          .slice(0, 30);
         const areMultipleValuesDates =
-          values.filter(isDate).length == values.length;
+          values.filter(isDate).length === values.length;
         if (areMultipleValuesDates) return [metric, 'date'];
       }
       const isFirstValueAnArray = Array.isArray(value);
