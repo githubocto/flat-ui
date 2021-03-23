@@ -418,6 +418,11 @@ export function Grid(props: GridProps) {
               </button>
             </>
           )}
+          <div className="m-2 text-gray-200">
+            Showing {filteredData.length.toLocaleString()}
+            {isFiltered && ` of ${data.length.toLocaleString()}`} row
+            {(isFiltered ? filteredData : data).length === 1 ? '' : 's'}
+          </div>
         </div>
 
         <div className="flex items-center space-x-2 m-2">
