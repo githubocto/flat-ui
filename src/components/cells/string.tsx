@@ -2,6 +2,7 @@ import React from 'react';
 
 interface StringCellProps {
   value: string;
+  formattedValue: string;
 }
 
 export function StringCell(props: StringCellProps) {
@@ -9,8 +10,7 @@ export function StringCell(props: StringCellProps) {
     <span
       className="overflow-ellipsis block whitespace-nowrap overflow-hidden"
       title={props.value}
-    >
-      {props.value}
-    </span>
+      dangerouslySetInnerHTML={{ __html: props.formattedValue }}
+    />
   );
 }

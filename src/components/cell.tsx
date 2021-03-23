@@ -1,6 +1,7 @@
 import React from 'react';
 import { areEqual } from 'react-window';
 import cc from 'classcat';
+import anchorme from 'anchorme';
 import { cellTypeMap } from '../store';
 import { DashIcon, PlusIcon } from '@primer/octicons-react';
 
@@ -8,7 +9,7 @@ interface CellProps {
   type: string;
   value: any;
   formattedValue?: any;
-  possibleValues?: string[];
+  possibleValues?: string | number[];
   style?: {};
   status?: string;
   isNearRightEdge?: boolean;
@@ -50,7 +51,23 @@ export const Cell = React.memo(function(props: CellProps) {
     },
   ]);
 
-  const isLongValue = (formattedValue || value || '').length > 20;
+  const displayValue = formattedValue || value;
+  const isLongValue = (displayValue || '').length > 20;
+  const stringWithLinks = displayValue
+    ? React.useMemo(
+        () =>
+          anchorme({
+            input: displayValue + '',
+            options: {
+              attributes: {
+                target: '_blank',
+                rel: 'noopener',
+              },
+            },
+          }),
+        [value]
+      )
+    : '';
 
   return (
     <div
@@ -77,7 +94,7 @@ export const Cell = React.memo(function(props: CellProps) {
 
       <CellComponent
         value={value}
-        formattedValue={formattedValue}
+        formattedValue={stringWithLinks}
         possibleValues={possibleValues}
       />
 
@@ -92,8 +109,12 @@ export const Cell = React.memo(function(props: CellProps) {
             width: 'max-content',
             maxWidth: '27em',
           }}
+          title={displayValue}
         >
-          <div className="line-clamp-9">{formattedValue || value}</div>
+          <div
+            className="line-clamp-9"
+            dangerouslySetInnerHTML={{ __html: stringWithLinks }}
+          />
         </div>
       )}
     </div>

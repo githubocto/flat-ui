@@ -87,6 +87,7 @@
     "@tailwindcss/line-clamp": "^0.2.0",
     "@types/react-virtualized-auto-sizer": "^1.0.0",
     "@types/react-window": "^1.8.2",
+    "anchorme": "^2.1.2",
     "classcat": "^5.0.3",
     "d3": "^6.6.0",
     "date-fns": "^2.19.0",

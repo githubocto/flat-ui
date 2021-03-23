@@ -138,7 +138,7 @@ export function Grid(props: GridProps) {
           d => cellInfo.format(d[columnName] || '').length
         );
         const maxLength = max(values);
-        const numberOfChars = min([maxLength + 3, 15]);
+        const numberOfChars = min([maxLength + 3, 19]);
         return (
           Math.max(cellInfo.minWidth || 100, numberOfChars * 12) +
           (columnIndex === 0 ? 30 : 0)
@@ -552,7 +552,7 @@ interface CellComputedProps {
   value: any;
   style: StyleObject;
   background?: string;
-  possibleValues?: string[];
+  possibleValues?: string | number[];
   status?: string;
   isFirstColumn?: boolean;
   isNearRightEdge?: boolean;
@@ -658,7 +658,7 @@ interface HeaderComputedProps {
   metadata?: string;
   originalData: any[];
   filteredData: any[];
-  possibleValues?: any[];
+  possibleValues?: string | number[];
   filter?: FilterValue;
   focusedValue?: number;
   showFilters: boolean;

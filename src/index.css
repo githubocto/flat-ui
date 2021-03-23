@@ -48,6 +48,10 @@ body {
   transform: none;
 }
 
+.cell a {
+  @apply text-indigo-600;
+}
+
 .cell:hover {
   /* to get around an inline style */
   z-index: 50 !important;

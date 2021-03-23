@@ -17,7 +17,7 @@ interface HeaderProps {
   metadata?: string;
   originalData: any[];
   filteredData: any[];
-  possibleValues?: any[];
+  possibleValues?: string | number[];
   filter?: FilterValue;
   focusedValue?: number;
   showFilters: boolean;
@@ -59,11 +59,11 @@ export function Header(props: HeaderProps) {
       style={{ ...style }}
     >
       <div
-        className="header relative border-b border-gray-200 bg-gray-50 flex items-center h-10"
+        className="header relative border-b border-gray-200 bg-white flex items-center h-10"
 
         // ref={popoverAnchorRef}
       >
-        <div className="header__title group absolute top-0 left-0 bottom-0 z-10 bg-gray-100 text-gray-600 shadow-md flex items-center">
+        <div className="header__title group absolute top-0 left-0 bottom-0 z-10 bg-white text-gray-600 shadow-md flex items-center">
           <button
             onClick={() => onSticky()}
             className={`h-10 p-2 border-b border-indigo-100 focus:bg-indigo-100 hover:bg-indigo-100 bg-gray-50 appearance-none ${
@@ -73,7 +73,7 @@ export function Header(props: HeaderProps) {
             <PinIcon />
           </button>
           <button
-            className="group flex justify-between items-center h-10 p-2 border-b border-gray-300 focus:bg-gray-200 hover:bg-gray-200 appearance-none bg-gray-100 flex-1 min-w-0"
+            className="group flex justify-between items-center h-10 p-2 border-b border-gray-200 focus:bg-gray-200 hover:bg-gray-200 appearance-none bg-white flex-1 min-w-0"
             onClick={() =>
               onSort(columnName, activeSortDirection == 'asc' ? 'desc' : 'asc')
             }
