@@ -109,3 +109,20 @@ A callback function whose first parameter is the grid state:
   schema: {}, // column names : array|short-array|category|number|date
 }
 ```
+
+## Developing locally
+
+To get the example up & running:
+
+```bash
+yarn
+yarn start
+```
+
+and also start the **example** server:
+
+```bash
+cd example
+yarn
+yarn start
+```
