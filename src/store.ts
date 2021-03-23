@@ -8,7 +8,9 @@ import parseDate from 'date-fns/parse';
 import { FilterValue } from './types';
 import { matchSorter } from 'match-sorter';
 import { DateCell } from './components/cells/date';
+import { TimeCell } from './components/cells/time';
 import { NumberCell } from './components/cells/number';
+import { RawNumberCell } from './components/cells/raw-number';
 import { StringCell } from './components/cells/string';
 import { CategoryCell } from './components/cells/category';
 import { StringFilter } from './components/filters/string';
@@ -332,12 +334,11 @@ function generateSchema(data: any[]) {
           if (typeof value === 'string') {
             const currentDate = new Date();
             const validPatterns = [
-              'mm/dd/yy',
-              'mm-dd-yy',
-              'dd/mm/yy',
-              'dd-mm-yy',
-              'yy-mm-dd',
-              'yyyy-mm-dd',
+              'MM/dd/yyyy',
+              'MM-dd-yyyy',
+              'dd/MM/yyyy',
+              'dd-MM-yyyy',
+              'yyyy-MM-dd',
             ];
             return !!validPatterns.find(pattern =>
               isValidDate(parseDate(value, pattern, currentDate))
@@ -350,6 +351,25 @@ function generateSchema(data: any[]) {
           return false;
         }
       };
+      const isTime = (value: any) => {
+        try {
+          if (typeof value === 'string') {
+            const currentDate = new Date();
+            const validPatterns = [
+              'yyyy-MM-dd HH:mm',
+              'yyyy-MM-dd HH:mm:ss',
+              "yyyy-MM-dd'T'HH:mm:ssxxxx",
+              "yyyy-MM-dd'T'HH:mm:ss",
+            ];
+            return !!validPatterns.find(pattern =>
+              isValidDate(parseDate(value, pattern, currentDate))
+            );
+          }
+          return false;
+        } catch (e) {
+          return false;
+        }
+      };
       const isFirstValueADate = isDate(value);
       if (isFirstValueADate) {
         const values = data
@@ -358,6 +378,15 @@ function generateSchema(data: any[]) {
           .slice(0, 30);
         const areMultipleValuesDates = !values.find(d => !isDate(d));
         if (areMultipleValuesDates) return [metric, 'date'];
+      }
+      const isFirstValueATime = isTime(value);
+      if (isFirstValueATime) {
+        const values = data
+          .map(d => d[metric])
+          .filter(d => d)
+          .slice(0, 30);
+        const areMultipleValuesTimes = !values.find(d => !isTime(d));
+        if (areMultipleValuesTimes) return [metric, 'time'];
       }
       const isFirstValueAnArray = Array.isArray(value);
       if (isFirstValueAnArray) {
@@ -380,6 +409,9 @@ function generateSchema(data: any[]) {
         );
         if (uniqueValues.size < maxUniqueValuesForCategory) type = 'category';
       }
+
+      if (type === 'number' && metric.toLowerCase().trim() === 'year')
+        return [metric, 'year'];
 
       return [metric, type];
     })
@@ -454,11 +486,30 @@ export const cellTypeMap = {
     hasScale: true,
     sortValueType: 'number',
   },
+  year: {
+    cell: RawNumberCell,
+    filter: RangeFilter,
+    format: (d: number) => d + '',
+    shortFormat: (d: number) => d,
+    parseValueFunction: (d: any[]) => +d,
+    minWidth: 126,
+    hasScale: true,
+    sortValueType: 'number',
+  },
   date: {
     cell: DateCell,
     filter: RangeFilter,
     format: timeFormat('%B %-d %Y'),
     shortFormat: timeFormat('%-m/%-d'),
+    parseValueFunction: Date.parse,
+    hasScale: true,
+    sortValueType: 'number',
+  },
+  time: {
+    cell: TimeCell,
+    filter: RangeFilter,
+    format: timeFormat('%B %-d, %Y %-H:%M'),
+    shortFormat: timeFormat('%-m/%-d %-H:%M'),
     parseValueFunction: Date.parse,
     hasScale: true,
     sortValueType: 'number',

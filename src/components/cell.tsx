@@ -54,7 +54,7 @@ export const Cell = React.memo(function(props: CellProps) {
   ]);
 
   const displayValue = formattedValue || value;
-  const isLongValue = (displayValue || '').length > 26;
+  const isLongValue = (displayValue || '').length > 23;
   const stringWithLinks = displayValue
     ? React.useMemo(
         () =>
