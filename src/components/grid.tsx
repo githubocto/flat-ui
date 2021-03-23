@@ -7,7 +7,7 @@ import { FilterValue } from '../types';
 import { StickyGrid } from './sticky-grid';
 import { Header } from './header';
 import { Cell } from './cell';
-import { Loader } from './loader';
+import { Loader } from './Loader';
 import { useGridStore, cellTypeMap, FilterMap } from '../store';
 import {
   ArrowRightIcon,
@@ -241,7 +241,20 @@ export function Grid(props: GridProps) {
     setHighlightedDiffIndex(undefined);
   };
 
-  const handleDownload = () => {
+  const handleDownloadJson = () => {
+    var dataStr =
+      'data:text/json;charset=utf-8,' +
+      encodeURIComponent(JSON.stringify(filteredData));
+    const link = document.createElement('a');
+    link.setAttribute('href', dataStr);
+    const date = new Date().toDateString();
+    link.setAttribute('download', `flat-ui__data-${date}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadCsv = () => {
     let csvContent = [
       columnNames.map(columnName => columnName),
       filteredData
@@ -383,17 +396,26 @@ export function Grid(props: GridProps) {
           )}
         </div>
 
-        <div className="flex align-middle space-x-2 m-2">
+        <div className="flex items-center space-x-2 m-2">
           {canDownload && (
-            <button
-              className="p-2 px-6 flex justify-center items-center bg-black rounded-full"
-              onClick={handleDownload}
-            >
-              <span className="mr-2">
+            <span className="relative z-0 inline-flex rounded-full">
+              <button
+                onClick={handleDownloadCsv}
+                type="button"
+                className="relative space-x-1 inline-flex items-center px-3 py-2 rounded-l-full bg-black hover:bg-gray-900 focus:bg-gray-900 text-sm border border-gray-800 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+              >
                 <DownloadIcon />
-              </span>
-              Download {isFiltered ? 'filtered ' : ''}data
-            </button>
+                <span>{isFiltered ? 'Filtered ' : ''} CSV</span>
+              </button>
+              <button
+                onClick={handleDownloadJson}
+                type="button"
+                className="-ml-px relative space-x-1 inline-flex items-center px-3 py-2 rounded-r-full bg-black hover:bg-gray-900 focus:bg-gray-900 text-sm border border-gray-800 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <DownloadIcon />
+                <span>{isFiltered ? 'Filtered ' : ''} JSON</span>
+              </button>
+            </span>
           )}
 
           {isFiltered && (
