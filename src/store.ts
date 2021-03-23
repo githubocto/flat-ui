@@ -36,7 +36,7 @@ type GridState = {
   handleFiltersChange: (newFilters?: FilterMap<FilterValue>) => void;
   handleDataChange: (data: any[]) => void;
   handleDiffDataChange: (data: any[]) => void;
-  categoryValues: Record<string, []>;
+  categoryValues: Record<string, string | number[]>;
   sort: string[];
   handleSortChange: (columnName: string, direction: string) => void;
   focusedRowIndex?: number;
@@ -98,7 +98,10 @@ export const useGridStore = create<GridState>(
         draft.categoryValues = fromPairs(
           categoryColumnNames.map(columnName => {
             const values = new Set(draft.data.map(d => d[columnName]));
-            return [columnName, Array.from(values)].filter(d => d);
+            return [
+              columnName,
+              Array.from(values).filter(d => (d || '').trim().length),
+            ];
           })
         );
       }),
