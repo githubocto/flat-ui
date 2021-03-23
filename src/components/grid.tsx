@@ -16,6 +16,7 @@ import {
   DownloadIcon,
   SyncIcon,
 } from '@primer/octicons-react';
+import { fromPairs } from 'lodash';
 
 interface ScrollRefType {
   current: number;
@@ -244,7 +245,18 @@ export function Grid(props: GridProps) {
   const handleDownloadJson = () => {
     var dataStr =
       'data:text/json;charset=utf-8,' +
-      encodeURIComponent(JSON.stringify(filteredData));
+      encodeURIComponent(
+        JSON.stringify(
+          filteredData.map(d =>
+            fromPairs(
+              columnNames.map(columnName => [
+                columnName,
+                d['__rawData__'][columnName] || d[columnName],
+              ])
+            )
+          )
+        )
+      );
     const link = document.createElement('a');
     link.setAttribute('href', dataStr);
     const date = new Date().toDateString();
@@ -258,7 +270,11 @@ export function Grid(props: GridProps) {
     let csvContent = [
       columnNames.map(columnName => columnName),
       filteredData
-        .map(d => columnNames.map(columnName => d[columnName]).join(','))
+        .map(d =>
+          columnNames
+            .map(columnName => d['__rawData__'][columnName] || d[columnName])
+            .join(',')
+        )
         .join('\n'),
     ].join('\n');
     var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -497,6 +513,7 @@ const CellWrapper = function(props: CellProps) {
   let possibleValues = type === 'category' ? categoryValues[name] : undefined;
 
   const value = filteredData[rowIndex][name];
+  const rawValue = filteredData[rowIndex]['__rawData__']?.[name];
   let status = filteredData[rowIndex].__status__;
   if (status === 'modified') {
     const modifiedColumnNames =
@@ -532,6 +549,7 @@ const CellWrapper = function(props: CellProps) {
     <CellWrapperComputed
       type={type}
       value={value}
+      rawValue={rawValue}
       possibleValues={possibleValues}
       background={backgroundColor}
       style={style}
@@ -550,6 +568,7 @@ const CellWrapper = function(props: CellProps) {
 interface CellComputedProps {
   type: string;
   value: any;
+  rawValue: any;
   style: StyleObject;
   background?: string;
   possibleValues?: string | number[];

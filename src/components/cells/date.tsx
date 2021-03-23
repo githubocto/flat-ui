@@ -1,16 +1,20 @@
-import React from "react";
+import React from 'react';
 // @ts-ignore
-import { timeFormat } from "d3";
+import { timeFormat } from 'd3';
 
 interface DateCellProps {
   value: Date;
+  rawValue: string;
 }
 
-const formatDate = timeFormat("%B %-d %Y");
+const formatDate = timeFormat('%B %-d, %Y');
 export function DateCell(props: DateCellProps) {
   return (
-    <span className="overflow-ellipsis block whitespace-nowrap overflow-hidden">
-      {props.value ? formatDate(props.value) : "-"}
+    <span
+      className="overflow-ellipsis block whitespace-nowrap overflow-hidden"
+      title={props.rawValue}
+    >
+      {props.value ? formatDate(props.value) : '-'}
     </span>
   );
 }

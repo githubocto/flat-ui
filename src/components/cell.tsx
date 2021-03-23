@@ -8,6 +8,7 @@ import { DashIcon, PlusIcon } from '@primer/octicons-react';
 interface CellProps {
   type: string;
   value: any;
+  rawValue: any;
   formattedValue?: any;
   possibleValues?: string | number[];
   style?: {};
@@ -23,6 +24,7 @@ export const Cell = React.memo(function(props: CellProps) {
   const {
     type,
     value,
+    rawValue,
     formattedValue,
     possibleValues,
     status,
@@ -52,7 +54,7 @@ export const Cell = React.memo(function(props: CellProps) {
   ]);
 
   const displayValue = formattedValue || value;
-  const isLongValue = (displayValue || '').length > 20;
+  const isLongValue = (displayValue || '').length > 26;
   const stringWithLinks = displayValue
     ? React.useMemo(
         () =>
@@ -95,6 +97,7 @@ export const Cell = React.memo(function(props: CellProps) {
       <CellComponent
         value={value}
         formattedValue={stringWithLinks}
+        rawValue={rawValue}
         possibleValues={possibleValues}
       />
 
@@ -109,7 +112,7 @@ export const Cell = React.memo(function(props: CellProps) {
             width: 'max-content',
             maxWidth: '27em',
           }}
-          title={displayValue}
+          title={rawValue}
         >
           <div
             className="line-clamp-9"

@@ -2,7 +2,8 @@ import create, { StateCreator } from 'zustand';
 import produce from 'immer';
 import { format as d3Format, timeFormat, descending } from 'd3';
 import fromPairs from 'lodash.frompairs';
-import isValid from 'date-fns/isValid';
+import isValidDate from 'date-fns/isValid';
+import parseDate from 'date-fns/parse';
 
 import { FilterValue } from './types';
 import { matchSorter } from 'match-sorter';
@@ -93,7 +94,16 @@ export const useGridStore = create<GridState>(
           ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
           : [];
         draft.stickyColumnName = columnNames[0];
-        draft.sort = columnNames[0] ? [columnNames[0], 'desc'] : [];
+        draft.sort = columnNames[0]
+          ? [
+              columnNames[0],
+              // @ts-ignore
+              cellTypeMap[draft.cellTypes[columnNames[0]]]?.sortValueType ===
+              'string'
+                ? 'asc'
+                : 'desc',
+            ]
+          : [];
 
         draft.categoryValues = fromPairs(
           categoryColumnNames.map(columnName => {
@@ -248,7 +258,12 @@ export const useGridStore = create<GridState>(
   }))
 );
 
-const utilKeys = ['__status__', '__modifiedColumnNames__', '__rowIndex__'];
+const utilKeys = [
+  '__status__',
+  '__modifiedColumnNames__',
+  '__rowIndex__',
+  '__rawData__',
+];
 function filterData(data: any[], filters: FilterMap<FilterValue>) {
   return Object.keys(filters).reduce((rows, columnName) => {
     const filterValue = filters[columnName];
@@ -315,10 +330,21 @@ function generateSchema(data: any[]) {
       const isDate = (value: any) => {
         try {
           if (typeof value === 'string') {
-            return isValid(new Date(value));
+            const currentDate = new Date();
+            const validPatterns = [
+              'mm/dd/yy',
+              'mm-dd-yy',
+              'dd/mm/yy',
+              'dd-mm-yy',
+              'yy-mm-dd',
+              'yyyy-mm-dd',
+            ];
+            return !!validPatterns.find(pattern =>
+              isValidDate(parseDate(value, pattern, currentDate))
+            );
           } else {
             return false;
-            // return isValid(value);
+            // return isValidDate(value);
           }
         } catch (e) {
           return false;
@@ -330,8 +356,7 @@ function generateSchema(data: any[]) {
           .map(d => d[metric])
           .filter(d => d)
           .slice(0, 30);
-        const areMultipleValuesDates =
-          values.filter(isDate).length === values.length;
+        const areMultipleValuesDates = !values.find(d => !isDate(d));
         if (areMultipleValuesDates) return [metric, 'date'];
       }
       const isFirstValueAnArray = Array.isArray(value);
@@ -361,6 +386,28 @@ function generateSchema(data: any[]) {
   );
   return schema;
 }
+
+const parseData = (data: any, cellTypes: Record<string, string>) => {
+  const columnParseFunctions = Object.keys(cellTypes).map(columnName => {
+    const cellType = cellTypes[columnName];
+    // @ts-ignore
+    const cellInfo = cellTypeMap[cellType] || {};
+    const parseFunction = cellInfo.parseValueFunction || ((d: any) => d);
+    return [columnName, parseFunction];
+  });
+  return data.map((d: any) => {
+    return {
+      ...d,
+      ...fromPairs(
+        columnParseFunctions.map(([columnName, parseFunction]) => [
+          columnName,
+          parseFunction(d[columnName]),
+        ])
+      ),
+      __rawData__: d,
+    };
+  });
+};
 
 export const cellTypeMap = {
   string: {
@@ -407,14 +454,6 @@ export const cellTypeMap = {
     hasScale: true,
     sortValueType: 'number',
   },
-  integer: {
-    cell: NumberCell,
-    filter: RangeFilter,
-    format: (d: number) => d + '',
-    shortFormat: d3Format(',.2s'),
-    hasScale: true,
-    sortValueType: 'number',
-  },
   date: {
     cell: DateCell,
     filter: RangeFilter,
@@ -424,25 +463,4 @@ export const cellTypeMap = {
     hasScale: true,
     sortValueType: 'number',
   },
-};
-
-const parseData = (data: any, cellTypes: Record<string, string>) => {
-  const columnParseFunctions = Object.keys(cellTypes).map(columnName => {
-    const cellType = cellTypes[columnName];
-    // @ts-ignore
-    const cellInfo = cellTypeMap[cellType] || {};
-    const parseFunction = cellInfo.parseValueFunction || ((d: any) => d);
-    return [columnName, parseFunction];
-  });
-  return data.map((d: any) => {
-    return {
-      ...d,
-      ...fromPairs(
-        columnParseFunctions.map(([columnName, parseFunction]) => [
-          columnName,
-          parseFunction(d[columnName]),
-        ])
-      ),
-    };
-  });
 };
