@@ -7,7 +7,7 @@ import { FilterValue } from '../types';
 import { StickyGrid } from './sticky-grid';
 import { Header } from './header';
 import { Cell } from './cell';
-import { Loader } from './Loader';
+import { Loader } from './loader';
 import { useGridStore, cellTypeMap, FilterMap } from '../store';
 import {
   ArrowRightIcon,
