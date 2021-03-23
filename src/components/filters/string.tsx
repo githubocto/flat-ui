@@ -16,7 +16,7 @@ export function StringFilter(props: StringFilterProps) {
 
   return (
     <input
-      className="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white outline-none focus:outline-none focus:shadow-outline w-full overflow-ellipsis"
+      className="px-3 py-3 text-indigo-500 placeholder-gray-400 bg-white outline-none focus:outline-none focus:shadow-outline w-full overflow-ellipsis"
       onChange={handleChange}
       value={props?.value || ''}
       placeholder={`Filter ${formatNumber(props.filteredData.length)} records`}
