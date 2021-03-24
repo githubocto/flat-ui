@@ -3,52 +3,73 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Grid } from '../.';
 import { csv, json } from 'd3';
+// @ts-ignore
+import debounce from 'lodash.debounce';
 import exampleData from './data';
 
 const App = () => {
   const [data, setData] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [dataUrl, setDataUrl] = React.useState('');
+  const [overrideDataUrl, setOverrideDataUrl] = React.useState('');
+  const [localOverrideDataUrl, setLocalOverrideDataUrl] = React.useState('');
+
+  const debounceSetOverrideDataUrl = debounce(setOverrideDataUrl, 500);
+  React.useEffect(() => {
+    debounceSetOverrideDataUrl(localOverrideDataUrl);
+  }, [localOverrideDataUrl]);
 
   const fetchData = async () => {
-    if (dataUrl) {
-      const fetchFunction = dataUrl.includes('.csv') ? csv : json;
-      const res = await fetchFunction(dataUrl).catch(err => {
-        console.log(`Issue loading data from ${dataUrl}`, err);
+    setIsLoading(true);
+
+    if (overrideDataUrl || dataUrl) {
+      const url = overrideDataUrl || dataUrl;
+      const fetchFunction = url.includes('.csv') ? csv : json;
+      const res = await fetchFunction(url).catch(err => {
+        console.log(`Issue loading data from ${url}`, err);
         setData([]);
       });
 
       console.log(res);
       // @ts-ignore
       setData(Array.isArray(res) ? res : []);
+      setIsLoading(false);
     } else {
       setData(exampleData);
+      setIsLoading(false);
     }
   };
   React.useEffect(() => {
     fetchData();
-  }, [dataUrl]);
-  console.log(data);
+  }, [dataUrl, overrideDataUrl]);
+  console.log(`We got new data!`, data);
 
   return (
     <div className="relative h-full flex flex-col">
-      <div className="p-4 mb-2">
+      <div className="p-4 mb-2 flex flex-col">
         <select
-          className="p-4"
+          className="p-4 mb-2"
           value={dataUrl}
           onChange={e => setDataUrl(e.target.value)}
         >
-          <option value="">Example dataset</option>
+          <option value="">Fallback or custom url</option>
           {dataUrls.map(url => (
             <option value={url} key={url}>
               {url}
             </option>
           ))}
         </select>
+
+        {!dataUrl && (
+          <input
+            className="block p-4 mt-2"
+            value={localOverrideDataUrl}
+            onChange={e => setLocalOverrideDataUrl(e.target.value)}
+          />
+        )}
       </div>
 
-      <div className="flex-1">
-        <Grid data={data} />
-      </div>
+      <div className="flex-1">{!isLoading && <Grid data={data} />}</div>
     </div>
   );
 };
