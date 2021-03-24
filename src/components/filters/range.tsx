@@ -1,4 +1,5 @@
 import React from 'react';
+import { debounce } from 'lodash';
 import { HtmlHistogram } from '../HtmlHistogram';
 
 interface RangeFilterProps {
@@ -10,12 +11,13 @@ interface RangeFilterProps {
   maxWidth?: number;
   shortFormat: (value: number) => string;
   longFormat: (value: number) => string;
-  onChange: (value: string | [number, number]) => void;
+  onChange: (newState: [number, number] | undefined) => void;
 }
 
 export function RangeFilter(props: RangeFilterProps) {
   const {
     id,
+    value,
     filteredData,
     originalData,
     focusedValue,
@@ -24,6 +26,27 @@ export function RangeFilter(props: RangeFilterProps) {
     longFormat,
     onChange,
   } = props;
+
+  const [localValue, setLocalValue] = React.useState<
+    [number, number] | undefined
+  >(value);
+  const currentValue = React.useRef<[number, number] | undefined>();
+
+  const updateValue = React.useCallback(
+    debounce(() => {
+      onChange(currentValue.current);
+    }, 400),
+    []
+  );
+  React.useEffect(() => {
+    updateValue();
+    currentValue.current = localValue;
+  }, [localValue]);
+
+  React.useEffect(() => {
+    setLocalValue(value);
+  }, [props.value]);
+
   const filteredHistogramData = filteredData
     .map(row => row[id])
     .filter(Number.isFinite);
@@ -35,8 +58,8 @@ export function RangeFilter(props: RangeFilterProps) {
   return (
     <HtmlHistogram
       id={id}
-      onChange={onChange}
-      value={props?.value}
+      onChange={setLocalValue}
+      value={localValue}
       original={originalHistogramData}
       filtered={filteredHistogramData}
       focusedValue={focusedValue}
