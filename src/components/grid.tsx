@@ -80,11 +80,21 @@ export function Grid(props: GridProps) {
 
   React.useEffect(() => {
     handleDataChange(props.data);
+
+    if (!ref.current) return;
+
+    // @ts-ignore
+    ref.current.scrollToItem({
+      columnIndex: 0,
+      rowIndex: 0,
+      align: 'center',
+    });
   }, [props.data]);
 
   React.useEffect(() => {
     if (props.metadata) handleMetadataChange(props.metadata);
   }, [props.metadata]);
+  ``;
 
   React.useEffect(() => {
     if (props.diffData) handleDiffDataChange(props.diffData);
@@ -298,7 +308,7 @@ export function Grid(props: GridProps) {
     );
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white fade-up-in">
       {/* <div className="bg-white h-10 flex px-4 border-b border-gray-200">
         <Toggle onChange={handleShowFiltersChange} checked={showFilters}>
           Show Filters
@@ -505,7 +515,7 @@ const CellWrapper = function(props: CellProps) {
   if (status === 'modified') {
     const modifiedColumnNames =
       filteredData[rowIndex].__modifiedColumnNames__ || [];
-    status = modifiedColumnNames.includes(name) ? 'modified' : undefined;
+    status = modifiedColumnNames.includes(name) ? 'modified' : 'modified-row';
   }
 
   // @ts-ignore®

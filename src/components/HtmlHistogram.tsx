@@ -107,7 +107,7 @@ export function HtmlHistogram(props: HistogramProps) {
                 >
                   {focusedBinIndex == i && (
                     <div
-                      className="absolute inset-0 bg-indigo-100"
+                      className="absolute inset-0 bg-indigo-100 transition"
                       style={{ top: -3, left: -1, right: -1 }}
                     />
                   )}
@@ -118,7 +118,7 @@ export function HtmlHistogram(props: HistogramProps) {
                     }}
                   ></div>
                   <div
-                    className="absolute bottom-0 left-0 right-0 bg-indigo-500 ease-out transition-all"
+                    className="absolute bottom-0 left-0 right-0 bg-indigo-500 y-scale-in transition-all ease-out origin-bottom"
                     style={{
                       height: `${filteredHeight}%`,
                     }}

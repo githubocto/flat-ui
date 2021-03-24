@@ -3,7 +3,7 @@ import { areEqual } from 'react-window';
 import cc from 'classcat';
 import anchorme from 'anchorme';
 import { cellTypeMap } from '../store';
-import { DashIcon, PlusIcon } from '@primer/octicons-react';
+import { DashIcon, DiffModifiedIcon, PlusIcon } from '@primer/octicons-react';
 
 interface CellProps {
   type: string;
@@ -71,6 +71,25 @@ export const Cell = React.memo(function(props: CellProps) {
       )
     : '';
 
+  const StatusIcon =
+    isFirstColumn &&
+    // @ts-ignore
+    {
+      new: PlusIcon,
+      old: DashIcon,
+      modified: DiffModifiedIcon,
+      'modified-row': DiffModifiedIcon,
+    }[status || ''];
+  const statusColor =
+    isFirstColumn &&
+    // @ts-ignore
+    {
+      new: 'text-green-400',
+      old: 'text-pink-400',
+      modified: 'text-yellow-500',
+      'modified-row': 'text-yellow-500',
+    }[status || ''];
+
   return (
     <div
       className={cellClass}
@@ -81,16 +100,8 @@ export const Cell = React.memo(function(props: CellProps) {
       }}
     >
       {isFirstColumn && (
-        <div
-          className={`w-6 flex-none ${
-            status === 'new' ? 'text-green-400' : 'text-pink-400'
-          }`}
-        >
-          {status === 'new' ? (
-            <PlusIcon />
-          ) : status === 'old' ? (
-            <DashIcon />
-          ) : null}
+        <div className={`w-6 flex-none ${statusColor}`}>
+          {StatusIcon && <StatusIcon />}
         </div>
       )}
 

@@ -23,6 +23,34 @@ body {
   @apply bg-indigo-100;
 }
 
+@keyframes yScaleIn {
+  0% {
+    transform: scaleY(0);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+.y-scale-in {
+  animation: yScaleIn 0.4s ease-out;
+}
+
+@keyframes fadeUpIn {
+  0% {
+    opacity: 0;
+    transform: translateY(3em);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up-in {
+  animation: fadeUpIn 0.4s ease-out;
+}
+
 .html-histogram__thumb {
   opacity: 0;
   transition: opacity 0.3s ease-out;
