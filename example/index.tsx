@@ -69,6 +69,12 @@ const dataUrls = [
   'https://raw.githubusercontent.com/the-pudding/data/master/people-map/people-map.csv',
   'https://raw.githubusercontent.com/the-pudding/data/master/rain/annual_precipitation.csv',
   'https://raw.githubusercontent.com/the-pudding/data/master/pockets/measurements.csv',
+  'https://raw.githubusercontent.com/the-pudding/data/master/filmordigital/top_movies_data.csv',
+  'https://raw.githubusercontent.com/the-pudding/data/master/laugh/reddit-laughs.csv',
+  'https://raw.githubusercontent.com/the-pudding/data/master/summer-reading/hipster.csv',
+  'https://raw.githubusercontent.com/the-pudding/data/master/vogue/faces.csv',
+  'https://raw.githubusercontent.com/the-pudding/data/master/one-hit-wonders/data.csv',
+  'https://raw.githubusercontent.com/the-pudding/data/master/stand-up/ali-wong--topics.csv',
 ];
 
 ReactDOM.render(<App />, document.getElementById('root'));
