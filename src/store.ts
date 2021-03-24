@@ -1,6 +1,6 @@
 import create, { StateCreator } from 'zustand';
 import produce from 'immer';
-import { format as d3Format, timeFormat, descending } from 'd3';
+import { format as d3Format, timeFormat, descending, max, min } from 'd3';
 import fromPairs from 'lodash.frompairs';
 import isValidDate from 'date-fns/isValid';
 import parseDate from 'date-fns/parse';
@@ -46,6 +46,8 @@ type GridState = {
   handleFocusedRowIndexChange: (rowIndex?: number) => void;
   schema?: object;
   cellTypes: Record<string, string>;
+  columnWidths: number[];
+  updateColumnWidths: () => void;
   updateColumnNames: () => void;
   updateFilteredColumns: () => void;
 };
@@ -238,6 +240,31 @@ export const useGridStore = create<GridState>(
           .sort(sortFunction)
           .map((d, i) => ({ ...d, __rowIndex__: i }));
         draft.diffs = draft.filteredData.filter(d => !!d.__status__);
+      }),
+    columnWidths: [],
+    updateColumnWidths: () =>
+      set(draft => {
+        const columnWidths = draft.columnNames.map(
+          (columnName: string, columnIndex: number) => {
+            // @ts-ignore
+            const cellType = draft.cellTypes[columnName];
+            // @ts-ignore
+            const cellInfo = cellTypeMap[cellType];
+            if (!cellInfo) return 150;
+
+            const values = draft.data.map(
+              d => cellInfo.format(d[columnName] || '').length
+            );
+            const maxLength = max(values);
+            const numberOfChars = min([maxLength + 3, 19]);
+            return (
+              Math.max(cellInfo.minWidth || 100, numberOfChars * 15) +
+              (columnIndex === 0 ? 30 : 0) +
+              (cellInfo.extraCellHorizontalPadding || 0)
+            );
+          }
+        );
+        draft.columnWidths = columnWidths;
       }),
     updateColumnNames: () =>
       set(draft => {

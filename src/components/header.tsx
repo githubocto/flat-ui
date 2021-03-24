@@ -12,6 +12,7 @@ interface HeaderProps {
   style: object;
   cellInfo: object;
   cellType: string;
+  width?: number;
   columnName: string;
   activeSortDirection?: string;
   metadata?: string;
@@ -32,6 +33,7 @@ export function Header(props: HeaderProps) {
     style,
     columnName,
     activeSortDirection,
+    width,
     metadata,
     originalData,
     filteredData,
@@ -156,6 +158,7 @@ export function Header(props: HeaderProps) {
             filteredData={filteredData}
             value={filter}
             possibleValues={possibleValues}
+            maxWidth={width}
             // @ts-ignore
             shortFormat={cellInfo.shortFormat}
             // @ts-ignore

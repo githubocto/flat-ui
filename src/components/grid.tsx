@@ -1,7 +1,7 @@
 import React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 // @ts-ignore
-import { extent, max, min, scaleLinear, bisectLeft } from 'd3';
+import { extent, scaleLinear, bisectLeft } from 'd3';
 
 import { FilterValue } from '../types';
 import { StickyGrid } from './sticky-grid';
@@ -72,6 +72,8 @@ export function Grid(props: GridProps) {
     updateColumnNames,
     handleSortChange,
     handleStickyColumnNameChange,
+    columnWidths,
+    updateColumnWidths,
     schema,
     cellTypes,
   } = useGridStore(state => state);
@@ -126,28 +128,7 @@ export function Grid(props: GridProps) {
 
   const isFiltered = Object.keys(filters).length > 0;
 
-  const columnWidths = React.useMemo(
-    () =>
-      columnNames.map((columnName: string, columnIndex: number) => {
-        // @ts-ignore
-        const cellType = cellTypes[columnName];
-        // @ts-ignore
-        const cellInfo = cellTypeMap[cellType];
-        if (!cellInfo) return 150;
-
-        const values = data.map(
-          d => cellInfo.format(d[columnName] || '').length
-        );
-        const maxLength = max(values);
-        const numberOfChars = min([maxLength + 3, 19]);
-        return (
-          Math.max(cellInfo.minWidth || 100, numberOfChars * 15) +
-          (columnIndex === 0 ? 30 : 0) +
-          (cellInfo.extraCellHorizontalPadding || 0)
-        );
-      }),
-    [columnNames, data]
-  );
+  React.useEffect(updateColumnWidths, [columnNames, data]);
 
   const columnScales = React.useMemo(() => {
     let scales = {};
@@ -612,6 +593,7 @@ const HeaderWrapper = function(props: CellProps) {
   const {
     data: originalData,
     columnNames,
+    columnWidths,
     stickyColumnName,
     handleStickyColumnNameChange,
     filters,
@@ -628,6 +610,7 @@ const HeaderWrapper = function(props: CellProps) {
   const { showFilters } = data;
 
   const columnName = columnNames[columnIndex];
+  const columnWidth = columnWidths[columnIndex];
 
   // @ts-ignore
   const cellType = cellTypes[columnName];
@@ -655,6 +638,7 @@ const HeaderWrapper = function(props: CellProps) {
       columnName={columnName}
       cellType={cellType}
       cellInfo={cellInfo}
+      width={columnWidth}
       activeSortDirection={activeSortDirection}
       originalData={originalData}
       filteredData={filteredData}
@@ -679,6 +663,7 @@ interface HeaderComputedProps {
   cellInfo: object;
   cellType: string;
   columnName: string;
+  width?: number;
   activeSortDirection?: string;
   metadata?: string;
   originalData: any[];
@@ -703,6 +688,7 @@ const HeaderWrapperComputed = React.memo(
     if (props.activeSortDirection != newProps.activeSortDirection) return false;
     if (props.filteredData != newProps.filteredData) return false;
     if (props.filter != newProps.filter) return false;
+    if (props.width != newProps.width) return false;
     if (props.isSticky != newProps.isSticky) return false;
     if (props.focusedValue != newProps.focusedValue) return false;
     if (props.style.width != newProps.style.width) return false;

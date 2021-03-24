@@ -7,6 +7,7 @@ interface RangeFilterProps {
   filteredData: any[];
   originalData: any[];
   focusedValue?: number;
+  maxWidth?: number;
   shortFormat: (value: number) => string;
   longFormat: (value: number) => string;
   onChange: (value: string | [number, number]) => void;
@@ -19,6 +20,7 @@ export function RangeFilter(props: RangeFilterProps) {
     originalData,
     focusedValue,
     shortFormat,
+    maxWidth,
     longFormat,
     onChange,
   } = props;
@@ -38,6 +40,7 @@ export function RangeFilter(props: RangeFilterProps) {
       original={originalHistogramData}
       filtered={filteredHistogramData}
       focusedValue={focusedValue}
+      maxWidth={maxWidth}
       shortFormat={shortFormat}
       longFormat={longFormat}
     />

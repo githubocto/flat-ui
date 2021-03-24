@@ -13,6 +13,7 @@ interface HistogramProps {
   id: string;
   focusedValue?: number;
   onChange: (value: [number, number]) => void;
+  maxWidth?: number;
   value?: [number, number];
 }
 
@@ -24,11 +25,13 @@ export function HtmlHistogram(props: HistogramProps) {
     focusedValue,
     shortFormat,
     longFormat,
+    maxWidth,
     onChange,
   } = props;
   const height = 30;
 
-  let bins = bin().thresholds(11)(original);
+  const maxBins = maxWidth ? Math.max(0, Math.floor(maxWidth / 6) * 0.55) : 11;
+  let bins = bin().thresholds(maxBins)(original);
 
   if (bins.filter(d => d.length).length < 3) {
     bins = bin().thresholds(1)(original);
