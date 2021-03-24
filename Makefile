@@ -4,7 +4,7 @@ deploy:
 	git checkout pages
 	cd example
 	git pull --rebase
-	git rebase master
+	git rebase main
 	yarn build
 	git add docs/\*
 	git commit -m "deploy pages"
