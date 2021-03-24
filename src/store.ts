@@ -232,7 +232,9 @@ export const useGridStore = create<GridState>(
           // @ts-ignore
           cellTypeMap[draft?.cellTypes[draft.sort[0]]]?.sortValueType
         );
-        draft.filteredData = [...filterData(draft.data, draft.filters)]
+        draft.filteredData = [
+          ...filterData(draft.data, draft.filters, draft.cellTypes),
+        ]
           .sort(sortFunction)
           .map((d, i) => ({ ...d, __rowIndex__: i }));
         draft.diffs = draft.filteredData.filter(d => !!d.__status__);
@@ -266,14 +268,22 @@ const utilKeys = [
   '__rowIndex__',
   '__rawData__',
 ];
-function filterData(data: any[], filters: FilterMap<FilterValue>) {
+function filterData(
+  data: any[],
+  filters: FilterMap<FilterValue>,
+  cellTypes: Record<string, string>
+) {
   return Object.keys(filters).reduce((rows, columnName) => {
     const filterValue = filters[columnName];
 
     if (typeof filterValue === 'string') {
-      return matchSorter(rows, filterValue, {
-        keys: [columnName],
-      });
+      if (cellTypes[columnName] === 'category') {
+        return rows.filter(row => row[columnName] === filterValue);
+      } else {
+        return matchSorter(rows, filterValue, {
+          keys: [columnName],
+        });
+      }
     }
 
     if (Array.isArray(filterValue)) {
