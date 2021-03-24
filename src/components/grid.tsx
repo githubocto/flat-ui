@@ -3,12 +3,12 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 // @ts-ignore
 import { extent, scaleLinear, bisectLeft } from 'd3';
 
-import { FilterValue } from '../types';
+import { FilterValue, FilterMap, CategoryValue } from '../types';
 import { StickyGrid } from './sticky-grid';
 import { Header } from './header';
 import { Cell } from './cell';
 import { Loader } from './loader';
-import { useGridStore, cellTypeMap, FilterMap } from '../store';
+import { useGridStore, cellTypeMap } from '../store';
 import {
   ArrowRightIcon,
   ArrowLeftIcon,
@@ -507,10 +507,13 @@ const CellWrapper = function(props: CellProps) {
 
   if (!filteredData[rowIndex]) return null;
 
-  let possibleValues = type === 'category' ? categoryValues[name] : undefined;
-
   const value = filteredData[rowIndex][name];
   const rawValue = filteredData[rowIndex]['__rawData__']?.[name];
+
+  let possibleValues = type === 'category' ? categoryValues[name] : [];
+  const possibleValue = possibleValues?.find(d => d.value === value);
+  const categoryColor = possibleValue?.color;
+
   let status = filteredData[rowIndex].__status__;
   if (status === 'modified') {
     const modifiedColumnNames =
@@ -547,7 +550,7 @@ const CellWrapper = function(props: CellProps) {
       type={type}
       value={value}
       rawValue={rawValue}
-      possibleValues={possibleValues}
+      categoryColor={categoryColor}
       background={backgroundColor}
       style={style}
       status={status}
@@ -568,7 +571,7 @@ interface CellComputedProps {
   rawValue: any;
   style: StyleObject;
   background?: string;
-  possibleValues?: string | number[];
+  categoryColor?: string;
   status?: string;
   isFirstColumn?: boolean;
   isNearRightEdge?: boolean;
@@ -584,7 +587,7 @@ const CellWrapperComputed = React.memo(
     if (props.type != newProps.type) return false;
     if (props.background != newProps.background) return false;
     if (props.style != newProps.style) return false;
-    if (props.possibleValues != newProps.possibleValues) return false;
+    if (props.categoryColor != newProps.categoryColor) return false;
     if (props.status != newProps.status) return false;
     if (props.isNearRightEdge != newProps.isNearRightEdge) return false;
     if (props.isNearBottomEdge != newProps.isNearBottomEdge) return false;
@@ -678,7 +681,7 @@ interface HeaderComputedProps {
   metadata?: string;
   originalData: any[];
   filteredData: any[];
-  possibleValues?: string | number[];
+  possibleValues?: CategoryValue[];
   filter?: FilterValue;
   focusedValue?: number;
   showFilters: boolean;

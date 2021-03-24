@@ -5,7 +5,7 @@ import fromPairs from 'lodash.frompairs';
 import isValidDate from 'date-fns/isValid';
 import parseDate from 'date-fns/parse';
 
-import { FilterValue } from './types';
+import { FilterValue, FilterMap, CategoryValue } from './types';
 import { matchSorter } from 'match-sorter';
 import { DateCell } from './components/cells/date';
 import { TimeCell } from './components/cells/time';
@@ -16,8 +16,6 @@ import { CategoryCell } from './components/cells/category';
 import { StringFilter } from './components/filters/string';
 import { CategoryFilter } from './components/filters/category';
 import { RangeFilter } from './components/filters/range';
-
-export type FilterMap<T> = Record<string, T>;
 
 export const immer = <T extends {}>(
   config: StateCreator<T, (fn: (draft: T) => void) => void>
@@ -39,7 +37,7 @@ type GridState = {
   handleFiltersChange: (newFilters?: FilterMap<FilterValue>) => void;
   handleDataChange: (data: any[]) => void;
   handleDiffDataChange: (data: any[]) => void;
-  categoryValues: Record<string, string | number[]>;
+  categoryValues: Record<string, CategoryValue[]>;
   sort: string[];
   handleSortChange: (columnName: string, direction: string) => void;
   focusedRowIndex?: number;
@@ -69,10 +67,6 @@ export const useGridStore = create<GridState>(
       set(draft => {
         // @ts-ignore
         draft.schema = generateSchema(data);
-        const categoryColumnNames = Object.keys(draft.schema).filter(
-          // @ts-ignore
-          columnName => draft.schema[columnName] === 'category'
-        );
 
         // @ts-ignore
         const propertyMap = draft.schema;
@@ -108,16 +102,6 @@ export const useGridStore = create<GridState>(
                 : 'desc',
             ]
           : [];
-
-        draft.categoryValues = fromPairs(
-          categoryColumnNames.map(columnName => {
-            const values = new Set(draft.data.map(d => d[columnName]));
-            return [
-              columnName,
-              Array.from(values).filter(d => (d || '').trim().length),
-            ];
-          })
-        );
       }),
     handleMetadataChange: metadata =>
       set(draft => {
@@ -240,6 +224,32 @@ export const useGridStore = create<GridState>(
           .sort(sortFunction)
           .map((d, i) => ({ ...d, __rowIndex__: i }));
         draft.diffs = draft.filteredData.filter(d => !!d.__status__);
+
+        const categoryColumnNames = Object.keys(draft.schema || {}).filter(
+          // @ts-ignore
+          columnName => draft.schema[columnName] === 'category'
+        );
+        draft.categoryValues = fromPairs(
+          categoryColumnNames.map(columnName => {
+            const values = new Set(draft.data.map(d => d[columnName]));
+            return [
+              columnName,
+              Array.from(values)
+                .filter(d => (d || '').trim().length)
+                .map(
+                  (value: string, index): CategoryValue => {
+                    return {
+                      value,
+                      count: draft.filteredData.filter(
+                        d => d[columnName] === value
+                      ).length,
+                      color: categoryColors[index % categoryColors.length],
+                    };
+                  }
+                ),
+            ];
+          })
+        );
       }),
     columnWidths: [],
     updateColumnWidths: () =>
@@ -553,3 +563,14 @@ export const cellTypeMap = {
     sortValueType: 'number',
   },
 };
+
+export const categoryColors = [
+  'bg-gray-100 text-gray-600',
+  'bg-yellow-100 text-yellow-600',
+  'bg-indigo-100 text-indigo-600',
+  'bg-pink-100 text-pink-600',
+  'bg-blue-100 text-blue-600',
+  'bg-green-100 text-green-600',
+  'bg-purple-100 text-purple-600',
+  'bg-red-100 text-red-600',
+];

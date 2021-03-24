@@ -50,6 +50,20 @@ body {
 .fade-up-in {
   animation: fadeUpIn 0.4s ease-out;
 }
+@keyframes fadeUpSmIn {
+  0% {
+    opacity: 0;
+    transform: translateY(0.6em);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up-sm-in {
+  animation: fadeUpSmIn 0.4s ease-out;
+}
 
 .html-histogram__thumb {
   opacity: 0;
@@ -112,4 +126,7 @@ body {
 
 .sticky-grid__header:hover {
   z-index: 150 !important;
+}
+.sticky-grid__header:focus-within {
+  z-index: 160 !important;
 }

@@ -6,7 +6,7 @@ import {
   InfoIcon,
   PinIcon,
 } from '@primer/octicons-react';
-import { FilterValue } from '../types';
+import { FilterValue, CategoryValue } from '../types';
 
 interface HeaderProps {
   style: object;
@@ -18,7 +18,7 @@ interface HeaderProps {
   metadata?: string;
   originalData: any[];
   filteredData: any[];
-  possibleValues?: string | number[];
+  possibleValues?: CategoryValue[];
   filter?: FilterValue;
   focusedValue?: number;
   showFilters: boolean;

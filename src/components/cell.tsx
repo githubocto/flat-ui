@@ -10,7 +10,7 @@ interface CellProps {
   value: any;
   rawValue: any;
   formattedValue?: any;
-  possibleValues?: string | number[];
+  categoryColor?: string;
   style?: {};
   status?: string;
   isNearRightEdge?: boolean;
@@ -26,7 +26,7 @@ export const Cell = React.memo(function(props: CellProps) {
     value,
     rawValue,
     formattedValue,
-    possibleValues,
+    categoryColor,
     status,
     isFirstColumn,
     isNearRightEdge,
@@ -109,7 +109,7 @@ export const Cell = React.memo(function(props: CellProps) {
         value={value}
         formattedValue={stringWithLinks}
         rawValue={rawValue}
-        possibleValues={possibleValues}
+        categoryColor={categoryColor}
       />
 
       {isLongValue && (
