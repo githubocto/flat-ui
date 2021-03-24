@@ -36,8 +36,8 @@ export function CategoryFilter(props: CategoryFilterProps) {
         getRootProps,
       }) => (
         <div
-          className="w-full h-full -m-2 -mt-4"
-          style={{ height: `calc(100% + 2rem)` }}
+          className="w-full h-full -m-2 -mt-2"
+          style={{ height: `calc(100% + 1rem)` }}
         >
           <div
             className="h-full w-full"
