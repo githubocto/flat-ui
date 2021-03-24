@@ -1,6 +1,7 @@
 import React from 'react';
 // @ts-ignore
 import { format } from 'd3';
+import { debounce } from 'lodash';
 
 const formatNumber = format(',');
 interface StringFilterProps {
@@ -10,15 +11,29 @@ interface StringFilterProps {
 }
 
 export function StringFilter(props: StringFilterProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    props.onChange(e.target.value);
-  };
+  const [localValue, setLocalValue] = React.useState<string>(props.value || '');
+  const currentValue = React.useRef<string>('');
+
+  const updateValue = React.useCallback(
+    debounce(() => {
+      props.onChange(currentValue.current);
+    }, 400),
+    []
+  );
+  React.useEffect(() => {
+    updateValue();
+    currentValue.current = localValue;
+  }, [localValue]);
+
+  React.useEffect(() => {
+    setLocalValue(props.value || '');
+  }, [props.value]);
 
   return (
     <input
       className="px-3 py-3 text-indigo-500 placeholder-gray-400 bg-white outline-none focus:outline-none focus:shadow-outline w-full overflow-ellipsis"
-      onChange={handleChange}
-      value={props?.value || ''}
+      onChange={e => setLocalValue(e.target.value)}
+      value={localValue || ''}
       placeholder={`Filter ${formatNumber(props.filteredData.length)} records`}
     />
   );
