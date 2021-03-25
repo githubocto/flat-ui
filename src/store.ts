@@ -1,6 +1,13 @@
 import create, { StateCreator } from 'zustand';
 import produce from 'immer';
-import { format as d3Format, timeFormat, descending, max, min } from 'd3';
+import {
+  format as d3Format,
+  timeFormat,
+  descending,
+  max,
+  min,
+  extent,
+} from 'd3';
 import fromPairs from 'lodash.frompairs';
 import isValidDate from 'date-fns/isValid';
 import parseDate from 'date-fns/parse';
@@ -419,12 +426,21 @@ function generateSchema(data: any[]) {
       };
       const isFirstValueADate = isDate(value);
       if (isFirstValueADate) {
-        const values = data
-          .map(d => d[metric])
-          .filter(d => d)
-          .slice(0, 30);
-        const areMultipleValuesDates = !values.find(d => !isDate(d));
-        if (areMultipleValuesDates) return [metric, 'date'];
+        const values = data.map(d => d[metric]).filter(d => d);
+
+        const areMultipleValuesDates = !values
+          .slice(0, 30)
+          .find(d => !isDate(d));
+        if (areMultipleValuesDates) {
+          const dateRange = extent(values, d =>
+            new Date(d).getTime()
+          ) as number[];
+
+          const oneYear = 1000 * 60 * 60 * 24 * 365;
+          const type =
+            dateRange[1] - dateRange[0] > oneYear ? 'date' : 'short-range-date';
+          return [metric, type];
+        }
       }
       const isFirstValueATime = isTime(value);
       if (isFirstValueATime) {
@@ -544,11 +560,20 @@ export const cellTypeMap = {
     hasScale: true,
     sortValueType: 'number',
   },
-  date: {
+  'short-range-date': {
     cell: DateCell,
     filter: RangeFilter,
     format: timeFormat('%B %-d %Y'),
     shortFormat: timeFormat('%-m/%-d'),
+    parseValueFunction: Date.parse,
+    hasScale: true,
+    sortValueType: 'number',
+  },
+  date: {
+    cell: DateCell,
+    filter: RangeFilter,
+    format: timeFormat('%B %-d %Y'),
+    shortFormat: timeFormat('%-Y'),
     parseValueFunction: Date.parse,
     hasScale: true,
     sortValueType: 'number',
