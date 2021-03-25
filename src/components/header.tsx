@@ -65,17 +65,17 @@ export function Header(props: HeaderProps) {
         style={{ height: 37 }}
         // ref={popoverAnchorRef}
       >
-        <div className="header__title group absolute top-0 left-0 bottom-0 z-10 bg-white text-gray-600 shadow-md flex items-center">
+        <div className="header__title group absolute top-0 left-0 bottom-0 z-10 bg-gray-50 text-gray-600 shadow-md flex items-center">
           <button
             onClick={() => onSticky()}
-            className={`h-full p-2 border-indigo-100 focus:bg-indigo-100 hover:bg-indigo-100 bg-gray-50 appearance-none ${
+            className={`h-full p-2 border-indigo-100 focus:bg-indigo-100 hover:bg-indigo-100 appearance-none ${
               isSticky ? 'opacity-100' : 'opacity-0 -ml-6 shadow-md'
             } focus:opacity-100 group-hover:opacity-100 text-indigo-400 bg-indigo-50 focus:ring-indigo-300`}
           >
             <PinIcon />
           </button>
           <button
-            className="group flex justify-between items-center h-full p-2 border-gray-200 focus:bg-gray-200 hover:bg-gray-200 appearance-none bg-white flex-1 min-w-0"
+            className="group flex justify-between items-center h-full p-2 border-white focus:bg-white hover:bg-white appearance-none flex-1 min-w-0"
             onClick={() =>
               onSort(columnName, activeSortDirection == 'asc' ? 'desc' : 'asc')
             }
@@ -119,7 +119,7 @@ export function Header(props: HeaderProps) {
           )}
         </div>
         {/* <DropdownMenu.Root>
-          <DropdownMenu.Trigger className="flex h-full items-center justify-center px-1 focus:outline-none focus:ring focus:bg-gray-200 hover:bg-gray-200">
+          <DropdownMenu.Trigger className="flex h-full items-center justify-center px-1 focus:outline-none focus:ring focus:bg-white hover:bg-white">
             {activeSortDirection == "desc" ? <ArrowDownIcon /> :
               activeSortDirection == "asc" ? <ArrowUpIcon /> :
                 <ChevronDownIcon />
