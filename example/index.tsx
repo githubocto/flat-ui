@@ -30,7 +30,6 @@ const App = () => {
         setData([]);
       });
 
-      console.log(res);
       // @ts-ignore
       setData(Array.isArray(res) ? res : []);
       setIsLoading(false);
