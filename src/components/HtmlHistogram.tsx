@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useMemo } from 'react';
-import { bin } from 'd3-array';
+import { ascending, bin } from 'd3-array';
 import { min, max, extent, scaleLinear } from 'd3';
 import { getTrackBackground, Range } from 'react-range';
 import cc from 'classcat';
@@ -30,19 +30,41 @@ export function HtmlHistogram(props: HistogramProps) {
   } = props;
   const height = 30;
 
-  const maxBins = maxWidth ? Math.max(0, Math.floor(maxWidth / 6) * 0.55) : 11;
-  let bins = bin().thresholds(maxBins)(original);
+  const { bins } = React.useMemo(() => {
+    const maxBins = maxWidth
+      ? Math.max(0, Math.floor(maxWidth / 6) * 0.55)
+      : 11;
+    let bins = bin().thresholds(maxBins)(original);
 
-  if (bins.filter(d => d.length).length < 3) {
-    bins = bin().thresholds(1)(original);
-  }
+    if (original.length < 200) {
+      const uniqueValues = Array.from(new Set(original)).sort(ascending);
+      const numberOfUniqueValues = uniqueValues.length;
+      if (numberOfUniqueValues > 1) {
+        const firstValueSpacing = uniqueValues[1] - uniqueValues[0];
+        const areValuesEquallySpaced = !uniqueValues.find(
+          (value, index) =>
+            !index || value - uniqueValues[index - 1] !== firstValueSpacing
+        );
+        if (areValuesEquallySpaced) {
+          // creates an infinite loop for some reason, leaving out for now
+          // bins = bin().thresholds([...uniqueValues, uniqueValues.slice(-1)[0] + firstValueSpacing])(original);
+          bins = bin().thresholds(numberOfUniqueValues)(original);
+        } else {
+          if (bins.length > numberOfUniqueValues) {
+            bins = bin().thresholds(numberOfUniqueValues)(original);
+          }
+        }
+      }
+    }
+    return { bins };
+  }, [original, maxWidth, value]);
 
   const filteredBins = bins.map(bin => {
     let newBin = filtered.filter(d => d >= bin.x0 && d < bin.x1);
     return newBin;
   });
 
-  const xScaleDomain = [min(bins, d => d.x0), max(bins, d => d.x1)];
+  const xScaleDomain = [min(bins, d => d.x0), max(original)];
   const xScale = scaleLinear()
     .domain(xScaleDomain)
     .range([0, 100]);
@@ -65,6 +87,7 @@ export function HtmlHistogram(props: HistogramProps) {
   const barWidth = 4;
   const barSpacing = 2;
   const totalBarWidth = barWidth + barSpacing;
+  const totalWidth = filteredBins.length * totalBarWidth;
 
   const stepSize =
     bins.length > 1 ? xScale(bins[1].x1) - xScale(bins[0].x1) : 100;
@@ -137,10 +160,7 @@ export function HtmlHistogram(props: HistogramProps) {
         )} */}
           </div>
 
-          <div
-            className="mt-1 mb-3"
-            style={{ width: filteredBins.length * totalBarWidth }}
-          >
+          <div className="mt-1 mb-3" style={{ width: totalWidth }}>
             <Range
               min={0}
               max={100}
@@ -213,15 +233,25 @@ export function HtmlHistogram(props: HistogramProps) {
       )}
 
       <div
-        className={`html-histogram__numbers flex justify-between tabular-nums text-xs text-gray-400 html-histogram__numbers--${
+        className={`html-histogram__numbers flex justify-center tabular-nums text-xs text-gray-400 whitespace-nowrap html-histogram__numbers--${
           isFiltered ? 'filtered' : 'base'
         }`}
-        style={{ margin: '0 -5px -9px' }}
+        style={{ margin: '0 -5px -9px', width: totalWidth + 10 }}
       >
-        <div className={cc({ 'text-indigo-500': rangeValues[0] != 0 })}>
+        <div
+          className={cc([
+            'flex justify-start pr-2 flex-1',
+            { 'text-indigo-500': rangeValues[0] != 0 },
+          ])}
+        >
           {shortFormat(xScale.invert(rangeValues[0]))}
         </div>
-        <div className={cc({ 'text-indigo-500': rangeValues[1] != 100 })}>
+        <div
+          className={cc([
+            'flex justify-end pl-2 flex-1',
+            { 'text-indigo-500': rangeValues[1] != 100 },
+          ])}
+        >
           {shortFormat(xScale.invert(rangeValues[1]))}
         </div>
       </div>

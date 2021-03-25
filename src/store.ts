@@ -544,7 +544,8 @@ export const cellTypeMap = {
     cell: NumberCell,
     filter: RangeFilter,
     format: (d: number) => d + '',
-    shortFormat: d3Format(',.2s'),
+    shortFormat: (d: number) =>
+      d < 1000 && Math.round(d) === d ? d3Format(',')(d) : d3Format(',.2s')(d),
     parseValueFunction: (d: any[]) => +d,
     minWidth: 126,
     hasScale: true,
