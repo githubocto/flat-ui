@@ -39,6 +39,7 @@ function useInnerElementType(
   columnWidth,
   rowHeight,
   itemData,
+  numberOfStickiedColumns,
   HeaderComponent
 ) {
   return React.useMemo(
@@ -55,7 +56,7 @@ function useInnerElementType(
 
         function sumColumnWidths(index) {
           let sum = 0;
-          while (index > 1) {
+          while (index > numberOfStickiedColumns) {
             sum += columnWidth(index - 1);
             index -= 1;
           }
@@ -65,14 +66,14 @@ function useInnerElementType(
         const shownIndicies = getShownIndicies(props.children);
 
         const shownColumnsCount =
-          shownIndicies.to.column - shownIndicies.from.column ||
+          shownIndicies.to.column - shownIndicies.from.column + 1 ||
           itemData.columnNames.length;
         const shownRowsCount = shownIndicies.to.row - shownIndicies.from.row;
 
         const shownColumns = new Array(shownColumnsCount).fill(0);
         const shownRows = new Array(shownRowsCount || 1).fill(0);
-        const columnWidths = shownColumns.map((_, i) =>
-          columnWidth(i + shownIndicies.from.column)
+        const columnWidths = [...shownColumns, 0].map(
+          (_, i) => columnWidth(i + shownIndicies.from.column) || 0
         );
         const totalColumnWidths = columnWidths.reduce((a, b) => a + b, 0);
 
@@ -88,31 +89,35 @@ function useInnerElementType(
             }}
           >
             {/* top left cell */}
-            <HeaderComponent
-              key="0:0"
-              rowIndex={0}
-              columnIndex={0}
-              data={itemData}
-              style={{
-                display: 'inline-flex',
-                width: columnWidth(0),
-                height: rowHeight(0),
-                position: 'sticky',
-                top: 0,
-                left: 0,
-                zIndex: 200,
-              }}
-            />
+            {numberOfStickiedColumns > 0 && (
+              <HeaderComponent
+                key="0:0"
+                rowIndex={0}
+                columnIndex={0}
+                data={itemData}
+                style={{
+                  display: 'inline-flex',
+                  width: columnWidth(0),
+                  height: rowHeight(0),
+                  position: 'sticky',
+                  top: 0,
+                  left: 0,
+                  zIndex: 200,
+                }}
+              />
+            )}
 
             {shownColumns.map((_, i) => {
-              const columnIndex = i + shownIndicies.from.column + 1;
+              const columnIndex =
+                i + shownIndicies.from.column + numberOfStickiedColumns;
               const rowIndex = 0;
 
               const width = columnWidth(columnIndex);
               const height = rowHeight(rowIndex);
-
               const marginLeft =
-                i === 1 ? sumColumnWidths(columnIndex - 1) : undefined;
+                i === numberOfStickiedColumns
+                  ? sumColumnWidths(columnIndex - numberOfStickiedColumns)
+                  : undefined;
 
               // header row
               return (
@@ -134,41 +139,43 @@ function useInnerElementType(
               );
             })}
 
-            {shownRows.map((_, i) => {
-              const columnIndex = 0;
-              const rowIndex = i + shownIndicies.from.row;
-              const width = columnWidth(columnIndex);
-              const height = rowHeight(rowIndex + 1);
+            {numberOfStickiedColumns > 0 &&
+              shownRows.map((_, i) => {
+                const columnIndex = 0;
+                const rowIndex = i + shownIndicies.from.row;
+                const width = columnWidth(columnIndex);
+                const height = rowHeight(rowIndex + 1);
 
-              const marginTop = i === 1 ? sumRowsHeights(rowIndex) : undefined;
+                const marginTop =
+                  i === 1 ? sumRowsHeights(rowIndex) : undefined;
 
-              // sticky column
-              return (
-                <Cell
-                  key={`${rowIndex}:${columnIndex}`}
-                  rowIndex={rowIndex + 1}
-                  columnIndex={columnIndex}
-                  data={itemData}
-                  style={{
-                    marginTop,
-                    width,
-                    height,
-                    position: 'sticky',
-                    left: 0,
-                    zIndex: 2,
-                  }}
-                />
-              );
-            })}
+                // sticky column
+                return (
+                  <Cell
+                    key={`${rowIndex}:${columnIndex}`}
+                    rowIndex={rowIndex + 1}
+                    columnIndex={columnIndex}
+                    data={itemData}
+                    style={{
+                      marginTop,
+                      width,
+                      height,
+                      position: 'sticky',
+                      left: 0,
+                      zIndex: 60,
+                    }}
+                  />
+                );
+              })}
 
             {props.children.filter(child => {
               const { column, row } = getCellIndicies(child);
-              return column !== 0 && row !== 0;
+              return column >= numberOfStickiedColumns && row !== 0;
             })}
           </div>
         );
       }),
-    [Cell, columnWidth, rowHeight]
+    [Cell, columnWidth, rowHeight, numberOfStickiedColumns]
   );
 }
 
@@ -184,6 +191,7 @@ interface StickyGridDataProps {
 interface StickyGridProps {
   height: number;
   width: number;
+  numberOfStickiedColumns: 0 | 1;
   rowCount: number;
   columnCount: number;
   columnWidths: number[];
@@ -201,6 +209,7 @@ const StickyGrid = React.forwardRef((props: StickyGridProps, ref) => {
         props.columnWidth,
         props.rowHeight,
         props.itemData,
+        props.numberOfStickiedColumns,
         props.HeaderComponent
       )}
     />

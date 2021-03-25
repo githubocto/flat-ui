@@ -333,6 +333,7 @@ export function Grid(props: GridProps) {
               columnCount={columnNames.length}
               rowHeight={rowHeightCallback}
               columnWidths={columnWidths}
+              numberOfStickiedColumns={width < 700 ? 0 : 1}
               overscanRowCount={5}
               onScroll={onScroll}
               itemData={{
@@ -366,7 +367,7 @@ export function Grid(props: GridProps) {
         )}
       </div>
 
-      <div className="absolute bottom-0 right-0 left-0 flex align-middle justify-between z-20 bg-gray-800 text-white border-t border-gray-200 text-sm">
+      <div className="flex-none w-full flex flex-wrap align-middle justify-between z-20 bg-gray-800 text-white border-t border-gray-200 text-sm">
         <div className="flex justify-center items-center px-4">
           {!!diffs.length && (
             <>
@@ -410,7 +411,7 @@ export function Grid(props: GridProps) {
               </button>
             </>
           )}
-          <div className="m-2 text-gray-200">
+          <div className="m-2 text-gray-200 whitespace-nowrap">
             Showing {filteredData.length.toLocaleString()}
             {isFiltered && ` of ${data.length.toLocaleString()}`} row
             {(isFiltered ? filteredData : data).length === 1 ? '' : 's'}

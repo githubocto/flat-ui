@@ -68,7 +68,7 @@ export function Header(props: HeaderProps) {
         <div className="header__title group absolute top-0 left-0 bottom-0 z-10 bg-gray-50 text-gray-600 shadow-md flex items-center">
           <button
             onClick={() => onSticky()}
-            className={`h-full p-2 border-indigo-100 focus:bg-indigo-100 hover:bg-indigo-100 appearance-none ${
+            className={`pin h-full p-2 border-indigo-100 focus:bg-indigo-100 hover:bg-indigo-100 appearance-none ${
               isSticky ? 'opacity-100' : 'opacity-0 -ml-6 shadow-md'
             } focus:opacity-100 group-hover:opacity-100 text-indigo-400 bg-indigo-50 focus:ring-indigo-300`}
           >

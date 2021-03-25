@@ -130,3 +130,9 @@ body {
 .sticky-grid__header:focus-within {
   z-index: 160 !important;
 }
+
+@media (max-width: 700px) {
+  .pin {
+    display: none;
+  }
+}
