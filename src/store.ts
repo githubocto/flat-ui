@@ -187,7 +187,7 @@ export const useGridStore = create<GridState>(
           draft.cellTypes
         );
         draft.data = [...newData, ...oldData];
-        draft.diffs = draft.data.filter(d => !!d.__status__);
+        // draft.diffs = getDiffs(draft.data)
       }),
     focusedRowIndex: undefined,
     handleFocusedRowIndexChange: rowIndex =>
@@ -225,12 +225,13 @@ export const useGridStore = create<GridState>(
           // @ts-ignore
           cellTypeMap[draft?.cellTypes[draft.sort[0]]]?.sortValueType
         );
-        draft.filteredData = [
+        let filteredData = [
           ...filterData(draft.data, draft.filters, draft.cellTypes),
-        ]
-          .sort(sortFunction)
-          .map((d, i) => ({ ...d, __rowIndex__: i }));
-        draft.diffs = draft.filteredData.filter(d => !!d.__status__);
+        ];
+        filteredData = filteredData.sort(sortFunction);
+
+        draft.filteredData = filteredData;
+        draft.diffs = getDiffs(draft.filteredData);
 
         const categoryColumnNames = Object.keys(draft.schema || {}).filter(
           // @ts-ignore
@@ -502,6 +503,17 @@ const parseData = (data: any, cellTypes: Record<string, string>) => {
       __rawData__: d,
     };
   });
+};
+
+const getDiffs = (data: any[]) => {
+  // doing it this way for perf reasons
+  // to prevent from indexing all data points
+  // which gets slow with long datasets
+  let diffs = [] as object[];
+  data.forEach((d, i) => {
+    if (d.__status__) diffs.push({ ...d, i });
+  });
+  return diffs;
 };
 
 export const cellTypeMap = {
