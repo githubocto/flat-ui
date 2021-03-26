@@ -79,8 +79,15 @@ export function HtmlHistogram(props: HistogramProps) {
 
   const focusedBinIndex =
     focusedValue &&
-    (bins.findIndex(d => d.x0 <= focusedValue && d.x1 > focusedValue) ||
-      bins.length);
+    bins.findIndex((d, i) => {
+      if (d.x0 <= focusedValue && d.x1 > focusedValue) {
+        return true;
+      }
+      if (i === bins.length - 1 && d.x1 === focusedValue) {
+        return true;
+      }
+      return false;
+    });
 
   const valueExtent = extent(original);
   const isOneValue = valueExtent[0] === valueExtent[1];
