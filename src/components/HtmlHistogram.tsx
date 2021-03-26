@@ -46,9 +46,7 @@ export function HtmlHistogram(props: HistogramProps) {
             !index || value - uniqueValues[index - 1] !== firstValueSpacing
         );
         if (areValuesEquallySpaced) {
-          // creates an infinite loop for some reason, leaving out for now
-          // bins = bin().thresholds([...uniqueValues, uniqueValues.slice(-1)[0] + firstValueSpacing])(original);
-          bins = bin().thresholds(numberOfUniqueValues)(original);
+          bins = bin().thresholds(uniqueValues)(original);
         } else {
           if (bins.length > numberOfUniqueValues) {
             bins = bin().thresholds(numberOfUniqueValues)(original);
@@ -59,8 +57,11 @@ export function HtmlHistogram(props: HistogramProps) {
     return { bins };
   }, [original, maxWidth, value]);
 
-  const filteredBins = bins.map(bin => {
-    let newBin = filtered.filter(d => d >= bin.x0 && d < bin.x1);
+  const filteredBins = bins.map((bin, binIndex) => {
+    const isLastIndex = binIndex === bins.length - 1;
+    let newBin = filtered.filter(
+      d => d >= bin.x0 && (d < bin.x1 || isLastIndex)
+    );
     return newBin;
   });
 
@@ -90,7 +91,7 @@ export function HtmlHistogram(props: HistogramProps) {
   const totalWidth = filteredBins.length * totalBarWidth;
 
   const stepSize =
-    bins.length > 1 ? xScale(bins[1].x1) - xScale(bins[0].x1) : 100;
+    bins.length > 1 ? xScale(bins[1].x1) - xScale(bins[0].x1) || 50 : 100;
 
   const isFiltered = rangeValues[0] !== 0 || rangeValues[1] !== 100;
 
