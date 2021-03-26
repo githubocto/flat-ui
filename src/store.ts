@@ -128,7 +128,11 @@ export const useGridStore = create<GridState>(
           ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
           : [];
         const columnNameUniques = columnNames
-          .filter(columnName => typeof draft.cellTypes[columnName] === 'string')
+          .filter(
+            columnName =>
+              typeof draft.cellTypes[columnName] === 'string' ||
+              columnName.toLowerCase() == 'id'
+          )
           .map(columnName => {
             const values = new Set(data.map(d => d[columnName]));
             return [columnName, values.size];
@@ -187,7 +191,7 @@ export const useGridStore = create<GridState>(
           draft.cellTypes
         );
         draft.data = [...newData, ...oldData];
-        // draft.diffs = getDiffs(draft.data)
+        // draft.diffs = getDiffs(draft.data);
       }),
     focusedRowIndex: undefined,
     handleFocusedRowIndexChange: rowIndex =>
@@ -557,8 +561,8 @@ export const cellTypeMap = {
     filter: RangeFilter,
     format: (d: number) => d + '',
     shortFormat: (d: number) =>
-      d < 1000 && Math.round(d) === d
-        ? d3Format(',')(d)
+      d < 1000 && isAlmostInteger(d)
+        ? d3Format(',.0f')(d)
         : d < 1
         ? d3Format('.2f')(d)
         : d3Format(',.2s')(d),
@@ -616,3 +620,5 @@ export const categoryColors = [
   'bg-purple-100 text-purple-600',
   'bg-red-100 text-red-600',
 ];
+
+const isAlmostInteger = (num: number) => Math.abs(Math.round(num) - num) < 0.06;

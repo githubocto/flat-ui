@@ -90,8 +90,9 @@ export function HtmlHistogram(props: HistogramProps) {
   const totalBarWidth = barWidth + barSpacing;
   const totalWidth = filteredBins.length * totalBarWidth;
 
-  const stepSize =
+  let stepSize =
     bins.length > 1 ? xScale(bins[1].x1) - xScale(bins[0].x1) || 50 : 100;
+  if (stepSize < 1) stepSize = 1;
 
   const isFiltered = rangeValues[0] !== 0 || rangeValues[1] !== 100;
 
