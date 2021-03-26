@@ -41,10 +41,11 @@ export function HtmlHistogram(props: HistogramProps) {
       const numberOfUniqueValues = uniqueValues.length;
       if (numberOfUniqueValues > 1) {
         const firstValueSpacing = uniqueValues[1] - uniqueValues[0];
-        const areValuesEquallySpaced = !uniqueValues.find(
-          (value, index) =>
-            !index || value - uniqueValues[index - 1] !== firstValueSpacing
-        );
+        const areValuesEquallySpaced =
+          uniqueValues.find(
+            (value, index) =>
+              index && value - uniqueValues[index - 1] !== firstValueSpacing
+          ) === undefined;
         if (areValuesEquallySpaced) {
           bins = bin().thresholds(uniqueValues)(original);
         } else {
@@ -78,7 +79,8 @@ export function HtmlHistogram(props: HistogramProps) {
 
   const focusedBinIndex =
     focusedValue &&
-    bins.findIndex(d => d.x0 <= focusedValue && d.x1 > focusedValue);
+    (bins.findIndex(d => d.x0 <= focusedValue && d.x1 > focusedValue) ||
+      bins.length);
 
   const valueExtent = extent(original);
   const isOneValue = valueExtent[0] === valueExtent[1];
