@@ -128,11 +128,12 @@ export const useGridStore = create<GridState>(
           ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
           : [];
         const columnNameUniques = columnNames
-          .filter(
-            columnName =>
-              typeof draft.cellTypes[columnName] === 'string' ||
-              columnName.toLowerCase() == 'id'
-          )
+          .filter(columnName => {
+            if (columnName.toLowerCase() === 'id') return true;
+            const cellType = draft.cellTypes[columnName];
+            // @ts-ignore
+            return cellTypeMap[cellType]?.sortValueType === 'string';
+          })
           .map(columnName => {
             const values = new Set(data.map(d => d[columnName]));
             return [columnName, values.size];
@@ -149,6 +150,7 @@ export const useGridStore = create<GridState>(
 
         const mostUniqueId = sortedColumnsByUniqueness[0][0];
         const idColumnName = mostUniqueId;
+        console.log({ idColumnName });
         // @ts-ignore
         draft.uniqueColumnName = mostUniqueId;
 
