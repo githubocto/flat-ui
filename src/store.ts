@@ -130,12 +130,13 @@ export const useGridStore = create<GridState>(
         const columnNameUniques = columnNames
           .filter(columnName => {
             const cellType = draft.cellTypes[columnName];
+            // @ts-ignore
+            const isString = cellTypeMap[cellType]?.sortValueType === 'string';
             if (
               columnName.toLowerCase() === 'id'
-              && cellTypeMap[cellType]?.sortValueType === 'string'
+              && isString
             ) return true;
-            // @ts-ignore
-            return cellTypeMap[cellType]?.sortValueType === 'string';
+            return isString;
           })
           .map(columnName => {
             const values = new Set(data.map(d => d[columnName]));
