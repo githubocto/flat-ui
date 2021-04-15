@@ -384,7 +384,7 @@ function generateSchema(data: any[]) {
       const getFirstValue = (data: any[]) =>
         data.find(
           d => d[metric] !== undefined && d[metric] !== null && d[metric] !== ''
-        );
+        ) || {}
 
       const value = getFirstValue(data)[metric];
 
