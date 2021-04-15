@@ -129,8 +129,11 @@ export const useGridStore = create<GridState>(
           : [];
         const columnNameUniques = columnNames
           .filter(columnName => {
-            if (columnName.toLowerCase() === 'id') return true;
             const cellType = draft.cellTypes[columnName];
+            if (
+              columnName.toLowerCase() === 'id'
+              && cellTypeMap[cellType]?.sortValueType === 'string'
+            ) return true;
             // @ts-ignore
             return cellTypeMap[cellType]?.sortValueType === 'string';
           })
