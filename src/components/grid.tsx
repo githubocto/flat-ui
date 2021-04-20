@@ -102,7 +102,7 @@ export function Grid(props: GridProps) {
 
   React.useEffect(() => {
     if (props.defaultFilters) handleFiltersChange(props.defaultFilters);
-  }, [props.defaultFilters, props.data]);
+  }, [encodeFilterString(props.defaultFilters), props.data]);
   React.useEffect(() => {
     if (props.defaultSort)
       handleSortChange(props.defaultSort[0], props.defaultSort[1]);
@@ -620,10 +620,12 @@ const HeaderWrapper = function(props: CellProps) {
     focusedRowIndex,
     cellTypes,
   } = useGridStore();
+  const columnNameRef = React.useRef('');
 
   const { showFilters } = data;
 
   const columnName = columnNames[columnIndex];
+  columnNameRef.current = columnName;
   const columnWidth = columnWidths[columnIndex];
 
   // @ts-ignore
@@ -665,9 +667,9 @@ const HeaderWrapper = function(props: CellProps) {
       isFirstColumn={columnIndex === 0}
       onSort={handleSortChange}
       onSticky={() => handleStickyColumnNameChange(columnName)}
-      onFilterChange={(value: FilterValue) =>
-        handleFilterChange(columnName, value)
-      }
+      onFilterChange={(value: FilterValue) => {
+        handleFilterChange(columnNameRef.current, value);
+      }}
     />
   );
 };
@@ -731,4 +733,23 @@ function useRespondToColumnChange(deps: any[]) {
   }, deps);
 
   return ref;
+}
+
+export function encodeFilterString(filters?: Record<string, FilterValue>) {
+  if (!filters) return '';
+  return encodeURI(
+    Object.keys(filters)
+      .map(columnName => {
+        const value = filters[columnName];
+        return [
+          columnName,
+          typeof value === 'string'
+            ? value
+            : Array.isArray(value)
+            ? value.join(',')
+            : '',
+        ].join('=');
+      })
+      .join('&')
+  );
 }
