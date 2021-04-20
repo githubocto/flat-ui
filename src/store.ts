@@ -132,10 +132,7 @@ export const useGridStore = create<GridState>(
             const cellType = draft.cellTypes[columnName];
             // @ts-ignore
             const isString = cellTypeMap[cellType]?.sortValueType === 'string';
-            if (
-              columnName.toLowerCase() === 'id'
-              && isString
-            ) return true;
+            if (columnName.toLowerCase() === 'id' && isString) return true;
             return isString;
           })
           .map(columnName => {
@@ -154,7 +151,6 @@ export const useGridStore = create<GridState>(
 
         const mostUniqueId = sortedColumnsByUniqueness[0][0];
         const idColumnName = mostUniqueId;
-        console.log({ idColumnName });
         // @ts-ignore
         draft.uniqueColumnName = mostUniqueId;
 
@@ -388,7 +384,7 @@ function generateSchema(data: any[]) {
       const getFirstValue = (data: any[]) =>
         data.find(
           d => d[metric] !== undefined && d[metric] !== null && d[metric] !== ''
-        ) || {}
+        ) || {};
 
       const value = getFirstValue(data)[metric];
 
