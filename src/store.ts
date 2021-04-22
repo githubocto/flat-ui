@@ -301,11 +301,14 @@ export const useGridStore = create<GridState>(
         const rawColumnNames = Object.keys(draft.data[0]).filter(
           d => !utilKeys.includes(d)
         );
-        if (!draft.stickyColumnName) {
+        if (
+          !draft.stickyColumnName &&
+          !rawColumnNames.includes(draft.stickyColumnName || '')
+        ) {
           draft.columnNames = rawColumnNames;
         } else {
           draft.columnNames = [
-            draft.stickyColumnName,
+            draft.stickyColumnName || '',
             ...rawColumnNames.filter(d => d !== draft.stickyColumnName),
           ];
         }
