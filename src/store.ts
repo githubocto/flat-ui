@@ -29,7 +29,7 @@ export const immer = <T extends {}>(
 ): StateCreator<T> => (set, get, api) =>
   config(fn => set(produce(fn) as (state: T) => T), get, api);
 
-type GridState = {
+export type GridState = {
   data: any[];
   stickyColumnName?: string;
   handleStickyColumnNameChange: (columnName: string) => void;
@@ -57,265 +57,270 @@ type GridState = {
   updateFilteredColumns: () => void;
 };
 
-export const useGridStore = create<GridState>(
-  immer(set => ({
-    data: [],
-    schema: undefined,
-    cellTypes: {},
-    metadata: {},
-    stickyColumnName: undefined,
-    columnNames: [],
-    categoryValues: {},
-    handleStickyColumnNameChange: columnName =>
-      set(draft => {
-        if (!draft.columnNames.includes(columnName)) return;
-        draft.stickyColumnName = columnName;
-      }),
-    handleDataChange: data =>
-      set(draft => {
-        // @ts-ignore
-        draft.schema = generateSchema(data);
-
-        // @ts-ignore
-        const propertyMap = draft.schema;
-        const accessorsWithTypeInformation = Object.keys(propertyMap);
-
-        draft.cellTypes = accessorsWithTypeInformation.reduce(
-          (acc, accessor) => {
-            // @ts-ignore
-            let cellType = propertyMap[accessor];
-            // @ts-ignore
-            if (!cellTypeMap[cellType]) cellType = 'string';
-
-            // @ts-ignore
-            acc[accessor] = cellType;
-            return acc;
-          },
-          {}
-        );
-
-        draft.data = parseData(data, draft.cellTypes);
-
-        const columnNames = data.length
-          ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
-          : [];
-        draft.stickyColumnName = columnNames[0];
-        draft.sort = columnNames[0]
-          ? [
-              columnNames[0],
-              // @ts-ignore
-              cellTypeMap[draft.cellTypes[columnNames[0]]]?.sortValueType ===
-              'string'
-                ? 'asc'
-                : 'desc',
-            ]
-          : [];
-      }),
-    handleMetadataChange: metadata =>
-      set(draft => {
-        draft.metadata = metadata;
-      }),
-    diffs: [],
-    uniqueColumnName: undefined,
-    handleDiffDataChange: (diffData: any[]) =>
-      set(draft => {
-        if (!diffData.length) return;
-
-        const data = draft.data;
-        draft.uniqueColumnName = undefined;
-
-        // get string column with most unique values
-        const columnNames = data.length
-          ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
-          : [];
-        const columnNameUniques = columnNames
-          .filter(columnName => {
-            const cellType = draft.cellTypes[columnName];
-            // @ts-ignore
-            const isString = cellTypeMap[cellType]?.sortValueType === 'string';
-            if (columnName.toLowerCase() === 'id' && isString) return true;
-            return isString;
-          })
-          .map(columnName => {
-            const values = new Set(data.map(d => d[columnName]));
-            return [columnName, values.size];
-          });
-        const sortedColumnsByUniqueness = columnNameUniques.sort((a, b) =>
-          descending(a[1], b[1])
-        );
-        if (
-          !sortedColumnsByUniqueness.length ||
-          // there must be as many unique values as rows
-          sortedColumnsByUniqueness[0][1] !== data.length
-        )
-          return;
-
-        const mostUniqueId = sortedColumnsByUniqueness[0][0];
-        const idColumnName = mostUniqueId;
-        // @ts-ignore
-        draft.uniqueColumnName = mostUniqueId;
-
-        const diffDataMap = new Map(
-          parseData(diffData, draft.cellTypes).map((d: object) => [
-            // @ts-ignore
-            d[idColumnName],
-            d,
-          ])
-        );
-        const newDataMap = new Map(data.map(i => [i[idColumnName], i]));
-
-        let newData = data.map(d => {
-          const id = d[idColumnName];
-          const isNew = !diffDataMap.get(id);
-          if (isNew) return { ...d, __status__: 'new' };
-          const modifiedFields = columnNames.filter(columnName => {
-            const type = draft.cellTypes[columnName];
-            const oldValue =
-              type === 'date' ? d[columnName].toString() : d[columnName];
-            const newD = diffDataMap.get(id);
-            const newValue =
-              // @ts-ignore
-              type === 'date' ? newD[columnName].toString() : newD[columnName];
-            return oldValue !== newValue;
-          });
-          if (modifiedFields.length) {
-            return {
-              ...d,
-              __status__: 'modified',
-              __modifiedColumnNames__: modifiedFields,
-            };
-          }
-          return d;
-        });
-        const oldData = parseData(
-          diffData
-            .filter(d => !newDataMap.get(d[idColumnName]))
-            .map(d => ({ ...d, __status__: 'old' })),
-          draft.cellTypes
-        );
-        draft.data = [...newData, ...oldData];
-        // draft.diffs = getDiffs(draft.data);
-      }),
-    focusedRowIndex: undefined,
-    handleFocusedRowIndexChange: rowIndex =>
-      set(draft => {
-        draft.focusedRowIndex = rowIndex;
-      }),
-    filteredData: [],
-    filters: {},
-    handleFilterChange: (column, value) =>
-      set(draft => {
-        if (!value) {
-          delete draft.filters[column];
-        } else {
-          draft.filters[column] = value;
-        }
-      }),
-    handleFiltersChange: newFilters =>
-      set(draft => {
-        draft.filters = newFilters || {};
-      }),
-    sort: [],
-    handleSortChange: (columnName: string, direction: string) =>
-      set(draft => {
-        if (columnName) {
-          draft.sort = [columnName, direction];
-        } else {
-          draft.sort = [];
-        }
-      }),
-
-    updateFilteredColumns: () =>
-      set(draft => {
-        const sortFunction = getSortFunction(
-          draft.sort,
+export const createGridStore = () =>
+  create<GridState>(
+    immer(set => ({
+      data: [],
+      schema: undefined,
+      cellTypes: {},
+      metadata: {},
+      stickyColumnName: undefined,
+      columnNames: [],
+      categoryValues: {},
+      handleStickyColumnNameChange: columnName =>
+        set(draft => {
+          if (!draft.columnNames.includes(columnName)) return;
+          draft.stickyColumnName = columnName;
+        }),
+      handleDataChange: data =>
+        set(draft => {
           // @ts-ignore
-          cellTypeMap[draft?.cellTypes[draft.sort[0]]]?.sortValueType
-        );
-        let filteredData = [
-          ...filterData(draft.data, draft.filters, draft.cellTypes),
-        ];
-        filteredData = filteredData.sort(sortFunction);
+          draft.schema = generateSchema(data);
 
-        draft.filteredData = filteredData;
-        draft.diffs = getDiffs(draft.filteredData);
-
-        const categoryColumnNames = Object.keys(draft.schema || {}).filter(
           // @ts-ignore
-          columnName => draft.schema[columnName] === 'category'
-        );
-        draft.categoryValues = fromPairs(
-          categoryColumnNames.map(columnName => {
-            const values = new Set(draft.data.map(d => d[columnName]));
-            return [
-              columnName,
-              Array.from(values)
-                .filter(d => (d || '').trim().length)
-                .map(
-                  (value: string, index): CategoryValue => {
-                    return {
-                      value,
-                      count: draft.filteredData.filter(
-                        d => d[columnName] === value
-                      ).length,
-                      color: categoryColors[index % categoryColors.length],
-                    };
-                  }
-                ),
-            ];
-          })
-        );
-      }),
-    columnWidths: [],
-    updateColumnWidths: () =>
-      set(draft => {
-        const columnWidths = draft.columnNames.map(
-          (columnName: string, columnIndex: number) => {
-            // @ts-ignore
-            const cellType = draft.cellTypes[columnName];
-            // @ts-ignore
-            const cellInfo = cellTypeMap[cellType];
-            if (!cellInfo) return 150;
+          const propertyMap = draft.schema;
+          const accessorsWithTypeInformation = Object.keys(propertyMap);
 
-            const values = draft.data.map(
-              d => cellInfo.format(d[columnName] || '').length
-            );
-            const maxLength = max(values);
-            const numberOfChars = min([maxLength + 3, 19]);
-            return (
-              Math.max(cellInfo.minWidth || 100, numberOfChars * 15) +
-              (columnIndex === 0 ? 30 : 0) +
-              (cellInfo.extraCellHorizontalPadding || 0)
-            );
+          draft.cellTypes = accessorsWithTypeInformation.reduce(
+            (acc, accessor) => {
+              // @ts-ignore
+              let cellType = propertyMap[accessor];
+              // @ts-ignore
+              if (!cellTypeMap[cellType]) cellType = 'string';
+
+              // @ts-ignore
+              acc[accessor] = cellType;
+              return acc;
+            },
+            {}
+          );
+
+          draft.data = parseData(data, draft.cellTypes);
+
+          const columnNames = data.length
+            ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
+            : [];
+          draft.stickyColumnName = columnNames[0];
+          draft.sort = columnNames[0]
+            ? [
+                columnNames[0],
+                // @ts-ignore
+                cellTypeMap[draft.cellTypes[columnNames[0]]]?.sortValueType ===
+                'string'
+                  ? 'asc'
+                  : 'desc',
+              ]
+            : [];
+        }),
+      handleMetadataChange: metadata =>
+        set(draft => {
+          draft.metadata = metadata;
+        }),
+      diffs: [],
+      uniqueColumnName: undefined,
+      handleDiffDataChange: (diffData: any[]) =>
+        set(draft => {
+          if (!diffData.length) return;
+
+          const data = draft.data;
+          draft.uniqueColumnName = undefined;
+
+          // get string column with most unique values
+          const columnNames = data.length
+            ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
+            : [];
+          const columnNameUniques = columnNames
+            .filter(columnName => {
+              const cellType = draft.cellTypes[columnName];
+              const isString =
+                // @ts-ignore
+                cellTypeMap[cellType]?.sortValueType === 'string';
+              if (columnName.toLowerCase() === 'id' && isString) return true;
+              return isString;
+            })
+            .map(columnName => {
+              const values = new Set(data.map(d => d[columnName]));
+              return [columnName, values.size];
+            });
+          const sortedColumnsByUniqueness = columnNameUniques.sort((a, b) =>
+            descending(a[1], b[1])
+          );
+          if (
+            !sortedColumnsByUniqueness.length ||
+            // there must be as many unique values as rows
+            sortedColumnsByUniqueness[0][1] !== data.length
+          )
+            return;
+
+          const mostUniqueId = sortedColumnsByUniqueness[0][0];
+          const idColumnName = mostUniqueId;
+          // @ts-ignore
+          draft.uniqueColumnName = mostUniqueId;
+
+          const diffDataMap = new Map(
+            parseData(diffData, draft.cellTypes).map((d: object) => [
+              // @ts-ignore
+              d[idColumnName],
+              d,
+            ])
+          );
+          const newDataMap = new Map(data.map(i => [i[idColumnName], i]));
+
+          let newData = data.map(d => {
+            const id = d[idColumnName];
+            const isNew = !diffDataMap.get(id);
+            if (isNew) return { ...d, __status__: 'new' };
+            const modifiedFields = columnNames.filter(columnName => {
+              const type = draft.cellTypes[columnName];
+              const oldValue =
+                type === 'date' ? d[columnName].toString() : d[columnName];
+              const newD = diffDataMap.get(id);
+              const newValue =
+                type === 'date'
+                  ? // @ts-ignore
+                    newD[columnName].toString()
+                  : // @ts-ignore
+                    newD[columnName];
+              return oldValue !== newValue;
+            });
+            if (modifiedFields.length) {
+              return {
+                ...d,
+                __status__: 'modified',
+                __modifiedColumnNames__: modifiedFields,
+              };
+            }
+            return d;
+          });
+          const oldData = parseData(
+            diffData
+              .filter(d => !newDataMap.get(d[idColumnName]))
+              .map(d => ({ ...d, __status__: 'old' })),
+            draft.cellTypes
+          );
+          draft.data = [...newData, ...oldData];
+          // draft.diffs = getDiffs(draft.data);
+        }),
+      focusedRowIndex: undefined,
+      handleFocusedRowIndexChange: rowIndex =>
+        set(draft => {
+          draft.focusedRowIndex = rowIndex;
+        }),
+      filteredData: [],
+      filters: {},
+      handleFilterChange: (column, value) =>
+        set(draft => {
+          if (!value) {
+            delete draft.filters[column];
+          } else {
+            draft.filters[column] = value;
           }
-        );
-        draft.columnWidths = columnWidths;
-      }),
-    updateColumnNames: () =>
-      set(draft => {
-        if (!draft.data.length) {
-          draft.columnNames = [];
-          draft.stickyColumnName = undefined;
-          return;
-        }
+        }),
+      handleFiltersChange: newFilters =>
+        set(draft => {
+          draft.filters = newFilters || {};
+        }),
+      sort: [],
+      handleSortChange: (columnName: string, direction: string) =>
+        set(draft => {
+          if (columnName) {
+            draft.sort = [columnName, direction];
+          } else {
+            draft.sort = [];
+          }
+        }),
 
-        const rawColumnNames = Object.keys(draft.data[0]).filter(
-          d => !utilKeys.includes(d)
-        );
-        if (
-          !draft.stickyColumnName ||
-          !rawColumnNames.includes(draft.stickyColumnName || '')
-        ) {
-          draft.columnNames = rawColumnNames;
-        } else {
-          draft.columnNames = [
-            draft.stickyColumnName || '',
-            ...rawColumnNames.filter(d => d !== draft.stickyColumnName),
+      updateFilteredColumns: () =>
+        set(draft => {
+          const sortFunction = getSortFunction(
+            draft.sort,
+            // @ts-ignore
+            cellTypeMap[draft?.cellTypes[draft.sort[0]]]?.sortValueType
+          );
+          let filteredData = [
+            ...filterData(draft.data, draft.filters, draft.cellTypes),
           ];
-        }
-      }),
-  }))
-);
+          filteredData = filteredData.sort(sortFunction);
+
+          draft.filteredData = filteredData;
+          draft.diffs = getDiffs(draft.filteredData);
+
+          const categoryColumnNames = Object.keys(draft.schema || {}).filter(
+            // @ts-ignore
+            columnName => draft.schema[columnName] === 'category'
+          );
+          draft.categoryValues = fromPairs(
+            categoryColumnNames.map(columnName => {
+              const values = new Set(draft.data.map(d => d[columnName]));
+              return [
+                columnName,
+                Array.from(values)
+                  .filter(d => (d || '').trim().length)
+                  .map(
+                    (value: string, index): CategoryValue => {
+                      return {
+                        value,
+                        count: draft.filteredData.filter(
+                          d => d[columnName] === value
+                        ).length,
+                        color: categoryColors[index % categoryColors.length],
+                      };
+                    }
+                  ),
+              ];
+            })
+          );
+        }),
+      columnWidths: [],
+      updateColumnWidths: () =>
+        set(draft => {
+          const columnWidths = draft.columnNames.map(
+            (columnName: string, columnIndex: number) => {
+              // @ts-ignore
+              const cellType = draft.cellTypes[columnName];
+              // @ts-ignore
+              const cellInfo = cellTypeMap[cellType];
+              if (!cellInfo) return 150;
+
+              const values = draft.data.map(
+                d => cellInfo.format(d[columnName] || '').length
+              );
+              const maxLength = max(values);
+              const numberOfChars = min([maxLength + 3, 19]);
+              return (
+                Math.max(cellInfo.minWidth || 100, numberOfChars * 15) +
+                (columnIndex === 0 ? 30 : 0) +
+                (cellInfo.extraCellHorizontalPadding || 0)
+              );
+            }
+          );
+          draft.columnWidths = columnWidths;
+        }),
+      updateColumnNames: () =>
+        set(draft => {
+          if (!draft.data.length) {
+            draft.columnNames = [];
+            draft.stickyColumnName = undefined;
+            return;
+          }
+
+          const rawColumnNames = Object.keys(draft.data[0]).filter(
+            d => !utilKeys.includes(d)
+          );
+          if (
+            !draft.stickyColumnName ||
+            !rawColumnNames.includes(draft.stickyColumnName || '')
+          ) {
+            draft.columnNames = rawColumnNames;
+          } else {
+            draft.columnNames = [
+              draft.stickyColumnName || '',
+              ...rawColumnNames.filter(d => d !== draft.stickyColumnName),
+            ];
+          }
+        }),
+    }))
+  );
 
 const utilKeys = [
   '__status__',

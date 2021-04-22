@@ -1,2 +1,2 @@
 import './index.css';
-export { Grid } from './components/grid';
+export { GridWrapper as Grid } from './components/grid-wrapper';

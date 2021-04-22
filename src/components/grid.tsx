@@ -8,7 +8,8 @@ import { StickyGrid } from './sticky-grid';
 import { Header } from './header';
 import { Cell } from './cell';
 import { Loader } from './loader';
-import { useGridStore, cellTypeMap } from '../store';
+import { useGridStore } from './store-wrapper';
+import { cellTypeMap } from '../store';
 import {
   ArrowRightIcon,
   ArrowLeftIcon,
@@ -31,7 +32,7 @@ interface GridStateObject {
   sort: string[];
   schema?: object;
 }
-interface GridProps {
+export interface GridProps {
   data: any[];
   diffData?: any[];
   metadata?: Record<string, string>;
