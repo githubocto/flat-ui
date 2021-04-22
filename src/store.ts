@@ -68,6 +68,7 @@ export const useGridStore = create<GridState>(
     categoryValues: {},
     handleStickyColumnNameChange: columnName =>
       set(draft => {
+        if (!draft.columnNames.includes(columnName)) return;
         draft.stickyColumnName = columnName;
       }),
     handleDataChange: data =>
