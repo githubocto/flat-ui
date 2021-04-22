@@ -302,7 +302,7 @@ export const useGridStore = create<GridState>(
           d => !utilKeys.includes(d)
         );
         if (
-          !draft.stickyColumnName &&
+          !draft.stickyColumnName ||
           !rawColumnNames.includes(draft.stickyColumnName || '')
         ) {
           draft.columnNames = rawColumnNames;
