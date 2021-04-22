@@ -409,6 +409,7 @@ function generateSchema(data: any[]) {
               'dd/MM/yyyy',
               'dd-MM-yyyy',
               'yyyy-MM-dd',
+              'yyyyMMdd'
             ];
             return !!validPatterns.find(pattern =>
               isValidDate(parseDate(value, pattern, currentDate))
