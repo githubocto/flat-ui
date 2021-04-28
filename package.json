@@ -94,6 +94,7 @@
     "downshift": "^6.1.1",
     "immer": "^8.0.2",
     "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "match-sorter": "^6.3.0",
     "react-range": "^1.8.7",
     "react-use": "^17.2.0",
