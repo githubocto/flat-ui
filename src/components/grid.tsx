@@ -17,7 +17,7 @@ import {
   DownloadIcon,
   SyncIcon,
 } from '@primer/octicons-react';
-import { fromPairs } from 'lodash';
+import fromPairs from 'lodash/fromPairs';
 
 interface ScrollRefType {
   current: number;

@@ -1,7 +1,7 @@
 import React from 'react';
 // @ts-ignore
 import { format } from 'd3';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 
 const formatNumber = format(',');
 interface StringFilterProps {

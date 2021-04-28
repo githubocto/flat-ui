@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { Grid } from '../.';
 import { csv, json } from 'd3';
 // @ts-ignore
-import debounce from 'lodash.debounce';
+import debounce from 'lodash/debounce';
 import exampleData from './data';
 
 const App = () => {

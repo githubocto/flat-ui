@@ -8,7 +8,7 @@ import {
   min,
   extent,
 } from 'd3';
-import fromPairs from 'lodash.frompairs';
+import fromPairs from 'lodash/fromPairs';
 import isValidDate from 'date-fns/isValid';
 import parseDate from 'date-fns/parse';
 
