@@ -39,7 +39,7 @@ export function HtmlHistogram(props: HistogramProps) {
     if (original.length < 200) {
       const uniqueValues = Array.from(new Set(original)).sort(ascending);
       const numberOfUniqueValues = uniqueValues.length;
-      if (numberOfUniqueValues > 1) {
+      if (numberOfUniqueValues > 1 && numberOfUniqueValues < 12) {
         const firstValueSpacing = uniqueValues[1] - uniqueValues[0];
         const areValuesEquallySpaced =
           uniqueValues.find(
