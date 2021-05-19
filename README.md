@@ -2,7 +2,7 @@
 
 Welcome friends! **flat-ui** is a React component that will render your flat dataset (an array of objects) in a table view:
 
-![screenshot](./screenshot.png)
+![screenshot](https://github.com/githubocto/flat-ui/raw/main/screenshot.png)
 
 It will...
 
