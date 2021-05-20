@@ -1,7 +1,6 @@
 // @ts-nocheck
 import React, { useMemo } from 'react';
-import { ascending, bin } from 'd3-array';
-import { min, max, extent, scaleLinear } from 'd3';
+import { ascending, bin, min, max, extent, scaleLinear } from 'd3';
 import { getTrackBackground, Range } from 'react-range';
 import cc from 'classcat';
 

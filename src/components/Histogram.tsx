@@ -1,10 +1,10 @@
 // @ts-nocheck
-import React, { useMemo } from "react";
-import { Bar } from "@vx/shape";
-import { Group } from "@vx/group";
-import { GradientTealBlue } from "@vx/gradient";
-import { scaleBand, scaleLinear } from "@vx/scale";
-import { bin } from "d3-array";
+import React, { useMemo } from 'react';
+import { Bar } from '@vx/shape';
+import { Group } from '@vx/group';
+import { GradientTealBlue } from '@vx/gradient';
+import { scaleBand, scaleLinear } from '@vx/scale';
+import { bin } from 'd3';
 
 interface HistogramProps {
   data: number[];
@@ -45,7 +45,7 @@ export function Histogram(props: HistogramProps) {
         // Top left corner!!!!
         range: [yMax, 0],
         round: true,
-        domain: [0, Math.max(...bins.map((b) => b.length))],
+        domain: [0, Math.max(...bins.map(b => b.length))],
       }),
     [yMax]
   );
