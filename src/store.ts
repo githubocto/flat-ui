@@ -132,10 +132,14 @@ export const createGridStore = () =>
           const columnNameUniques = columnNames
             .filter(columnName => {
               const cellType = draft.cellTypes[columnName];
-              const isString =
-                // @ts-ignore
-                cellTypeMap[cellType]?.sortValueType === 'string';
-              if (columnName.toLowerCase() === 'id' && isString) return true;
+              // @ts-ignore
+              const type = cellTypeMap[cellType]?.sortValueType;
+              const isString = type === 'string';
+              if (
+                columnName.toLowerCase() === 'id' &&
+                (isString || type === 'number')
+              )
+                return true;
               return isString;
             })
             .map(columnName => {
@@ -164,7 +168,7 @@ export const createGridStore = () =>
               d,
             ])
           );
-          const newDataMap = new Map(data.map(i => [i[idColumnName], i]));
+          const newDataMap = new Map(data.map(i => [i[idColumnName] + '', i]));
 
           let newData = data.map(d => {
             const id = d[idColumnName];
@@ -194,7 +198,7 @@ export const createGridStore = () =>
           });
           const oldData = parseData(
             diffData
-              .filter(d => !newDataMap.get(d[idColumnName]))
+              .filter(d => !newDataMap.get(d[idColumnName + '']))
               .map(d => ({ ...d, __status__: 'old' })),
             draft.cellTypes
           );
@@ -409,7 +413,7 @@ function generateSchema(data: any[]) {
               'dd/MM/yyyy',
               'dd-MM-yyyy',
               'yyyy-MM-dd',
-              'yyyyMMdd'
+              'yyyyMMdd',
             ];
             return !!validPatterns.find(pattern =>
               isValidDate(parseDate(value, pattern, currentDate))
