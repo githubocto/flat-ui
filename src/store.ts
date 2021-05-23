@@ -9,6 +9,7 @@ import {
   extent,
 } from 'd3';
 import fromPairs from 'lodash/fromPairs';
+import isEqual from 'lodash/isEqual';
 import isValidDate from 'date-fns/isValid';
 import parseDate from 'date-fns/parse';
 
@@ -185,7 +186,9 @@ export const createGridStore = () =>
                     newD[columnName].toString()
                   : // @ts-ignore
                     newD[columnName];
-              return oldValue !== newValue;
+              return type === 'object'
+                ? !isEqual(oldValue, newValue)
+                : oldValue !== newValue;
             });
             if (modifiedFields.length) {
               return {
@@ -483,6 +486,10 @@ function generateSchema(data: any[]) {
             ? 'array'
             : 'short-array',
         ];
+      }
+      const isObject = typeof value === 'object';
+      if (isObject) {
+        return [metric, 'object'];
       }
       const isFiniteNumber = Number.isFinite(+value);
       if (isFiniteNumber) {
