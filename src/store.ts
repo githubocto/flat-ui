@@ -484,20 +484,30 @@ function generateSchema(data: any[]) {
             : 'short-array',
         ];
       }
-      let type = Number.isFinite(+value) ? 'number' : 'string';
-      if (type === 'string') {
-        const uniqueValues = new Set(data.map(d => d[metric]));
-        const maxUniqueValuesForCategory = Math.min(
-          Math.floor(data.length / 3),
-          20
-        );
-        if (uniqueValues.size < maxUniqueValuesForCategory) type = 'category';
+      const isFiniteNumber = Number.isFinite(+value);
+      if (isFiniteNumber) {
+        return [
+          metric,
+          metric.toLowerCase().trim() === 'year'
+            ? 'year'
+            : 'number',
+        ];
       }
 
-      if (type === 'number' && metric.toLowerCase().trim() === 'year')
-        return [metric, 'year'];
+      // If there are few unique values for the metric,
+      // consider the metric as a category
+      const uniqueValues = new Set(data.map(d => d[metric]));
+      const maxUniqueValuesForCategory = Math.min(
+        Math.floor(data.length / 3),
+        20
+      );
 
-      return [metric, type];
+      return [
+        metric, 
+        uniqueValues.size < maxUniqueValuesForCategory
+          ? 'category'
+          : 'string',
+      ];
     })
   );
   return schema;
