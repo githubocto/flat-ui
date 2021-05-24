@@ -495,9 +495,7 @@ function generateSchema(data: any[]) {
       if (isFiniteNumber) {
         return [
           metric,
-          metric.toLowerCase().trim() === 'year'
-            ? 'year'
-            : 'number',
+          metric.toLowerCase().trim() === 'year' ? 'year' : 'number',
         ];
       }
 
@@ -510,10 +508,8 @@ function generateSchema(data: any[]) {
       );
 
       return [
-        metric, 
-        uniqueValues.size < maxUniqueValuesForCategory
-          ? 'category'
-          : 'string',
+        metric,
+        uniqueValues.size < maxUniqueValuesForCategory ? 'category' : 'string',
       ];
     })
   );
@@ -559,6 +555,17 @@ export const cellTypeMap = {
     filter: StringFilter,
     format: (d: string) => d,
     shortFormat: (d: string) => d,
+    sortValueType: 'string',
+  },
+  object: {
+    cell: StringCell,
+    filter: StringFilter,
+    format: (d: string) => JSON.stringify(d),
+    shortFormat: (d: string) => JSON.stringify(d),
+    parseValueFunction: (d: any[]) =>
+      // prettier-ignore
+      typeof d === "object" ? JSON.stringify(d, undefined, 2) :
+      typeof d === 'string' ? d : '',
     sortValueType: 'string',
   },
   array: {
