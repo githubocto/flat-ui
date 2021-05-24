@@ -49,11 +49,11 @@ export function RangeFilter(props: RangeFilterProps) {
 
   const filteredHistogramData = filteredData
     .map(row => row[id])
-    .filter(Number.isFinite);
+    .filter(d => Number.isFinite(d) || d instanceof Date);
 
   const originalHistogramData = originalData
     .map(row => row[id])
-    .filter(Number.isFinite);
+    .filter(d => Number.isFinite(d) || d instanceof Date);
 
   return (
     <HtmlHistogram
