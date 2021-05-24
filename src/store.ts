@@ -407,15 +407,7 @@ function generateSchema(data: any[]) {
         try {
           if (typeof value === 'string') {
             const currentDate = new Date();
-            const validPatterns = [
-              'MM/dd/yyyy',
-              'MM-dd-yyyy',
-              'dd/MM/yyyy',
-              'dd-MM-yyyy',
-              'yyyy-MM-dd',
-              'yyyyMMdd',
-            ];
-            return !!validPatterns.find(pattern =>
+            return !!validDatePatterns.find(pattern =>
               isValidDate(parseDate(value, pattern, currentDate))
             );
           } else {
@@ -430,13 +422,7 @@ function generateSchema(data: any[]) {
         try {
           if (typeof value === 'string') {
             const currentDate = new Date();
-            const validPatterns = [
-              'yyyy-MM-dd HH:mm',
-              'yyyy-MM-dd HH:mm:ss',
-              "yyyy-MM-dd'T'HH:mm:ssxxxx",
-              "yyyy-MM-dd'T'HH:mm:ss",
-            ];
-            return !!validPatterns.find(pattern =>
+            return !!validTimePatterns.find(pattern =>
               isValidDate(parseDate(value, pattern, currentDate))
             );
           }
@@ -525,6 +511,32 @@ const parseData = (data: any, cellTypes: Record<string, string>) => {
   });
 };
 
+const validDatePatterns = [
+  'MM/dd/yyyy',
+  'MM-dd-yyyy',
+  'dd/MM/yyyy',
+  'dd-MM-yyyy',
+  'yyyy-MM-dd',
+  'yyyyMMdd',
+];
+const validTimePatterns = [
+  'yyyy-MM-dd HH:mm',
+  'yyyy-MM-dd HH:mm:ss',
+  "yyyy-MM-dd'T'HH:mm:ssxxxx",
+  "yyyy-MM-dd'T'HH:mm:ss",
+];
+const parseDatetimeString = (str = '', patterns = validDatePatterns) => {
+  let date = Date.parse(str);
+  if (isValidDate(date)) return date;
+  for (const pattern of patterns) {
+    if (!isValidDate(date)) {
+      // @ts-ignore
+      date = parseDate(str, pattern, new Date());
+    }
+  }
+  return date;
+};
+
 const getDiffs = (data: any[]) => {
   // doing it this way for perf reasons
   // to prevent from indexing all data points
@@ -602,7 +614,8 @@ export const cellTypeMap = {
     filter: RangeFilter,
     format: timeFormat('%B %-d %Y'),
     shortFormat: timeFormat('%-m/%-d'),
-    parseValueFunction: Date.parse,
+    parseValueFunction: (str = '') =>
+      parseDatetimeString(str, validDatePatterns),
     hasScale: true,
     sortValueType: 'number',
   },
@@ -611,7 +624,8 @@ export const cellTypeMap = {
     filter: RangeFilter,
     format: timeFormat('%B %-d %Y'),
     shortFormat: timeFormat('%-Y'),
-    parseValueFunction: Date.parse,
+    parseValueFunction: (str = '') =>
+      parseDatetimeString(str, validDatePatterns),
     hasScale: true,
     sortValueType: 'number',
   },
@@ -620,7 +634,8 @@ export const cellTypeMap = {
     filter: RangeFilter,
     format: timeFormat('%B %-d, %Y %-H:%M'),
     shortFormat: timeFormat('%-m/%-d %-H:%M'),
-    parseValueFunction: Date.parse,
+    parseValueFunction: (str = '') =>
+      parseDatetimeString(str, validTimePatterns),
     hasScale: true,
     sortValueType: 'number',
   },
