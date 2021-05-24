@@ -9,6 +9,7 @@ import {
   extent,
 } from 'd3';
 import fromPairs from 'lodash/fromPairs';
+import isEqual from 'lodash/isEqual';
 import isValidDate from 'date-fns/isValid';
 import parseDate from 'date-fns/parse';
 
@@ -185,7 +186,9 @@ export const createGridStore = () =>
                     newD[columnName].toString()
                   : // @ts-ignore
                     newD[columnName];
-              return oldValue !== newValue;
+              return type === 'object'
+                ? !isEqual(oldValue, newValue)
+                : oldValue !== newValue;
             });
             if (modifiedFields.length) {
               return {
@@ -484,20 +487,30 @@ function generateSchema(data: any[]) {
             : 'short-array',
         ];
       }
-      let type = Number.isFinite(+value) ? 'number' : 'string';
-      if (type === 'string') {
-        const uniqueValues = new Set(data.map(d => d[metric]));
-        const maxUniqueValuesForCategory = Math.min(
-          Math.floor(data.length / 3),
-          20
-        );
-        if (uniqueValues.size < maxUniqueValuesForCategory) type = 'category';
+      const isObject = typeof value === 'object';
+      if (isObject) {
+        return [metric, 'object'];
+      }
+      const isFiniteNumber = Number.isFinite(+value);
+      if (isFiniteNumber) {
+        return [
+          metric,
+          metric.toLowerCase().trim() === 'year' ? 'year' : 'number',
+        ];
       }
 
-      if (type === 'number' && metric.toLowerCase().trim() === 'year')
-        return [metric, 'year'];
+      // If there are few unique values for the metric,
+      // consider the metric as a category
+      const uniqueValues = new Set(data.map(d => d[metric]));
+      const maxUniqueValuesForCategory = Math.min(
+        Math.floor(data.length / 3),
+        20
+      );
 
-      return [metric, type];
+      return [
+        metric,
+        uniqueValues.size < maxUniqueValuesForCategory ? 'category' : 'string',
+      ];
     })
   );
   return schema;
@@ -542,6 +555,17 @@ export const cellTypeMap = {
     filter: StringFilter,
     format: (d: string) => d,
     shortFormat: (d: string) => d,
+    sortValueType: 'string',
+  },
+  object: {
+    cell: StringCell,
+    filter: StringFilter,
+    format: (d: string) => JSON.stringify(d),
+    shortFormat: (d: string) => JSON.stringify(d),
+    parseValueFunction: (d: any[]) =>
+      // prettier-ignore
+      typeof d === "object" ? JSON.stringify(d, undefined, 2) :
+      typeof d === 'string' ? d : '',
     sortValueType: 'string',
   },
   array: {
