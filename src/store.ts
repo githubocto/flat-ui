@@ -11,6 +11,7 @@ import {
 import fromPairs from 'lodash/fromPairs';
 import isValidDate from 'date-fns/isValid';
 import parseDate from 'date-fns/parse';
+import parseISO from 'date-fns/parseISO';
 
 import { FilterValue, FilterMap, CategoryValue } from './types';
 import { matchSorter } from 'match-sorter';
@@ -524,7 +525,12 @@ const validTimePatterns = [
   'yyyy-MM-dd HH:mm:ss',
   "yyyy-MM-dd'T'HH:mm:ssxxxx",
   "yyyy-MM-dd'T'HH:mm:ss",
+  "yyyy-MM-dd'T'HH:mm:ssSSxxxx",
+  "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+  "yyyy-MM-dd'T'HH:mm:ss.SSSSX",
+  "yyyy-MM-dd'T'HH:mm:ss.SSSSxxxx",
 ];
+
 const parseDatetimeString = (str = '', patterns = validDatePatterns) => {
   let date = Date.parse(str);
   if (isValidDate(date)) return date;
@@ -533,6 +539,10 @@ const parseDatetimeString = (str = '', patterns = validDatePatterns) => {
       // @ts-ignore
       date = parseDate(str, pattern, new Date());
     }
+  }
+  if (!isValidDate(date)) {
+    // @ts-ignore
+    date = parseISO(str);
   }
   return date;
 };
