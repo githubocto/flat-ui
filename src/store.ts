@@ -526,6 +526,10 @@ const parseData = (data: any, cellTypes: Record<string, string>) => {
 };
 
 const validDatePatterns = [
+  'MM/dd/yy',
+  'MM-dd-yy',
+  'dd/MM/yy',
+  'dd-MM-yy',
   'MM/dd/yyyy',
   'MM-dd-yyyy',
   'dd/MM/yyyy',
@@ -542,6 +546,10 @@ const validTimePatterns = [
   "yyyy-MM-dd'T'HH:mm:ss.SSSX",
   "yyyy-MM-dd'T'HH:mm:ss.SSSSX",
   "yyyy-MM-dd'T'HH:mm:ss.SSSSxxxx",
+  'dd/MM/yy hh:mmaa',
+  'dd/MM/yy HH:mm',
+  'MM/dd/yy HH:mm',
+  'MM/dd/yy hh:mmaa',
   'dd/MM/yyyy hh:mmaa',
   'dd/MM/yyyy HH:mm',
   'MM/dd/yyyy HH:mm',
