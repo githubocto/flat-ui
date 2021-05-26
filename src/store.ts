@@ -542,6 +542,10 @@ const validTimePatterns = [
   "yyyy-MM-dd'T'HH:mm:ss.SSSX",
   "yyyy-MM-dd'T'HH:mm:ss.SSSSX",
   "yyyy-MM-dd'T'HH:mm:ss.SSSSxxxx",
+  'dd/MM/yyyy hh:mmaa',
+  'dd/MM/yyyy HH:mm',
+  'MM/dd/yyyy HH:mm',
+  'MM/dd/yyyy hh:mmaa',
 ];
 
 const parseDatetimeString = (str = '', patterns = validDatePatterns) => {
