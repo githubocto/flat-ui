@@ -640,7 +640,14 @@ export const cellTypeMap = {
         : d < 1
         ? d3Format('.2f')(d)
         : d3Format(',.2s')(d),
-    parseValueFunction: (d: any[]) => +d,
+    parseValueFunction: (d: any[]) => {
+      if (typeof d === 'string') {
+        if (!(d as string).length) return undefined;
+      } else if (d === undefined || d === null) {
+        return d;
+      }
+      return +d;
+    },
     minWidth: 126,
     hasScale: true,
     sortValueType: 'number',

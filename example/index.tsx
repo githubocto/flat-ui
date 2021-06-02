@@ -41,7 +41,6 @@ const App = () => {
   React.useEffect(() => {
     fetchData();
   }, [dataUrl, overrideDataUrl]);
-  console.log(`We got new data!`, data);
 
   return (
     <div className="relative h-full flex flex-col">

@@ -45,7 +45,7 @@ export const Cell = React.memo(function(props: CellProps) {
   const cellClass = cc([
     'cell group flex flex-none items-center px-4 border-b border-r',
     {
-      'text-gray-300': typeof value === 'undefined',
+      'text-gray-300': typeof value === 'undefined' || Number.isNaN(value),
       'border-green-200': status === 'new',
       'border-pink-200': status === 'old',
       'border-yellow-200': status === 'modified',
