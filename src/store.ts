@@ -293,7 +293,7 @@ export const createGridStore = () =>
               const values = draft.data.map(
                 d => cellInfo.format(d[columnName] || '').length
               );
-              const maxLength = max(values);
+              const maxLength = max([columnName.length * 0.6, ...values]);
               const numberOfChars = min([maxLength + 3, 19]);
               return (
                 Math.max(cellInfo.minWidth || 100, numberOfChars * 15) +
