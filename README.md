@@ -69,6 +69,12 @@ column names as keys and descriptions as values.
 
 Whether or not the table provides "download csv" and "download json" buttons.
 
+### filename
+
+`string`
+
+The name of the downloaded CSV or JSON file (without extension).
+
 ### defaultFilters
 
 `object`

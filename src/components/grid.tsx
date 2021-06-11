@@ -41,10 +41,11 @@ export interface GridProps {
   defaultSort?: string[];
   defaultStickyColumnName?: string;
   onChange?: (currentState: GridStateObject) => void;
+  filename?: string;
 }
 
 export function Grid(props: GridProps) {
-  const { canDownload = true } = props;
+  const { filename, canDownload = true } = props;
 
   const [focusedColumnIndex, setFocusedColumnIndex] = React.useState<number>();
   const [highlightedDiffIndex, setHighlightedDiffIndex] = React.useState<
@@ -255,7 +256,10 @@ export function Grid(props: GridProps) {
     const link = document.createElement('a');
     link.setAttribute('href', dataStr);
     const date = new Date().toDateString();
-    link.setAttribute('download', `flat-ui__data-${date}.json`);
+    link.setAttribute(
+      'download',
+      `${filename || `flat-ui__data-${date}`}.json`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -278,7 +282,7 @@ export function Grid(props: GridProps) {
     const link = document.createElement('a');
     link.setAttribute('href', url);
     const date = new Date().toDateString();
-    link.setAttribute('download', `flat-ui__data-${date}.csv`);
+    link.setAttribute('download', `${filename || `flat-ui__data-${date}`}.csv`);
     document.body.appendChild(link); // Required for FF
     link.click();
     document.body.removeChild(link);
