@@ -1,4 +1,5 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 
 interface StringCellProps {
   value: string;
@@ -11,7 +12,9 @@ export function StringCell(props: StringCellProps) {
     <span
       className="overflow-ellipsis block whitespace-nowrap overflow-hidden"
       title={props.rawValue}
-      dangerouslySetInnerHTML={{ __html: props.formattedValue }}
+      dangerouslySetInnerHTML={{
+        __html: DOMPurify.sanitize(props.formattedValue),
+      }}
     />
   );
 }

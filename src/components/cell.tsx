@@ -4,6 +4,7 @@ import cc from 'classcat';
 import anchorme from 'anchorme';
 import { cellTypeMap } from '../store';
 import { DashIcon, DiffModifiedIcon, PlusIcon } from '@primer/octicons-react';
+import DOMPurify from 'dompurify';
 
 interface CellProps {
   type: string;
@@ -58,15 +59,17 @@ export const Cell = React.memo(function(props: CellProps) {
   const stringWithLinks = displayValue
     ? React.useMemo(
         () =>
-          anchorme({
-            input: displayValue + '',
-            options: {
-              attributes: {
-                target: '_blank',
-                rel: 'noopener',
+          DOMPurify.sanitize(
+            anchorme({
+              input: displayValue + '',
+              options: {
+                attributes: {
+                  target: '_blank',
+                  rel: 'noopener',
+                },
               },
-            },
-          }),
+            })
+          ),
         [value]
       )
     : '';
