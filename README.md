@@ -69,7 +69,7 @@ column names as keys and descriptions as values.
 
 Whether or not the table provides "download csv" and "download json" buttons.
 
-### filename
+### downloadFilename
 
 `string`
 
