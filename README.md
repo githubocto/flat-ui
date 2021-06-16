@@ -28,7 +28,7 @@ yarn add @githubocto/flat-ui
 Basic usage:
 
 ```javascript
-import Grid from '@githubocto/flat-ui';
+import { Grid } from '@githubocto/flat-ui';
 
 const MyComponent = () => {
   const data = [{ column1: 123 }, { column1: 234 }];
