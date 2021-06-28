@@ -271,7 +271,26 @@ export function Grid(props: GridProps) {
       filteredData
         .map(d =>
           columnNames
-            .map(columnName => d['__rawData__'][columnName] || d[columnName])
+            .map(columnName => {
+              // @ts-ignore
+              const cellType = cellTypes[columnName]
+              // @ts-ignore
+              const data = d['__rawData__'][columnName] || d[columnName]
+              let formattedData = typeof data === 'object' 
+                ? JSON.stringify(data) 
+                : data
+              if (
+                typeof formattedData === 'string' &&
+                (
+                  formattedData.includes('"') || 
+                  formattedData.includes(',') || 
+                  formattedData.includes('\n')
+                )
+              ) {
+                formattedData = `"${formattedData.replace(/"/g, '""')}"`
+              }
+              return formattedData
+            })
             .join(',')
         )
         .join('\n'),
