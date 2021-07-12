@@ -1,5 +1,6 @@
 // @ts-nocheck
 // please forgive me! was getting a horrendous error for the map in render
+import tw from 'twin.macro';
 import React from 'react';
 import Downshift from 'downshift';
 import { matchSorter } from 'match-sorter';
@@ -44,9 +45,10 @@ export function CategoryFilter(props: CategoryFilterProps) {
             {...getRootProps({}, { suppressRefError: true })}
           >
             <input
-              className={`h-full w-full px-3 py-3 placeholder-gray-400 border-none ${
-                props?.value ? 'text-indigo-500' : 'text-gray-400'
-              } bg-white outline-none focus:outline-none focus:shadow-outline w-full overflow-ellipsis`}
+              css={[
+                props?.value ? tw`text-indigo-500` : tw`text-gray-400`,
+                tw`h-full w-full px-3 py-3 placeholder-gray-400 border-none bg-white outline-none focus:outline-none w-full overflow-ellipsis`,
+              ]}
               placeholder={`Filter ${formatNumber(
                 props.filteredData.length
               )} records`}
@@ -85,14 +87,19 @@ export function CategoryFilter(props: CategoryFilterProps) {
                   const isFilteredOut =
                     inputValue && !matchSorter([value], inputValue).length;
                   if (isFilteredOut) return null;
+                  console.log({ color });
 
                   return (
                     <li
-                      className={`p-2 inline-block ${color} rounded-full px-4 py-1 mx-2 border-2 ${
+                      // TODO: Fix me – we can't apply classes like this in Tailwind
+                      className={color}
+                      css={[
+                        tw`p-2 inline-block rounded-full px-4 py-1 mx-2 border-2 whitespace-nowrap cursor-pointer`,
+
                         highlightedIndex === index
-                          ? `border-indigo-500`
-                          : `border-white`
-                      } whitespace-nowrap cursor-pointer`}
+                          ? tw`border-indigo-500`
+                          : tw`border-white`,
+                      ]}
                       {...getItemProps({
                         key: value,
                         index,

@@ -124,29 +124,6 @@ export function Header(props: HeaderProps) {
             </div>
           )}
         </div>
-        {/* <DropdownMenu.Root>
-          <DropdownMenu.Trigger className="flex h-full items-center justify-center px-1 focus:outline-none focus:ring focus:bg-white hover:bg-white">
-            {activeSortDirection == "desc" ? <ArrowDownIcon /> :
-              activeSortDirection == "asc" ? <ArrowUpIcon /> :
-                <ChevronDownIcon />
-            }
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            anchorRef={popoverAnchorRef}
-            align="start"
-            style={{ width: 241, top: -1, right: 1 }}
-            className="w-full bg-white focus:outline-none py-1 border border-gray-200 relative"
-          >
-            <DropdownMenu.Item className="menu-item" onSelect={() => onSort(columnName, "asc")}>
-              <ArrowUpIcon />
-              <span>Sort ascending</span>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item className="menu-item" onSelect={() => onSort(columnName, "desc")}>
-              <ArrowDownIcon />
-              <span>Sort descending</span>
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root> */}
       </div>
       {showFilters && (
         <div

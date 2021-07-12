@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useMemo } from 'react';
+import tw from 'twin.macro';
 import { ascending, bin, min, max, extent, scaleLinear } from 'd3';
 import { getTrackBackground, Range } from 'react-range';
 import cc from 'classcat';
@@ -106,7 +107,7 @@ export function HtmlHistogram(props: HistogramProps) {
 
   if (isOneValue) {
     return (
-      <div className="px-2 tabular-nums text-md text-gray-400">
+      <div tw="px-2 tabular-nums font-medium text-gray-400">
         {longFormat(xScale.invert(rangeValues[0]))}
       </div>
     );
@@ -114,7 +115,8 @@ export function HtmlHistogram(props: HistogramProps) {
 
   return (
     <div
-      className="html-histogram flex-col align-center justify-center mt-1 self-center"
+      className="html-histogram"
+      tw="flex-col items-center justify-center mt-1 self-center"
       style={{
         width: 'fit-content',
       }}
@@ -151,7 +153,8 @@ export function HtmlHistogram(props: HistogramProps) {
                     }}
                   ></div>
                   <div
-                    tw="absolute bottom-0 left-0 right-0 bg-indigo-500 y-scale-in transition-all ease-out origin-bottom"
+                    className="y-scale-in"
+                    tw="absolute bottom-0 left-0 right-0 bg-indigo-500 transition-all ease-out origin-bottom"
                     style={{
                       height: `${filteredHeight}%`,
                     }}
@@ -159,15 +162,6 @@ export function HtmlHistogram(props: HistogramProps) {
                 </div>
               );
             })}
-
-            {/* {focusedBin && (
-          <div
-            className="w-1 h-1 rounded-full absolute top-0 left-0 bg-red-400 mx-auto inline-block"
-            style={{
-              transform: `translateX(${focusedBinIndex * totalBarWidth}px)`,
-            }}
-          ></div>
-        )} */}
           </div>
 
           <div tw="mt-1 mb-3" style={{ width: totalWidth }}>
@@ -189,7 +183,8 @@ export function HtmlHistogram(props: HistogramProps) {
               renderTrack={({ props, children }) => (
                 <div
                   {...props}
-                  className={`flex rounded-sm html-histogram__range--${
+                  tw="flex rounded-sm"
+                  className={`html-histogram__range--${
                     isFiltered ? 'filtered' : 'base'
                   }`}
                   style={{
@@ -210,16 +205,14 @@ export function HtmlHistogram(props: HistogramProps) {
                 </div>
               )}
               renderThumb={({ props, isDragged }) => {
-                const thumbClass = cc([
-                  'html-histogram__thumb rounded-sm text-indigo-400 focus:outline-none focus:ring transition ease-out flex align-center justify-center',
-                  {
-                    ring: isDragged,
-                  },
-                ]);
                 return (
                   <div
                     {...props}
-                    className={thumbClass}
+                    className="html-histogram__thumb"
+                    css={[
+                      tw`rounded-sm text-indigo-400 focus:outline-none focus:ring transition ease-out flex items-center justify-center`,
+                      isDragged && tw`ring`,
+                    ]}
                     style={{
                       ...props.style,
                       bottom: -12,
@@ -229,7 +222,7 @@ export function HtmlHistogram(props: HistogramProps) {
                   >
                     <svg
                       viewBox="0 0 1 1"
-                      className="h-full w-full"
+                      tw="h-full w-full"
                       preserveAspectRatio="none"
                     >
                       <path d="M 0 1 L 0.5 0 L 1 1 Z" fill="currentColor" />
@@ -249,18 +242,18 @@ export function HtmlHistogram(props: HistogramProps) {
         style={{ margin: '0 -5px -9px', width: totalWidth + 10 }}
       >
         <div
-          className={cc([
-            'flex justify-start pr-2 flex-1',
-            { 'text-indigo-500': rangeValues[0] != 0 },
-          ])}
+          css={[
+            tw`flex justify-start pr-2 flex-1`,
+            rangeValues[0] != 0 && tw`text-indigo-500`,
+          ]}
         >
           {shortFormat(xScale.invert(rangeValues[0]))}
         </div>
         <div
-          className={cc([
-            'flex justify-end pl-2 flex-1',
-            { 'text-indigo-500': rangeValues[1] != 100 },
-          ])}
+          css={[
+            tw`flex justify-end pl-2 flex-1`,
+            rangeValues[1] != 0 && tw`text-indigo-500`,
+          ]}
         >
           {shortFormat(xScale.invert(rangeValues[1]))}
         </div>

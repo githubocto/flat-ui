@@ -1,22 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 body,
 html,
 #root {
   height: 100%;
-}
-
-.menu-item {
-  @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 space-x-1;
-}
-
-::-moz-selection {
-  @apply bg-indigo-100;
-}
-::selection {
-  @apply bg-indigo-100;
 }
 
 @keyframes yScaleIn {
