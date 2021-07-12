@@ -1,5 +1,6 @@
+import React from 'react';
 import tw from 'twin.macro';
 
-export const Input = tw.input`border hover:border-black`;
+export const Button = () => <input css={[tw`border bg-red-100`]} />;
 
-export default Input;
+export default Button;
