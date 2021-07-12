@@ -1,4 +1,4 @@
-import React from 'react';
+import 'twin.macro';
 import cc from 'classcat';
 import {
   ArrowUpIcon,
@@ -57,15 +57,20 @@ export function Header(props: HeaderProps) {
 
   return (
     <div
-      className="sticky-grid__header border-b border-r bg-white border-gray-200 flex flex-col"
+      className="sticky-grid__header"
+      tw="border-b border-r bg-white border-gray-200 flex flex-col"
       style={{ ...style }}
     >
       <div
-        className="header relative border-b border-gray-200 bg-white flex items-center"
+        className="header"
+        tw="relative border-b border-gray-200 bg-white flex items-center"
         style={{ height: 37 }}
         // ref={popoverAnchorRef}
       >
-        <div className="header__title group absolute top-0 left-0 bottom-0 z-10 bg-gray-50 text-gray-600 shadow-md flex items-center">
+        <div
+          className="header__title group"
+          tw="absolute top-0 left-0 bottom-0 z-10 bg-gray-50 text-gray-600 shadow-md flex items-center"
+        >
           <button
             onClick={() => onSticky()}
             className={`pin h-full p-2 border-indigo-100 focus:bg-indigo-100 hover:bg-indigo-100 appearance-none ${
@@ -75,7 +80,8 @@ export function Header(props: HeaderProps) {
             <PinIcon />
           </button>
           <button
-            className="group flex justify-between items-center h-full p-2 border-white focus:bg-white hover:bg-white appearance-none flex-1 min-w-0"
+            className="group"
+            tw="flex justify-between items-center h-full p-2 border-white focus:bg-white hover:bg-white appearance-none flex-1 min-w-0"
             onClick={() =>
               onSort(columnName, activeSortDirection == 'asc' ? 'desc' : 'asc')
             }
@@ -90,7 +96,7 @@ export function Header(props: HeaderProps) {
             >
               {columnName}
               {!!metadata && (
-                <span className="pl-2 inline-block text-gray-300">
+                <span tw="pl-2 inline-block text-gray-300">
                   <InfoIcon />
                 </span>
               )}
@@ -110,8 +116,8 @@ export function Header(props: HeaderProps) {
             </div>
           </button>
           {!!metadata && (
-            <div className="text-sm absolute bottom-0 bg-white p-4 text-indigo-500 transform translate-y-full border border-indigo-300 py-3 shadow-md left-0 right-0 pointer-events-none opacity-0 group-hover:opacity-100">
-              <div className="pr-2 inline-block text-indigo-200">
+            <div tw="text-sm absolute bottom-0 bg-white p-4 text-indigo-500 transform translate-y-full border border-indigo-300 py-3 shadow-md left-0 right-0 pointer-events-none opacity-0 group-hover:opacity-100">
+              <div tw="pr-2 inline-block text-indigo-200">
                 <InfoIcon />
               </div>
               {metadata}

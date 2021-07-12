@@ -36,11 +36,11 @@ export function CategoryFilter(props: CategoryFilterProps) {
         getRootProps,
       }) => (
         <div
-          className="w-full h-full -m-2 -mt-2"
+          tw="w-full h-full -m-2 -mt-2"
           style={{ height: `calc(100% + 1rem)` }}
         >
           <div
-            className="h-full w-full"
+            tw="h-full w-full"
             {...getRootProps({}, { suppressRefError: true })}
           >
             <input
@@ -76,7 +76,8 @@ export function CategoryFilter(props: CategoryFilterProps) {
           {isOpen && (
             <ul
               {...getMenuProps()}
-              className="absolute min-w-full space-y-1 py-2 bg-white shadow-md z-10 fade-up-sm-in"
+              tw="absolute min-w-full space-y-1 py-2 bg-white shadow-md z-10"
+              className="fade-up-sm-in"
               style={{ marginTop: 1 }}
             >
               {(props.possibleValues || []).map(
@@ -98,7 +99,7 @@ export function CategoryFilter(props: CategoryFilterProps) {
                         item: value,
                       })}
                     >
-                      <span className="overflow-ellipsis max-w-7xl">
+                      <span tw="overflow-ellipsis max-w-7xl">
                         {value} ({count.toLocaleString()})
                       </span>
                     </li>

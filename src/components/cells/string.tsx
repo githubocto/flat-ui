@@ -10,7 +10,7 @@ interface StringCellProps {
 export function StringCell(props: StringCellProps) {
   return (
     <span
-      className="overflow-ellipsis block whitespace-nowrap overflow-hidden"
+      tw="overflow-ellipsis block whitespace-nowrap overflow-hidden"
       title={props.rawValue}
       dangerouslySetInnerHTML={{
         __html: DOMPurify.sanitize(props.formattedValue),

@@ -11,7 +11,7 @@ const formatDate = timeFormat('%B %-d, %Y');
 export function DateCell(props: DateCellProps) {
   return (
     <span
-      className="overflow-ellipsis block whitespace-nowrap overflow-hidden"
+      tw="overflow-ellipsis block whitespace-nowrap overflow-hidden"
       title={props.rawValue}
     >
       {props.value ? formatDate(props.value) : '-'}

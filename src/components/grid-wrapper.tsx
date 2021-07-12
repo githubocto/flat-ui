@@ -1,4 +1,3 @@
-import React from 'react';
 import { StoreWrapper } from './store-wrapper';
 import { Grid, GridProps } from './grid';
 

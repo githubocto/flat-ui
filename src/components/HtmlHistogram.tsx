@@ -122,7 +122,7 @@ export function HtmlHistogram(props: HistogramProps) {
       {bins.length > 1 && (
         <>
           <div
-            className="flex items-end relative"
+            tw="flex items-end relative"
             style={{
               height,
               width: 'fit-content',
@@ -135,23 +135,23 @@ export function HtmlHistogram(props: HistogramProps) {
               return (
                 <div
                   key={i}
-                  className="h-full flex-shrink-0 relative"
+                  tw="h-full flex-shrink-0 relative"
                   style={{ width: barWidth, marginRight: barSpacing }}
                 >
                   {focusedBinIndex == i && (
                     <div
-                      className="absolute inset-0 bg-indigo-100 transition"
+                      tw="absolute inset-0 bg-indigo-100 transition"
                       style={{ top: -3, left: -1, right: -1 }}
                     />
                   )}
                   <div
-                    className="absolute bottom-0 left-0 right-0 bg-gray-200"
+                    tw="absolute bottom-0 left-0 right-0 bg-gray-200"
                     style={{
                       height: `${height}%`,
                     }}
                   ></div>
                   <div
-                    className="absolute bottom-0 left-0 right-0 bg-indigo-500 y-scale-in transition-all ease-out origin-bottom"
+                    tw="absolute bottom-0 left-0 right-0 bg-indigo-500 y-scale-in transition-all ease-out origin-bottom"
                     style={{
                       height: `${filteredHeight}%`,
                     }}
@@ -170,7 +170,7 @@ export function HtmlHistogram(props: HistogramProps) {
         )} */}
           </div>
 
-          <div className="mt-1 mb-3" style={{ width: totalWidth }}>
+          <div tw="mt-1 mb-3" style={{ width: totalWidth }}>
             <Range
               min={0}
               max={100}
