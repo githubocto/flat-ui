@@ -63,7 +63,7 @@ export function Header(props: HeaderProps) {
       <div
         className="header"
         tw="relative border-b border-gray-200 bg-white flex items-center"
-        // style={{ height: 37 }}
+        style={{ height: 37 }}
         // ref={popoverAnchorRef}
       >
         <div
