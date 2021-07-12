@@ -102,11 +102,7 @@ export const Cell = React.memo(function(props: CellProps) {
       }}
     >
       {isFirstColumn && (
-        <div
-          // TODO: Can't apply classes like this in Tailwind
-          className={`${statusColor}`}
-          tw="w-6 flex-none"
-        >
+        <div css={[tw`w-6 flex-none`, statusColor]}>
           {StatusIcon && <StatusIcon />}
         </div>
       )}

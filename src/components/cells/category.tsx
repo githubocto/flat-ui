@@ -10,9 +10,8 @@ export function CategoryCell(props: CategoryCellProps) {
     <span
       css={[
         tw`overflow-ellipsis block whitespace-nowrap overflow-hidden rounded-full px-4 py-1 -ml-2 -mr-2`,
+        props.categoryColor,
       ]}
-      // TODO: This won't work with Tailwind
-      className={props.categoryColor}
       title={props.value}
     >
       {props.value}

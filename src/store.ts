@@ -1,3 +1,4 @@
+import tw from 'twin.macro';
 import create, { StateCreator } from 'zustand';
 import produce from 'immer';
 import {
@@ -695,14 +696,14 @@ export const cellTypeMap = {
 };
 
 export const categoryColors = [
-  'bg-gray-100 text-gray-600',
-  'bg-yellow-100 text-yellow-600',
-  'bg-indigo-100 text-indigo-600',
-  'bg-pink-100 text-pink-600',
-  'bg-blue-100 text-blue-600',
-  'bg-green-100 text-green-600',
-  'bg-purple-100 text-purple-600',
-  'bg-red-100 text-red-600',
+  tw`bg-gray-100 text-gray-600`,
+  tw`bg-yellow-100 text-yellow-600`,
+  tw`bg-indigo-100 text-indigo-600`,
+  tw`bg-pink-100 text-pink-600`,
+  tw`bg-blue-100 text-blue-600`,
+  tw`bg-green-100 text-green-600`,
+  tw`bg-purple-100 text-purple-600`,
+  tw`bg-red-100 text-red-600`,
 ];
 
 const isAlmostInteger = (num: number) => Math.abs(Math.round(num) - num) < 0.06;

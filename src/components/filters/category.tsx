@@ -91,11 +91,9 @@ export function CategoryFilter(props: CategoryFilterProps) {
 
                   return (
                     <li
-                      // TODO: Fix me – we can't apply classes like this in Tailwind
-                      className={color}
                       css={[
+                        color,
                         tw`p-2 inline-block rounded-full px-4 py-1 mx-2 border-2 whitespace-nowrap cursor-pointer`,
-
                         highlightedIndex === index
                           ? tw`border-indigo-500`
                           : tw`border-white`,
