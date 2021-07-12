@@ -1,4 +1,4 @@
-import 'twin.macro';
+import tw from 'twin.macro';
 import cc from 'classcat';
 import {
   ArrowUpIcon,
@@ -127,12 +127,10 @@ export function Header(props: HeaderProps) {
       </div>
       {showFilters && (
         <div
-          className={cc([
-            'flex-1 flex flex-col p-2 justify-center items-start',
-            {
-              'pl-8': isFirstColumn,
-            },
-          ])}
+          css={[
+            tw`flex-1 flex flex-col p-2 justify-center items-start`,
+            isFirstColumn && tw`pl-8`,
+          ]}
         >
           <FilterComponent
             id={columnName}
