@@ -3,7 +3,6 @@ import React, { useMemo } from 'react';
 import tw from 'twin.macro';
 import { ascending, bin, min, max, extent, scaleLinear } from 'd3';
 import { getTrackBackground, Range } from 'react-range';
-import cc from 'classcat';
 
 interface HistogramProps {
   shortFormat: (value: number) => string;

@@ -1,5 +1,4 @@
 import tw from 'twin.macro';
-import cc from 'classcat';
 import {
   ArrowUpIcon,
   ArrowDownIcon,
@@ -72,10 +71,12 @@ export function Header(props: HeaderProps) {
           tw="absolute top-0 left-0 bottom-0 z-10 bg-gray-50 text-gray-600 shadow-md flex items-center"
         >
           <button
+            className="pin"
+            css={[
+              tw`h-full p-2 border-indigo-100 focus:bg-indigo-100 hover:bg-indigo-100 appearance-none focus:opacity-100 group-hover:opacity-100 text-indigo-400 bg-indigo-50 focus:ring-indigo-300`,
+              isSticky ? tw`opacity-100` : tw`opacity-0 -ml-6 shadow-md`,
+            ]}
             onClick={() => onSticky()}
-            className={`pin h-full p-2 border-indigo-100 focus:bg-indigo-100 hover:bg-indigo-100 appearance-none ${
-              isSticky ? 'opacity-100' : 'opacity-0 -ml-6 shadow-md'
-            } focus:opacity-100 group-hover:opacity-100 text-indigo-400 bg-indigo-50 focus:ring-indigo-300`}
           >
             <PinIcon />
           </button>
@@ -87,10 +88,10 @@ export function Header(props: HeaderProps) {
             }
           >
             <span
-              className={cc([
-                'text-sm font-medium truncate text-left',
-                { 'text-right': ['integer', 'number'].includes(cellType) },
-              ])}
+              css={[
+                tw`text-sm font-medium truncate text-left`,
+                ['integer', 'number'].includes(cellType) && tw`text-right`,
+              ]}
               title={columnName}
               style={{ minWidth: 'calc(100% - 1.5em)' }}
             >
@@ -102,11 +103,13 @@ export function Header(props: HeaderProps) {
               )}
             </span>
             <div
-              className={`header__icon flex items-center justify-center pl-1 pr-2 -mr-2 ${
+              className="header__icon"
+              css={[
+                tw`flex items-center justify-center pl-1 pr-2 -mr-2`,
                 activeSortDirection
-                  ? 'opacity-100'
-                  : 'opacity-0 group-hover:opacity-40'
-              }`}
+                  ? tw`opacity-100`
+                  : tw`opacity-0 group-hover:opacity-40`,
+              ]}
             >
               {activeSortDirection == 'desc' ? (
                 <ArrowDownIcon />

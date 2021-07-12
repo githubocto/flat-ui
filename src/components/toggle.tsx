@@ -1,6 +1,5 @@
 import React from 'react';
 import tw from 'twin.macro';
-import cc from 'classcat';
 import { MixedCheckbox, MixedCheckboxProps } from '@reach/checkbox';
 import '@reach/checkbox/styles.css';
 

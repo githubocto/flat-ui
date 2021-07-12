@@ -89,9 +89,7 @@ const App = () => {
         )}
       </div>
 
-      <div style={{ flex: '1 1 auto' }}>
-        {!isLoading && <Grid data={data} />}
-      </div>
+      <div style={{ flex: '1 1 0%' }}>{!isLoading && <Grid data={data} />}</div>
     </div>
   );
 };
