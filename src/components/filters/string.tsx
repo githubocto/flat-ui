@@ -1,5 +1,6 @@
 import React from 'react';
 // @ts-ignore
+import 'twin.macro';
 import { format } from 'd3';
 import debounce from 'lodash/debounce';
 
@@ -31,7 +32,7 @@ export function StringFilter(props: StringFilterProps) {
 
   return (
     <input
-      className="px-3 py-3 text-indigo-500 placeholder-gray-400 bg-white outline-none focus:outline-none focus:shadow-outline w-full overflow-ellipsis"
+      tw="px-3 py-3 text-indigo-500 placeholder-gray-400 bg-white outline-none focus:outline-none w-full overflow-ellipsis"
       onChange={e => setLocalValue(e.target.value)}
       value={localValue || ''}
       placeholder={`Filter ${formatNumber(props.filteredData.length)} records`}

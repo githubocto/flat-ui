@@ -1,6 +1,6 @@
 import React from 'react';
 import { areEqual } from 'react-window';
-import cc from 'classcat';
+import tw, { TwStyle } from 'twin.macro';
 import anchorme from 'anchorme';
 import { cellTypeMap } from '../store';
 import { DashIcon, DiffModifiedIcon, PlusIcon } from '@primer/octicons-react';
@@ -11,7 +11,7 @@ interface CellProps {
   value: any;
   rawValue: any;
   formattedValue?: any;
-  categoryColor?: string;
+  categoryColor?: string | TwStyle;
   style?: {};
   status?: string;
   isNearRightEdge?: boolean;
@@ -42,17 +42,6 @@ export const Cell = React.memo(function(props: CellProps) {
   if (!cellInfo) return null;
 
   const { cell: CellComponent } = cellInfo;
-
-  const cellClass = cc([
-    'cell group flex flex-none items-center px-4 border-b border-r',
-    {
-      'text-gray-300': typeof value === 'undefined' || Number.isNaN(value),
-      'border-green-200': status === 'new',
-      'border-pink-200': status === 'old',
-      'border-yellow-200': status === 'modified',
-      'border-gray-200': !status,
-    },
-  ]);
 
   const displayValue = formattedValue || value;
   const isLongValue = (displayValue || '').length > 23;
@@ -95,7 +84,17 @@ export const Cell = React.memo(function(props: CellProps) {
 
   return (
     <div
-      className={cellClass}
+      className="cell group"
+      css={[
+        tw`flex flex-none items-center px-4 border-b border-r`,
+
+        typeof value === 'undefined' ||
+          (Number.isNaN(value) && tw`text-gray-300`),
+        status === 'new' && tw`border-green-200`,
+        status === 'old' && tw`border-pink-200`,
+        status === 'modified' && tw`border-yellow-200`,
+        !status && tw`border-gray-200`,
+      ]}
       onMouseEnter={() => onMouseEnter()}
       style={{
         ...style,
@@ -103,7 +102,7 @@ export const Cell = React.memo(function(props: CellProps) {
       }}
     >
       {isFirstColumn && (
-        <div className={`w-6 flex-none ${statusColor}`}>
+        <div css={[tw`w-6 flex-none`, statusColor]}>
           {StatusIcon && <StatusIcon />}
         </div>
       )}
@@ -117,11 +116,12 @@ export const Cell = React.memo(function(props: CellProps) {
 
       {isLongValue && (
         <div
-          className={`cell__long-value absolute ${
-            isNearBottomEdge ? 'bottom-0' : 'top-0'
-          } ${
-            isNearRightEdge ? 'right-0' : 'left-0'
-          } p-4 py-2 bg-white opacity-0 group-hover:opacity-100 z-30 border border-gray-200 shadow-md pointer-events-none`}
+          className="cell__long-value"
+          css={[
+            tw` absolute p-4 py-2 bg-white opacity-0 group-hover:opacity-100 z-30 border border-gray-200 shadow-md pointer-events-none`,
+            isNearBottomEdge ? tw`bottom-0` : tw`top-0`,
+            isNearRightEdge ? tw`right-0` : tw`left-0`,
+          ]}
           style={{
             width: 'max-content',
             maxWidth: '27em',
@@ -129,7 +129,7 @@ export const Cell = React.memo(function(props: CellProps) {
           title={rawValue}
         >
           <div
-            className="line-clamp-9"
+            tw="line-clamp-9"
             dangerouslySetInnerHTML={{ __html: stringWithLinks }}
           />
         </div>

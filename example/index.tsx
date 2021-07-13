@@ -1,4 +1,5 @@
 import 'react-app-polyfill/ie11';
+
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Grid } from '../.';
@@ -43,10 +44,28 @@ const App = () => {
   }, [dataUrl, overrideDataUrl]);
 
   return (
-    <div className="relative h-full flex flex-col">
-      <div className="p-4 mb-2 flex flex-col">
+    <div
+      style={{
+        position: 'relative',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <div
+        style={{
+          padding: 16,
+          marginBottom: 8,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <select
-          className="p-4 mb-2"
+          style={{
+            padding: 16,
+            marginBottom: 8,
+            background: '#f4f4f4',
+          }}
           value={dataUrl}
           onChange={e => setDataUrl(e.target.value)}
         >
@@ -60,14 +79,19 @@ const App = () => {
 
         {!dataUrl && (
           <input
-            className="block p-4 mt-2"
+            style={{
+              display: 'block',
+              padding: 16,
+              marginBottom: 8,
+              background: '#f4f4f4',
+            }}
             value={localOverrideDataUrl}
             onChange={e => setLocalOverrideDataUrl(e.target.value)}
           />
         )}
       </div>
 
-      <div className="flex-1">{!isLoading && <Grid data={data} />}</div>
+      <div style={{ flex: '1 1 0%' }}>{!isLoading && <Grid data={data} />}</div>
     </div>
   );
 };

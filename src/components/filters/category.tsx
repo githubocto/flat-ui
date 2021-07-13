@@ -1,5 +1,6 @@
 // @ts-nocheck
 // please forgive me! was getting a horrendous error for the map in render
+import tw from 'twin.macro';
 import React from 'react';
 import Downshift from 'downshift';
 import { matchSorter } from 'match-sorter';
@@ -36,17 +37,18 @@ export function CategoryFilter(props: CategoryFilterProps) {
         getRootProps,
       }) => (
         <div
-          className="w-full h-full -m-2 -mt-2"
+          tw="w-full h-full -m-2 -mt-2"
           style={{ height: `calc(100% + 1rem)` }}
         >
           <div
-            className="h-full w-full"
+            tw="h-full w-full"
             {...getRootProps({}, { suppressRefError: true })}
           >
             <input
-              className={`h-full w-full px-3 py-3 placeholder-gray-400 border-none ${
-                props?.value ? 'text-indigo-500' : 'text-gray-400'
-              } bg-white outline-none focus:outline-none focus:shadow-outline w-full overflow-ellipsis`}
+              css={[
+                props?.value ? tw`text-indigo-500` : tw`text-gray-400`,
+                tw`h-full w-full px-3 py-3 placeholder-gray-400 border-none bg-white outline-none focus:outline-none w-full overflow-ellipsis`,
+              ]}
               placeholder={`Filter ${formatNumber(
                 props.filteredData.length
               )} records`}
@@ -76,7 +78,8 @@ export function CategoryFilter(props: CategoryFilterProps) {
           {isOpen && (
             <ul
               {...getMenuProps()}
-              className="absolute min-w-full space-y-1 py-2 bg-white shadow-md z-10 fade-up-sm-in"
+              tw="absolute min-w-full space-y-1 py-2 bg-white shadow-md z-10"
+              className="fade-up-sm-in"
               style={{ marginTop: 1 }}
             >
               {(props.possibleValues || []).map(
@@ -84,21 +87,24 @@ export function CategoryFilter(props: CategoryFilterProps) {
                   const isFilteredOut =
                     inputValue && !matchSorter([value], inputValue).length;
                   if (isFilteredOut) return null;
+                  console.log({ color });
 
                   return (
                     <li
-                      className={`p-2 inline-block ${color} rounded-full px-4 py-1 mx-2 border-2 ${
+                      css={[
+                        color,
+                        tw`p-2 inline-block rounded-full px-4 py-1 mx-2 border-2 whitespace-nowrap cursor-pointer`,
                         highlightedIndex === index
-                          ? `border-indigo-500`
-                          : `border-white`
-                      } whitespace-nowrap cursor-pointer`}
+                          ? tw`border-indigo-500`
+                          : tw`border-white`,
+                      ]}
                       {...getItemProps({
                         key: value,
                         index,
                         item: value,
                       })}
                     >
-                      <span className="overflow-ellipsis max-w-7xl">
+                      <span tw="overflow-ellipsis max-w-7xl">
                         {value} ({count.toLocaleString()})
                       </span>
                     </li>

@@ -1,4 +1,4 @@
-import React from 'react';
+import 'twin.macro';
 
 interface NumberCellProps {
   value: Number;
@@ -7,10 +7,7 @@ interface NumberCellProps {
 
 export function NumberCell(props: NumberCellProps) {
   return (
-    <span
-      className="text-right font-mono text-sm block w-full"
-      title={props.rawValue}
-    >
+    <span tw="text-right font-mono text-sm block w-full" title={props.rawValue}>
       {Number.isFinite(props.value) ? props.value.toLocaleString() : '—'}
     </span>
   );

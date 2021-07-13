@@ -1,26 +1,216 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+.github-octo-flat-ui *,
+.github-octo-flat-ui ::before,
+.github-octo-flat-ui ::after {
+  box-sizing: border-box;
+}
+
+.github-octo-flat-ui {
+  -moz-tab-size: 4;
+  tab-size: 4;
+}
+
+.github-octo-flat-ui {
+  line-height: 1.15; /* 1 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+
+.github-octo-flat-ui {
+  margin: 0;
+}
+
+.github-octo-flat-ui {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+}
+
+.github-octo-flat-ui hr {
+  height: 0; /* 1 */
+  color: inherit; /* 2 */
+}
+
+.github-octo-flat-ui code,
+.github-octo-flat-ui kbd,
+.github-octo-flat-ui samp,
+.github-octo-flat-ui pre {
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo,
+    monospace; /* 1 */
+  font-size: 1em; /* 2 */
+}
+.github-octo-flat-ui table {
+  text-indent: 0; /* 1 */
+  border-color: inherit; /* 2 */
+}
+
+.github-octo-flat-ui button,
+.github-octo-flat-ui input,
+.github-octo-flat-ui optgroup,
+.github-octo-flat-ui select,
+.github-octo-flat-ui textarea {
+  font-family: inherit; /* 1 */
+  font-size: 100%; /* 1 */
+  line-height: 1.15; /* 1 */
+  margin: 0; /* 2 */
+}
+
+.github-octo-flat-ui button,
+.github-octo-flat-ui select {
+  /* 1 */
+  text-transform: none;
+}
+
+.github-octo-flat-ui button,
+.github-octo-flat-ui [type='button'],
+.github-octo-flat-ui [type='reset'],
+.github-octo-flat-ui [type='submit'] {
+  -webkit-appearance: button;
+}
+
+.github-octo-flat-ui ::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+.github-octo-flat-ui :-moz-focusring {
+  outline: 1px dotted ButtonText;
+}
+
+.github-octo-flat-ui :-moz-ui-invalid {
+  box-shadow: none;
+}
+
+.github-octo-flat-ui ::-webkit-inner-spin-button,
+.github-octo-flat-ui ::-webkit-outer-spin-button {
+  height: auto;
+}
+
+.github-octo-flat-ui [type='search'] {
+  -webkit-appearance: textfield; /* 1 */
+  outline-offset: -2px; /* 2 */
+}
+
+.github-octo-flat-ui ::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+.github-octo-flat-ui ::-webkit-file-upload-button {
+  -webkit-appearance: button; /* 1 */
+  font: inherit; /* 2 */
+}
+
+.github-octo-flat-ui summary {
+  display: list-item;
+}
+
+.github-octo-flat-ui button {
+  background-color: transparent;
+  background-image: none;
+}
+
+.github-octo-flat-ui fieldset {
+  margin: 0;
+  padding: 0;
+}
+
+.github-octo-flat-ui ol,
+.github-octo-flat-ui ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.github-octo-flat-ui {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; /* 1 */
+  line-height: 1.5; /* 2 */
+}
+
+.github-octo-flat-ui *,
+.github-octo-flat-ui ::before,
+.github-octo-flat-ui ::after {
+  box-sizing: border-box; /* 1 */
+  border-width: 0; /* 2 */
+  border-style: solid; /* 2 */
+  border-color: currentColor; /* 2 */
+}
+
+.github-octo-flat-ui hr {
+  border-top-width: 1px;
+}
+
+.github-octo-flat-ui img {
+  border-style: solid;
+}
+
+.github-octo-flat-ui textarea {
+  resize: vertical;
+}
+
+.github-octo-flat-ui input::placeholder,
+.github-octo-flat-ui textarea::placeholder {
+  opacity: 1;
+  color: #9ca3af;
+}
+
+.github-octo-flat-ui button,
+.github-octo-flat-ui [role='button'] {
+  cursor: pointer;
+}
+
+.github-octo-flat-ui table {
+  border-collapse: collapse;
+}
+
+.github-octo-flat-ui a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.github-octo-flat-ui button,
+.github-octo-flat-ui input,
+.github-octo-flat-ui optgroup,
+.github-octo-flat-ui select,
+.github-octo-flat-ui textarea {
+  line-height: inherit;
+  color: inherit;
+}
+
+.github-octo-flat-ui pre,
+.github-octo-flat-ui code,
+.github-octo-flat-ui kbd,
+.github-octo-flat-ui samp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+}
+
+.github-octo-flat-ui img,
+.github-octo-flat-ui svg,
+.github-octo-flat-ui video,
+.github-octo-flat-ui canvas,
+.github-octo-flat-ui audio,
+.github-octo-flat-ui iframe,
+.github-octo-flat-ui embed,
+.github-octo-flat-ui object {
+  display: block; /* 1 */
+  vertical-align: middle; /* 2 */
+}
+.github-octo-flat-ui img,
+.github-octo-flat-ui video {
+  max-width: 100%;
+  height: auto;
+}
+
+*,
+::before,
+::after {
+  --tw-border-opacity: 1;
+  border-color: rgba(229, 231, 235, var(--tw-border-opacity));
+}
 
 body,
 html,
 #root {
   height: 100%;
-}
-
-body {
-  @apply bg-gray-200;
-}
-
-.menu-item {
-  @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 space-x-1;
-}
-
-::-moz-selection {
-  @apply bg-indigo-100;
-}
-::selection {
-  @apply bg-indigo-100;
 }
 
 @keyframes yScaleIn {

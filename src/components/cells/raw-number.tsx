@@ -1,4 +1,4 @@
-import React from 'react';
+import 'twin.macro';
 
 interface RawNumberCellProps {
   value: Number;
@@ -7,10 +7,7 @@ interface RawNumberCellProps {
 
 export function RawNumberCell(props: RawNumberCellProps) {
   return (
-    <span
-      className="text-right font-mono text-sm block w-full"
-      title={props.rawValue}
-    >
+    <span tw="text-right font-mono text-sm block w-full" title={props.rawValue}>
       {Number.isFinite(props.value) ? props.value : '—'}
     </span>
   );

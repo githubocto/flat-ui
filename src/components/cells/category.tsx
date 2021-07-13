@@ -1,4 +1,4 @@
-import React from 'react';
+import tw from 'twin.macro';
 
 interface CategoryCellProps {
   value: string;
@@ -8,8 +8,10 @@ interface CategoryCellProps {
 export function CategoryCell(props: CategoryCellProps) {
   return (
     <span
-      className={`overflow-ellipsis block whitespace-nowrap overflow-hidden ${props.categoryColor ||
-        ''} rounded-full px-4 py-1 -ml-2 -mr-2`}
+      css={[
+        tw`overflow-ellipsis block whitespace-nowrap overflow-hidden rounded-full px-4 py-1 -ml-2 -mr-2`,
+        props.categoryColor,
+      ]}
       title={props.value}
     >
       {props.value}

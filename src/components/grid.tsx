@@ -1,4 +1,5 @@
 import React from 'react';
+import 'twin.macro';
 import AutoSizer from 'react-virtualized-auto-sizer';
 // @ts-ignore
 import { extent, scaleLinear, bisectLeft } from 'd3';
@@ -18,6 +19,7 @@ import {
   SyncIcon,
 } from '@primer/octicons-react';
 import fromPairs from 'lodash/fromPairs';
+import { TwStyle } from 'twin.macro';
 
 interface ScrollRefType {
   current: number;
@@ -273,23 +275,20 @@ export function Grid(props: GridProps) {
           columnNames
             .map(columnName => {
               // @ts-ignore
-              const cellType = cellTypes[columnName]
+              const cellType = cellTypes[columnName];
               // @ts-ignore
-              const data = d['__rawData__'][columnName] || d[columnName]
-              let formattedData = typeof data === 'object' 
-                ? JSON.stringify(data) 
-                : data
+              const data = d['__rawData__'][columnName] || d[columnName];
+              let formattedData =
+                typeof data === 'object' ? JSON.stringify(data) : data;
               if (
                 typeof formattedData === 'string' &&
-                (
-                  formattedData.includes('"') || 
-                  formattedData.includes(',') || 
-                  formattedData.includes('\n')
-                )
+                (formattedData.includes('"') ||
+                  formattedData.includes(',') ||
+                  formattedData.includes('\n'))
               ) {
-                formattedData = `"${formattedData.replace(/"/g, '""')}"`
+                formattedData = `"${formattedData.replace(/"/g, '""')}"`;
               }
-              return formattedData
+              return formattedData;
             })
             .join(',')
         )
@@ -312,14 +311,14 @@ export function Grid(props: GridProps) {
 
   if (!schema)
     return (
-      <div className="relative flex justify-center bg-white w-full h-full">
-        <div className="flex flex-col justify-center items-center p-4 z-10">
+      <div tw="relative flex justify-center bg-white w-full h-full">
+        <div tw="flex flex-col justify-center items-center p-4 z-10">
           <Loader />
-          <div className="font-bold text-lg italic pt-2">Loading...</div>
+          <div tw="font-bold text-lg italic pt-2">Loading...</div>
         </div>
 
         <div
-          className="absolute inset-0 z-0 animate-pulse"
+          tw="absolute inset-0 z-0 animate-pulse"
           style={{
             background: `linear-gradient(to bottom, #E5E7EB 1px, white 1px) 0 -4px`,
             backgroundSize: '100% 40px',
@@ -329,22 +328,22 @@ export function Grid(props: GridProps) {
     );
   if (!Object.keys(schema).length)
     return (
-      <div className="relative flex justify-center bg-white w-full h-full">
-        <div className="flex flex-col justify-center items-center p-4 z-10">
-          <div className="font-bold text-lg italic pt-2">No valid data</div>
+      <div tw="relative flex justify-center bg-white w-full h-full">
+        <div tw="flex flex-col justify-center items-center p-4 z-10">
+          <div tw="font-bold text-lg italic pt-2">No valid data</div>
         </div>
       </div>
     );
 
   return (
-    <div className="flex flex-col h-full bg-white fade-up-in">
-      {/* <div className="bg-white h-10 flex px-4 border-b border-gray-200">
+    <div tw="flex flex-col h-full bg-white" className="fade-up-in">
+      {/* <div tw="bg-white h-10 flex px-4 border-b border-gray-200">
         <Toggle onChange={handleShowFiltersChange} checked={showFilters}>
           Show Filters
         </Toggle>
       </div> */}
       <div
-        className="flex-1 w-full h-full"
+        tw="flex-1 w-full h-full"
         style={{
           background: `linear-gradient(to bottom, #E5E7EB 1px, transparent 1px) 0 -4px`,
           backgroundSize: `100% 40px`,
@@ -388,7 +387,7 @@ export function Grid(props: GridProps) {
 
         {!!Object.keys(filters).length && !filteredData.length && (
           <div
-            className="absolute w-full flex justify-center italic text-gray-400"
+            tw="absolute w-full flex justify-center italic text-gray-400"
             style={{ marginTop: 165 }}
           >
             No data with those filters
@@ -396,20 +395,20 @@ export function Grid(props: GridProps) {
         )}
       </div>
 
-      <div className="flex-none w-full flex flex-wrap align-middle justify-between z-20 bg-gray-800 text-white border-t border-gray-200 text-sm">
-        <div className="flex justify-center items-center px-4">
+      <div tw="flex-none w-full flex flex-wrap align-middle justify-between z-20 bg-gray-800 text-white border-t border-gray-200 text-sm">
+        <div tw="flex justify-center items-center px-4">
           {!!diffs.length && (
             <>
               Changes:
-              <div className="flex px-2">
+              <div tw="flex px-2">
                 {!!positiveDiffs.length && (
-                  <div className="px-1 py-2 text-green-500 font-semibold">
+                  <div tw="px-1 py-2 text-green-500 font-semibold">
                     +{positiveDiffs.length} row
                     {positiveDiffs.length === 1 ? '' : 's'}
                   </div>
                 )}
                 {!!modifiedDiffs.length && (
-                  <div className="px-1 py-2 text-yellow-500 font-semibold">
+                  <div tw="px-1 py-2 text-yellow-500 font-semibold">
                     <span style={{ marginRight: 1 }}>
                       <DiffModifiedIcon />
                     </span>
@@ -418,42 +417,39 @@ export function Grid(props: GridProps) {
                   </div>
                 )}
                 {!!negativeDiffs.length && (
-                  <div className="px-1 py-2 text-pink-500 font-semibold">
+                  <div tw="px-1 py-2 text-pink-500 font-semibold">
                     -{negativeDiffs.length} row
                     {negativeDiffs.length === 1 ? '' : 's'}
                   </div>
                 )}
               </div>
-              <button
-                className=""
-                onClick={() => handleHighlightDiffChange(-1)}
-              >
+              <button tw="" onClick={() => handleHighlightDiffChange(-1)}>
                 <ArrowLeftIcon />
               </button>
-              <div className="tabular-nums px-1 text-center">
+              <div tw="tabular-nums px-1 text-center">
                 {typeof highlightedDiffIndex === 'number'
                   ? highlightedDiffIndex + 1
                   : ''}
               </div>
-              <button className="" onClick={() => handleHighlightDiffChange(1)}>
+              <button tw="" onClick={() => handleHighlightDiffChange(1)}>
                 <ArrowRightIcon />
               </button>
             </>
           )}
-          <div className="m-2 text-gray-200 whitespace-nowrap">
+          <div tw="m-2 text-gray-200 whitespace-nowrap">
             Showing {filteredData.length.toLocaleString()}
             {isFiltered && ` of ${data.length.toLocaleString()}`} row
             {(isFiltered ? filteredData : data).length === 1 ? '' : 's'}
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 m-2">
+        <div tw="flex items-center space-x-2 m-2">
           {canDownload && (
-            <span className="relative z-0 inline-flex rounded-full">
+            <span tw="relative z-0 inline-flex rounded-full">
               <button
                 onClick={handleDownloadCsv}
                 type="button"
-                className="relative space-x-1 inline-flex items-center px-3 py-2 rounded-l-full bg-black hover:bg-gray-900 focus:bg-gray-900 text-sm border border-gray-800 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                tw="relative space-x-1 inline-flex items-center px-3 py-2 rounded-l-full bg-black hover:bg-gray-900 focus:bg-gray-900 text-sm border border-gray-800 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <DownloadIcon />
                 <span>{isFiltered ? 'Filtered ' : ''} CSV</span>
@@ -461,7 +457,7 @@ export function Grid(props: GridProps) {
               <button
                 onClick={handleDownloadJson}
                 type="button"
-                className="-ml-px relative space-x-1 inline-flex items-center px-3 py-2 rounded-r-full bg-black hover:bg-gray-900 focus:bg-gray-900 text-sm border border-gray-800 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                tw="-ml-px relative space-x-1 inline-flex items-center px-3 py-2 rounded-r-full bg-black hover:bg-gray-900 focus:bg-gray-900 text-sm border border-gray-800 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <DownloadIcon />
                 <span>{isFiltered ? 'Filtered ' : ''} JSON</span>
@@ -471,10 +467,10 @@ export function Grid(props: GridProps) {
 
           {isFiltered && (
             <button
-              className="p-2 px-6 flex justify-center items-center bg-black rounded-full"
+              tw="p-2 px-6 flex justify-center items-center bg-black rounded-full"
               onClick={() => handleFiltersChange()}
             >
-              <span className="mr-2">
+              <span tw="mr-2">
                 <SyncIcon />
               </span>
               Clear filters
@@ -601,7 +597,7 @@ interface CellComputedProps {
   rawValue: any;
   style: StyleObject;
   background?: string;
-  categoryColor?: string;
+  categoryColor?: string | TwStyle;
   status?: string;
   isFirstColumn?: boolean;
   isNearRightEdge?: boolean;
