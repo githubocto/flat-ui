@@ -1,3 +1,6 @@
 node_modules
 .cache
 dist
+.babelrc
+babel-plugin-macros.config.js
+types/twin.d.ts
