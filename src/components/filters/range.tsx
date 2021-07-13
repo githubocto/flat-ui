@@ -1,4 +1,5 @@
 import React from 'react';
+import 'twin.macro';
 import debounce from 'lodash/debounce';
 import { HtmlHistogram } from '../HtmlHistogram';
 

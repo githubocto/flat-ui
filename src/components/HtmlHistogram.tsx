@@ -235,7 +235,8 @@ export function HtmlHistogram(props: HistogramProps) {
       )}
 
       <div
-        className={`html-histogram__numbers flex justify-center tabular-nums text-xs text-gray-400 whitespace-nowrap html-histogram__numbers--${
+        tw="flex justify-center tabular-nums text-xs text-gray-400 whitespace-nowrap"
+        className={`html-histogram__numbers html-histogram__numbers--${
           isFiltered ? 'filtered' : 'base'
         }`}
         style={{ margin: '0 -5px -9px', width: totalWidth + 10 }}
@@ -251,7 +252,7 @@ export function HtmlHistogram(props: HistogramProps) {
         <div
           css={[
             tw`flex justify-end pl-2 flex-1`,
-            rangeValues[1] != 0 && tw`text-indigo-500`,
+            rangeValues[1] != 100 && tw`text-indigo-500`,
           ]}
         >
           {shortFormat(xScale.invert(rangeValues[1]))}

@@ -1,4 +1,4 @@
-import React from 'react';
+import 'twin.macro';
 import DOMPurify from 'dompurify';
 
 interface StringCellProps {

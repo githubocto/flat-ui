@@ -64,6 +64,7 @@ const App = () => {
           style={{
             padding: 16,
             marginBottom: 8,
+            background: '#f4f4f4',
           }}
           value={dataUrl}
           onChange={e => setDataUrl(e.target.value)}
@@ -82,6 +83,7 @@ const App = () => {
               display: 'block',
               padding: 16,
               marginBottom: 8,
+              background: '#f4f4f4',
             }}
             value={localOverrideDataUrl}
             onChange={e => setLocalOverrideDataUrl(e.target.value)}

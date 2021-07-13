@@ -1,4 +1,4 @@
-import React from 'react';
+import 'twin.macro';
 // @ts-ignore
 import { timeFormat } from 'd3';
 

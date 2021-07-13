@@ -57,12 +57,12 @@ export function Header(props: HeaderProps) {
   return (
     <div
       className="sticky-grid__header"
-      tw="border-b border-r bg-white border-gray-200 flex flex-col"
+      tw="border-b border-r bg-white border-gray-200 flex-col"
       style={{ ...style }}
     >
       <div
         className="header"
-        tw="relative border-b border-gray-200 bg-white flex items-center"
+        tw="relative border-b border-gray-200 bg-white flex items-center flex-shrink-0"
         style={{ height: 37 }}
         // ref={popoverAnchorRef}
       >

@@ -1,4 +1,4 @@
-import React from 'react';
+import 'twin.macro';
 
 interface NumberCellProps {
   value: Number;
