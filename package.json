@@ -25,10 +25,10 @@
   },
   "scripts": {
     "start": "tsdx watch",
-    "build": "NODE_ENV=production tsdx build",
-    "test": "tsdx test --passWithNoTests",
+    "build": "NODE_ENV=production tsdx build --transpileOnly",
+    "test": "tsdx test --passWithNoTests --transpileOnly",
     "lint": "tsdx lint",
-    "prepare": "NODE_ENV=production tsdx build",
+    "prepare": "NODE_ENV=production tsdx build --transpileOnly",
     "size": "size-limit",
     "analyze": "size-limit --why",
     "storybook": "start-storybook -p 6006",
