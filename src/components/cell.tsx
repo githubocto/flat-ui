@@ -1,6 +1,6 @@
 import React from 'react';
 import { areEqual } from 'react-window';
-import tw from 'twin.macro';
+import tw, { TwStyle } from 'twin.macro';
 import anchorme from 'anchorme';
 import { cellTypeMap } from '../store';
 import { DashIcon, DiffModifiedIcon, PlusIcon } from '@primer/octicons-react';
@@ -11,7 +11,7 @@ interface CellProps {
   value: any;
   rawValue: any;
   formattedValue?: any;
-  categoryColor?: string;
+  categoryColor?: string | TwStyle;
   style?: {};
   status?: string;
   isNearRightEdge?: boolean;

@@ -19,6 +19,7 @@ import {
   SyncIcon,
 } from '@primer/octicons-react';
 import fromPairs from 'lodash/fromPairs';
+import { TwStyle } from 'twin.macro';
 
 interface ScrollRefType {
   current: number;
@@ -596,7 +597,7 @@ interface CellComputedProps {
   rawValue: any;
   style: StyleObject;
   background?: string;
-  categoryColor?: string;
+  categoryColor?: string | TwStyle;
   status?: string;
   isFirstColumn?: boolean;
   isNearRightEdge?: boolean;
