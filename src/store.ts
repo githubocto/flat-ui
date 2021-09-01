@@ -561,16 +561,18 @@ const parseDatetimeString = (str = '', patterns = validDatePatterns) => {
   let date = Date.parse(str);
   if (isValidDate(date)) return date;
   for (const pattern of patterns) {
-    if (!isValidDate(date)) {
-      // @ts-ignore
-      date = parseDate(str, pattern, new Date());
+    // @ts-ignore
+    date = parseDate(str, pattern, new Date());
+    if (isValidDate(date)) {
+      return date
     }
   }
-  if (!isValidDate(date)) {
-    // @ts-ignore
-    date = parseISO(str);
+  // @ts-ignore
+  date = parseISO(str);
+  if (isValidDate(date)) {
+    return date
   }
-  return date;
+  return null
 };
 
 const getDiffs = (data: any[]) => {
