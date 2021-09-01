@@ -19,8 +19,8 @@ export default [{
   "test": 123,
   "value": 0
 },{
-  "datetime": "2020-02-10 20:45",
-  "plaindate": "2021-03-11",
+  "datetime": "",
+  "plaindate": "",
   "test": 121233,
   "value": 1
 },{
