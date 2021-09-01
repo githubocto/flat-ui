@@ -100,6 +100,7 @@ function useInnerElementType(
                   width: columnWidth(0),
                   height: rowHeight(0),
                   position: 'sticky',
+                  float: "left",
                   top: 0,
                   left: 0,
                   zIndex: 200,
@@ -128,7 +129,8 @@ function useInnerElementType(
                   data={itemData}
                   style={{
                     marginLeft,
-                    display: 'inline-flex',
+                    display: 'flex',
+                    float: 'left',
                     width,
                     height,
                     position: 'sticky',
