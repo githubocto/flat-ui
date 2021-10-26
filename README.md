@@ -1,20 +1,5 @@
 # flat-ui
 
-### Latest issues
-<div>of {issues.length} total</div>
-
-<Issues />
-
-### Last release
-
-<Releases num="1" />
-
-### Last commits
-
-<Commits num="10" />
-
-
-
 Welcome friends! **flat-ui** is a React component that will render your flat dataset (an array of objects) in a table view:
 
 ![screenshot](https://github.com/githubocto/flat-ui/raw/main/screenshot.png)
