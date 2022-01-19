@@ -363,15 +363,21 @@ export const createGridStore = () =>
           draft.updatedData = newData;
         });
       },
-      onHeaderCellChange: (oldColumnName: string, newColumnName: any) => {
+      onHeaderCellChange: (oldColumnName: string, newColumnName: string) => {
         set((draft) => {
-          const newData = [...draft.rawData];
-          newData.forEach((row) => {
-            const newRow = { ...row };
-            const oldValue = newRow[oldColumnName];
-            delete newRow[oldColumnName];
-            newRow[newColumnName] = oldValue;
-            return newRow;
+          const columnKeys = Object.keys(draft.rawData[0]);
+          const newData = [...draft.rawData].map((row) => {
+            // keep same order of keys so it matches when the data updates
+            return columnKeys.reduce((acc, columnKey) => {
+              if (columnKey === oldColumnName) {
+                // @ts-ignore
+                acc[newColumnName] = row[oldColumnName];
+              } else {
+                // @ts-ignore
+                acc[columnKey] = row[columnKey];
+              }
+              return acc;
+            }, {});
           });
           draft.updatedData = newData;
         });

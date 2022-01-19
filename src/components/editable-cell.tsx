@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { areEqual } from 'react-window';
 import tw from 'twin.macro';
 

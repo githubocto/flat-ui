@@ -741,6 +741,8 @@ const HeaderWrapper = function (props: CellProps) {
     handleSortChange,
     focusedRowIndex,
     cellTypes,
+    isEditable,
+    onHeaderCellChange,
   } = useGridStore();
   const columnNameRef = React.useRef('');
 
@@ -770,6 +772,10 @@ const HeaderWrapper = function (props: CellProps) {
   let possibleValues =
     cellType === 'category' ? categoryValues[columnName] : undefined;
 
+  const onHeaderCellChangeLocal = (value: any) => {
+    onHeaderCellChange(columnName, value);
+  }
+
   return (
     <HeaderWrapperComputed
       style={style}
@@ -787,6 +793,8 @@ const HeaderWrapper = function (props: CellProps) {
       isSticky={isSticky}
       metadata={metadata[columnName]}
       isFirstColumn={columnIndex === 0}
+      isEditable={isEditable}
+      onChange={onHeaderCellChangeLocal}
       onSort={handleSortChange}
       onSticky={() => handleStickyColumnNameChange(columnName)}
       onFilterChange={(value: FilterValue) => {
@@ -812,6 +820,8 @@ interface HeaderComputedProps {
   showFilters: boolean;
   isFirstColumn: boolean;
   isSticky: boolean;
+  isEditable: boolean;
+  onChange: (value: any) => void;
   onFilterChange: Function;
   onSort: Function;
   onSticky: Function;
@@ -828,6 +838,7 @@ const HeaderWrapperComputed = React.memo(
     if (props.filter != newProps.filter) return false;
     if (props.width != newProps.width) return false;
     if (props.isSticky != newProps.isSticky) return false;
+    if (props.isEditable != newProps.isEditable) return false;
     if (props.focusedValue != newProps.focusedValue) return false;
     if (props.style.width != newProps.style.width) return false;
     if (props.style.left != newProps.style.left) return false;
