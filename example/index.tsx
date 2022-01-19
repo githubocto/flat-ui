@@ -10,6 +10,7 @@ import exampleData from './data';
 
 const App = () => {
   const [data, setData] = React.useState<any[]>([]);
+  const [modifiedData, setModifiedData] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [dataUrl, setDataUrl] = React.useState('');
   const [overrideDataUrl, setOverrideDataUrl] = React.useState('');
@@ -33,9 +34,11 @@ const App = () => {
 
       // @ts-ignore
       setData(Array.isArray(res) ? res : []);
+      setModifiedData(Array.isArray(res) ? res : []);
       setIsLoading(false);
     } else {
       setData(exampleData);
+      setModifiedData(exampleData);
       setIsLoading(false);
     }
   };
@@ -93,11 +96,11 @@ const App = () => {
 
       <div style={{ flex: '1 1 0%' }}>{!isLoading && (
         <Grid
-          data={data}
+          diffData={data}
+          data={modifiedData}
           isEditable
           onEdit={(newData: any[]) => {
-            console.log(newData)
-            setData(newData);
+            setModifiedData(newData);
           }}
         />
       )}</div>
