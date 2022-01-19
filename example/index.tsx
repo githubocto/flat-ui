@@ -11,7 +11,7 @@ import exampleData from './data';
 const App = () => {
   const [data, setData] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [dataUrl, setDataUrl] = React.useState('https://raw.githubusercontent.com/the-pudding/data/master/boybands/boys.csv');
+  const [dataUrl, setDataUrl] = React.useState('');
   const [overrideDataUrl, setOverrideDataUrl] = React.useState('');
   const [localOverrideDataUrl, setLocalOverrideDataUrl] = React.useState('');
 
