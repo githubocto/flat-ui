@@ -154,7 +154,7 @@ export function Grid(props: GridProps) {
 
   React.useEffect(() => {
     if (props.diffData) handleDiffDataChange(props.diffData);
-  }, [props.diffData]);
+  }, [props.diffData, props.data]);
 
   React.useEffect(() => {
     if (props.defaultFilters) handleFiltersChange(props.defaultFilters);

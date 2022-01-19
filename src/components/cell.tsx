@@ -104,6 +104,7 @@ export const Cell = React.memo(function (props: CellProps) {
         status === 'new' && tw`border-green-200`,
         status === 'old' && tw`border-pink-200`,
         status === 'modified' && tw`border-yellow-200`,
+        status === 'modified-row' && tw`border-gray-200`,
         !status && tw`border-gray-200`
       ]}
       style={{
