@@ -9,7 +9,7 @@ import debounce from 'lodash/debounce';
 import exampleData from './data';
 
 const App = () => {
-  const [data, setData] = React.useState([]);
+  const [data, setData] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [dataUrl, setDataUrl] = React.useState('');
   const [overrideDataUrl, setOverrideDataUrl] = React.useState('');
@@ -91,7 +91,16 @@ const App = () => {
         )}
       </div>
 
-      <div style={{ flex: '1 1 0%' }}>{!isLoading && <Grid data={data} />}</div>
+      <div style={{ flex: '1 1 0%' }}>{!isLoading && (
+        <Grid
+          data={data}
+          isEditable
+          onEdit={(newData: any[]) => {
+            console.log(newData)
+            setData(newData);
+          }}
+        />
+      )}</div>
     </div>
   );
 };

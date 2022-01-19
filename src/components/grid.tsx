@@ -44,6 +44,8 @@ export interface GridProps {
   defaultStickyColumnName?: string;
   onChange?: (currentState: GridStateObject) => void;
   downloadFilename?: string;
+  isEditable?: boolean;
+  onEdit?: (newData: any[]) => void;
 }
 
 export function Grid(props: GridProps) {
@@ -80,12 +82,18 @@ export function Grid(props: GridProps) {
     updateColumnWidths,
     schema,
     cellTypes,
+    handleIsEditableChange,
+    updatedData,
+    focusedCellPosition,
   } = useGridStore(state => state);
 
   React.useEffect(() => {
     handleDataChange(props.data);
 
     if (!ref.current) return;
+
+    // preserve scroll position
+    if (focusedCellPosition) return;
 
     // @ts-ignore
     ref.current.scrollToItem({
@@ -94,6 +102,51 @@ export function Grid(props: GridProps) {
       align: 'center',
     });
   }, [props.data]);
+
+  React.useEffect(() => {
+    if (!focusedCellPosition) return;
+    if (!ref.current) return;
+
+    // @ts-ignore
+    const numberOfStickiedColumns = ref.current.props.numberOfStickiedColumns
+    // @ts-ignore
+    const left = ref.current.state.scrollLeft
+    let columnIndex = focusedCellPosition[1]
+    const sum = (array: number[]) => array.reduce((a, b) => a + b, 0)
+    const stickyColumnWidth = sum(columnWidths.slice(0, numberOfStickiedColumns))
+    const unstickyLeft = left + stickyColumnWidth
+    const leftTarget = sum(columnWidths.slice(0, columnIndex))
+    let numberOfColumnsToOffsetStickyColumn = 0
+    let xOffset = sum(columnWidths.slice(columnIndex - numberOfColumnsToOffsetStickyColumn, columnIndex))
+    while (leftTarget < unstickyLeft && xOffset < stickyColumnWidth && columnIndex > 0) {
+      numberOfColumnsToOffsetStickyColumn += 1
+      xOffset = sum(columnWidths.slice(columnIndex - numberOfColumnsToOffsetStickyColumn, columnIndex))
+    }
+    columnIndex -= numberOfColumnsToOffsetStickyColumn
+
+    // @ts-ignore
+    const rowHeight = ref.current.props.rowHeight(1)
+    // @ts-ignore
+    const headerHeight = ref.current.props.rowHeight(0)
+    // @ts-ignore
+    const top = ref.current.state.scrollTop
+    // @ts-ignore
+    const footerHeight = rowHeight
+    // @ts-ignore
+    const maxHeight = ref.current.props.height - footerHeight
+    let rowIndex = focusedCellPosition[0]
+    const topTarget = headerHeight + rowHeight * rowIndex
+    if (topTarget > top + maxHeight) {
+      rowIndex += 1
+    }
+
+    // @ts-ignore
+    ref.current.scrollToItem({
+      rowIndex,
+      columnIndex,
+      align: 'nearest',
+    });
+  }, [focusedCellPosition]);
 
   React.useEffect(() => {
     if (props.metadata) handleMetadataChange(props.metadata);
@@ -116,6 +169,16 @@ export function Grid(props: GridProps) {
     if (props.defaultStickyColumnName)
       handleStickyColumnNameChange(props.defaultStickyColumnName);
   }, [props.defaultStickyColumnName, props.data]);
+
+  React.useEffect(() => {
+    handleIsEditableChange(!!props.isEditable);
+  }, [props.isEditable]);
+
+  React.useEffect(() => {
+    if (updatedData === null) return
+    if (!props.onEdit || !props.isEditable) return;
+    props.onEdit(updatedData);
+  }, [updatedData]);
 
   React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(updateFilteredColumns, [data, filters, sort]);
@@ -508,7 +571,7 @@ interface CellProps {
   data: CellPropsData;
   style: StyleObject;
 }
-const CellWrapper = function(props: CellProps) {
+const CellWrapper = function (props: CellProps) {
   const { rowIndex: rawRowIndex, columnIndex, data, style } = props;
   const { focusedColumnIndex, setFocusedColumnIndex, columnScales } = data;
   const {
@@ -518,6 +581,10 @@ const CellWrapper = function(props: CellProps) {
     focusedRowIndex,
     handleFocusedRowIndexChange,
     cellTypes,
+    isEditable,
+    onCellChange,
+    focusedCellPosition,
+    handleFocusedCellPositionChange,
   } = useGridStore();
 
   const rowIndex = rawRowIndex - 1;
@@ -530,20 +597,21 @@ const CellWrapper = function(props: CellProps) {
 
   // @ts-ignore
   const type = cellTypes[name];
+  const cellData = filteredData[rowIndex]
 
-  if (!filteredData[rowIndex]) return null;
+  if (!cellData) return null;
 
-  const value = filteredData[rowIndex][name];
-  const rawValue = filteredData[rowIndex]['__rawData__']?.[name];
+  const value = cellData[name];
+  const rawValue = cellData['__rawData__']?.[name];
 
   let possibleValues = type === 'category' ? categoryValues[name] : [];
   const possibleValue = possibleValues?.find(d => d.value === value);
   const categoryColor = possibleValue?.color;
 
-  let status = filteredData[rowIndex].__status__;
+  let status = cellData.__status__;
   if (status === 'modified') {
     const modifiedColumnNames =
-      filteredData[rowIndex].__modifiedColumnNames__ || [];
+      cellData.__modifiedColumnNames__ || [];
     status = modifiedColumnNames.includes(name) ? 'modified' : 'modified-row';
   }
 
@@ -567,9 +635,28 @@ const CellWrapper = function(props: CellProps) {
   // prettier-ignore
   const backgroundColor =
     focusedColumnIndex == columnIndex && scale ? scale(value) :
-    statusColor                                ? statusColor  :
-    focusedRowIndex == rowIndex                ? '#f3f4f6'    :
-                                                 '#fff';
+      statusColor ? statusColor :
+        focusedRowIndex == rowIndex ? '#f3f4f6' :
+          '#fff';
+
+  const onCellChangeLocal = (value: any) => {
+    onCellChange(rowIndex, name, value);
+  }
+
+  const onFocusChangeLocal = (diff: [number, number] | null) => {
+    if (!diff) {
+      handleFocusedCellPositionChange(null);
+    } else {
+      const [diffRow, diffColumn] = diff
+      const newRowIndex = Math.max(0, Math.min(rowIndex + diffRow, filteredData.length - 1))
+      const newColumnIndex = Math.max(0, Math.min(columnIndex + diffColumn, columnNames.length - 1))
+      const newPosition = [
+        newRowIndex,
+        newColumnIndex,
+      ] as [number, number];
+      handleFocusedCellPositionChange(newPosition);
+    }
+  }
 
   return (
     <CellWrapperComputed
@@ -583,6 +670,10 @@ const CellWrapper = function(props: CellProps) {
       isFirstColumn={columnIndex === 0}
       isNearRightEdge={columnIndex > columnNames.length - 3}
       isNearBottomEdge={rowIndex > filteredData.length - 3}
+      isEditable={isEditable}
+      isFocused={!!(focusedCellPosition && focusedCellPosition[0] === rowIndex && focusedCellPosition[1] === columnIndex)}
+      onFocusChange={onFocusChangeLocal}
+      onCellChange={onCellChangeLocal}
       onMouseEnter={() => {
         setFocusedColumnIndex(columnIndex);
         handleFocusedRowIndexChange(rowIndex);
@@ -602,10 +693,14 @@ interface CellComputedProps {
   isFirstColumn?: boolean;
   isNearRightEdge?: boolean;
   isNearBottomEdge?: boolean;
+  isEditable: boolean;
+  onCellChange: (value: any) => void;
+  isFocused: boolean;
+  onFocusChange: (value: [number, number] | null) => void;
   onMouseEnter?: Function;
 }
 const CellWrapperComputed = React.memo(
-  function(props: CellComputedProps) {
+  function (props: CellComputedProps) {
     return <Cell {...props} />;
   },
   (props, newProps) => {
@@ -617,6 +712,8 @@ const CellWrapperComputed = React.memo(
     if (props.status != newProps.status) return false;
     if (props.isNearRightEdge != newProps.isNearRightEdge) return false;
     if (props.isNearBottomEdge != newProps.isNearBottomEdge) return false;
+    if (props.isEditable != newProps.isEditable) return false;
+    if (props.isFocused != newProps.isFocused) return false;
     if (props.style.left != newProps.style.left) return false;
     if (props.style.top != newProps.style.top) return false;
     if (props.style.position != newProps.style.position) return false;
@@ -627,7 +724,7 @@ const CellWrapperComputed = React.memo(
   }
 );
 
-const HeaderWrapper = function(props: CellProps) {
+const HeaderWrapper = function (props: CellProps) {
   const { columnIndex, data, style } = props;
   const {
     data: originalData,
@@ -644,6 +741,8 @@ const HeaderWrapper = function(props: CellProps) {
     handleSortChange,
     focusedRowIndex,
     cellTypes,
+    isEditable,
+    onHeaderCellChange,
   } = useGridStore();
   const columnNameRef = React.useRef('');
 
@@ -673,6 +772,10 @@ const HeaderWrapper = function(props: CellProps) {
   let possibleValues =
     cellType === 'category' ? categoryValues[columnName] : undefined;
 
+  const onHeaderCellChangeLocal = (value: any) => {
+    onHeaderCellChange(columnName, value);
+  }
+
   return (
     <HeaderWrapperComputed
       style={style}
@@ -690,6 +793,8 @@ const HeaderWrapper = function(props: CellProps) {
       isSticky={isSticky}
       metadata={metadata[columnName]}
       isFirstColumn={columnIndex === 0}
+      isEditable={isEditable}
+      onChange={onHeaderCellChangeLocal}
       onSort={handleSortChange}
       onSticky={() => handleStickyColumnNameChange(columnName)}
       onFilterChange={(value: FilterValue) => {
@@ -715,12 +820,14 @@ interface HeaderComputedProps {
   showFilters: boolean;
   isFirstColumn: boolean;
   isSticky: boolean;
+  isEditable: boolean;
+  onChange: (value: any) => void;
   onFilterChange: Function;
   onSort: Function;
   onSticky: Function;
 }
 const HeaderWrapperComputed = React.memo(
-  function(props: HeaderComputedProps) {
+  function (props: HeaderComputedProps) {
     return <Header {...props} />;
   },
   (props, newProps) => {
@@ -731,6 +838,7 @@ const HeaderWrapperComputed = React.memo(
     if (props.filter != newProps.filter) return false;
     if (props.width != newProps.width) return false;
     if (props.isSticky != newProps.isSticky) return false;
+    if (props.isEditable != newProps.isEditable) return false;
     if (props.focusedValue != newProps.focusedValue) return false;
     if (props.style.width != newProps.style.width) return false;
     if (props.style.left != newProps.style.left) return false;
@@ -771,8 +879,8 @@ export function encodeFilterString(filters?: Record<string, FilterValue>) {
           typeof value === 'string'
             ? value
             : Array.isArray(value)
-            ? value.join(',')
-            : '',
+              ? value.join(',')
+              : '',
         ].join('=');
       })
       .join('&')

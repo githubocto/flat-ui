@@ -6,6 +6,7 @@ import {
   PinIcon,
 } from '@primer/octicons-react';
 import { FilterValue, CategoryValue } from '../types';
+import { EditableHeader } from './editable-header';
 
 interface HeaderProps {
   style: object;
@@ -23,6 +24,8 @@ interface HeaderProps {
   showFilters: boolean;
   isFirstColumn: boolean;
   isSticky: boolean;
+  isEditable: boolean;
+  onChange?: (value: any) => void;
   onFilterChange: Function;
   onSort: Function;
   onSticky: Function;
@@ -44,6 +47,8 @@ export function Header(props: HeaderProps) {
     showFilters,
     isFirstColumn,
     isSticky,
+    isEditable,
+    onChange,
     onFilterChange,
     onSort,
     onSticky,
@@ -64,7 +69,6 @@ export function Header(props: HeaderProps) {
         className="header"
         tw="relative border-b border-gray-200 bg-white flex items-center flex-shrink-0"
         style={{ height: 37 }}
-        // ref={popoverAnchorRef}
       >
         <div
           className="header__title group"
@@ -80,29 +84,33 @@ export function Header(props: HeaderProps) {
           >
             <PinIcon />
           </button>
-          <button
+          <div
             className="group"
-            tw="flex justify-between items-center h-full p-2 border-white focus:bg-white hover:bg-white appearance-none flex-1 min-w-0"
-            onClick={() =>
-              onSort(columnName, activeSortDirection == 'asc' ? 'desc' : 'asc')
-            }
+            css={[
+              tw`flex justify-between items-center h-full border-white focus:bg-white hover:bg-white appearance-none flex-1 min-w-0`,
+              ['integer', 'number'].includes(cellType) && tw`text-right`,
+            ]}
           >
-            <span
-              css={[
-                tw`text-sm font-medium truncate text-left`,
-                ['integer', 'number'].includes(cellType) && tw`text-right`,
-              ]}
-              title={columnName}
-              style={{ minWidth: 'calc(100% - 1.5em)' }}
+            <EditableHeader
+              value={columnName}
+              isEditable={isEditable}
+              onChange={onChange}
             >
-              {columnName}
-              {!!metadata && (
-                <span tw="pl-2 inline-block text-gray-300">
-                  <InfoIcon />
-                </span>
-              )}
-            </span>
-            <div
+              <div
+                css={[
+                  tw`w-full p-2 text-sm font-medium truncate`,
+                ]}
+                title={columnName}
+              >
+                {columnName}
+                {!!metadata && (
+                  <span tw="pl-2 inline-block text-gray-300">
+                    <InfoIcon />
+                  </span>
+                )}
+              </div>
+            </EditableHeader>
+            <button
               className="header__icon"
               css={[
                 tw`flex items-center justify-center pl-1 pr-2 -mr-2`,
@@ -110,14 +118,17 @@ export function Header(props: HeaderProps) {
                   ? tw`opacity-100`
                   : tw`opacity-0 group-hover:opacity-40`,
               ]}
+              onClick={() =>
+                onSort(columnName, activeSortDirection == 'asc' ? 'desc' : 'asc')
+              }
             >
               {activeSortDirection == 'desc' ? (
                 <ArrowDownIcon />
               ) : (
                 <ArrowUpIcon />
               )}
-            </div>
-          </button>
+            </button>
+          </div>
           {!!metadata && (
             <div tw="text-sm absolute bottom-0 bg-white p-4 text-indigo-500 transform translate-y-full border border-indigo-300 py-3 shadow-md left-0 right-0 pointer-events-none opacity-0 group-hover:opacity-100">
               <div tw="pr-2 inline-block text-indigo-200">

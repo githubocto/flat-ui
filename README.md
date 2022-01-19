@@ -5,6 +5,7 @@ Welcome friends! **flat-ui** is a React component that will render your flat dat
 ![screenshot](https://github.com/githubocto/flat-ui/raw/main/screenshot.png)
 
 It will...
+
 - auto-detect types
 - show a distribution of each quantitative column
 - calculate a diff between the main dataset and a `diffData` dataset
@@ -114,6 +115,18 @@ A callback function whose first parameter is the grid state:
   schema: {}, // column names : array|short-array|category|number|date
 }
 ```
+
+### isEditable
+
+`boolean`
+
+Whether or not to allow the user to edit the table.
+
+### onEdit
+
+`(newData: any[]) => void`
+
+A callback when the user edits the data with the updated dataset. This is intended to be used as a controlled component, where the parent component handles data changes.
 
 ## Developing locally
 

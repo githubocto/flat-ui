@@ -30,10 +30,12 @@ import { RangeFilter } from './components/filters/range';
 export const immer = <T extends {}>(
   config: StateCreator<T, (fn: (draft: T) => void) => void>
 ): StateCreator<T> => (set, get, api) =>
-  config(fn => set(produce(fn) as (state: T) => T), get, api);
+  config((fn) => set(produce(fn) as (state: T) => T), get, api);
 
 export type GridState = {
   data: any[];
+  rawData: any[];
+  updatedData: any[] | null;
   stickyColumnName?: string;
   handleStickyColumnNameChange: (columnName: string) => void;
   columnNames: string[];
@@ -58,25 +60,37 @@ export type GridState = {
   updateColumnWidths: () => void;
   updateColumnNames: () => void;
   updateFilteredColumns: () => void;
+  isEditable: boolean;
+  handleIsEditableChange: (isEditable: boolean) => void;
+  onCellChange: (rowIndex: number, columnName: string, value: any) => void;
+  onHeaderCellChange: (oldColumnName: string, newColumnName: any) => void;
+  focusedCellPosition: [number, number] | null;
+  handleFocusedCellPositionChange: (position: [number, number] | null) => void;
 };
 
+export const originalRowIndexColumnName = '__originalIndex__';
 export const createGridStore = () =>
   create<GridState>(
-    immer(set => ({
+    immer((set) => ({
       data: [],
+      rawData: [],
       schema: undefined,
       cellTypes: {},
       metadata: {},
       stickyColumnName: undefined,
       columnNames: [],
       categoryValues: {},
-      handleStickyColumnNameChange: columnName =>
-        set(draft => {
+      handleStickyColumnNameChange: (columnName) =>
+        set((draft) => {
           if (!draft.columnNames.includes(columnName)) return;
           draft.stickyColumnName = columnName;
         }),
-      handleDataChange: data =>
-        set(draft => {
+      handleDataChange: (data) =>
+        set((draft) => {
+          draft.rawData = data.map((d, i) => ({
+            ...d,
+            [originalRowIndexColumnName]: i,
+          }));
           // @ts-ignore
           draft.schema = generateSchema(data);
 
@@ -98,10 +112,10 @@ export const createGridStore = () =>
             {}
           );
 
-          draft.data = parseData(data, draft.cellTypes);
+          draft.data = parseData(draft.rawData, draft.cellTypes);
 
           const columnNames = data.length
-            ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
+            ? Object.keys(data[0]).filter((d) => !utilKeys.includes(d))
             : [];
           draft.stickyColumnName = columnNames[0];
           draft.sort = columnNames[0]
@@ -115,14 +129,14 @@ export const createGridStore = () =>
               ]
             : [];
         }),
-      handleMetadataChange: metadata =>
-        set(draft => {
+      handleMetadataChange: (metadata) =>
+        set((draft) => {
           draft.metadata = metadata;
         }),
       diffs: [],
       uniqueColumnName: undefined,
       handleDiffDataChange: (diffData: any[]) =>
-        set(draft => {
+        set((draft) => {
           if (!diffData.length) return;
 
           const data = draft.data;
@@ -130,10 +144,10 @@ export const createGridStore = () =>
 
           // get string column with most unique values
           const columnNames = data.length
-            ? Object.keys(data[0]).filter(d => !utilKeys.includes(d))
+            ? Object.keys(data[0]).filter((d) => !utilKeys.includes(d))
             : [];
           const columnNameUniques = columnNames
-            .filter(columnName => {
+            .filter((columnName) => {
               const cellType = draft.cellTypes[columnName];
               // @ts-ignore
               const type = cellTypeMap[cellType]?.sortValueType;
@@ -145,8 +159,8 @@ export const createGridStore = () =>
                 return true;
               return isString;
             })
-            .map(columnName => {
-              const values = new Set(data.map(d => d[columnName]));
+            .map((columnName) => {
+              const values = new Set(data.map((d) => d[columnName]));
               return [columnName, values.size];
             });
           const sortedColumnsByUniqueness = columnNameUniques.sort((a, b) =>
@@ -171,13 +185,15 @@ export const createGridStore = () =>
               d,
             ])
           );
-          const newDataMap = new Map(data.map(i => [i[idColumnName] + '', i]));
+          const newDataMap = new Map(
+            data.map((i) => [i[idColumnName] + '', i])
+          );
 
-          let newData = data.map(d => {
+          let newData = data.map((d) => {
             const id = d[idColumnName];
             const isNew = !diffDataMap.get(id);
             if (isNew) return { ...d, __status__: 'new' };
-            const modifiedFields = columnNames.filter(columnName => {
+            const modifiedFields = columnNames.filter((columnName) => {
               const type = draft.cellTypes[columnName];
               const oldValue =
                 type === 'date' ? d[columnName].toString() : d[columnName];
@@ -203,35 +219,35 @@ export const createGridStore = () =>
           });
           const oldData = parseData(
             diffData
-              .filter(d => !newDataMap.get(d[idColumnName + '']))
-              .map(d => ({ ...d, __status__: 'old' })),
+              .filter((d) => !newDataMap.get(d[idColumnName + '']))
+              .map((d) => ({ ...d, __status__: 'old' })),
             draft.cellTypes
           );
           draft.data = [...newData, ...oldData];
           // draft.diffs = getDiffs(draft.data);
         }),
       focusedRowIndex: undefined,
-      handleFocusedRowIndexChange: rowIndex =>
-        set(draft => {
+      handleFocusedRowIndexChange: (rowIndex) =>
+        set((draft) => {
           draft.focusedRowIndex = rowIndex;
         }),
       filteredData: [],
       filters: {},
       handleFilterChange: (column, value) =>
-        set(draft => {
+        set((draft) => {
           if (!value) {
             delete draft.filters[column];
           } else {
             draft.filters[column] = value;
           }
         }),
-      handleFiltersChange: newFilters =>
-        set(draft => {
+      handleFiltersChange: (newFilters) =>
+        set((draft) => {
           draft.filters = newFilters || {};
         }),
       sort: [],
       handleSortChange: (columnName: string, direction: string) =>
-        set(draft => {
+        set((draft) => {
           if (columnName) {
             draft.sort = [columnName, direction];
           } else {
@@ -240,7 +256,7 @@ export const createGridStore = () =>
         }),
 
       updateFilteredColumns: () =>
-        set(draft => {
+        set((draft) => {
           const sortFunction = getSortFunction(
             draft.sort,
             // @ts-ignore
@@ -256,21 +272,21 @@ export const createGridStore = () =>
 
           const categoryColumnNames = Object.keys(draft.schema || {}).filter(
             // @ts-ignore
-            columnName => draft.schema[columnName] === 'category'
+            (columnName) => draft.schema[columnName] === 'category'
           );
           draft.categoryValues = fromPairs(
-            categoryColumnNames.map(columnName => {
-              const values = new Set(draft.data.map(d => d[columnName]));
+            categoryColumnNames.map((columnName) => {
+              const values = new Set(draft.data.map((d) => d[columnName]));
               return [
                 columnName,
                 Array.from(values)
-                  .filter(d => (d || '').trim().length)
+                  .filter((d) => (d || '')?.trim().length)
                   .map(
                     (value: string, index): CategoryValue => {
                       return {
                         value,
                         count: draft.filteredData.filter(
-                          d => d[columnName] === value
+                          (d) => d[columnName] === value
                         ).length,
                         color: categoryColors[index % categoryColors.length],
                       };
@@ -282,7 +298,7 @@ export const createGridStore = () =>
         }),
       columnWidths: [],
       updateColumnWidths: () =>
-        set(draft => {
+        set((draft) => {
           const columnWidths = draft.columnNames.map(
             (columnName: string, columnIndex: number) => {
               // @ts-ignore
@@ -292,7 +308,7 @@ export const createGridStore = () =>
               if (!cellInfo) return 150;
 
               const values = draft.data.map(
-                d => cellInfo.format(d[columnName] || '').length
+                (d) => cellInfo.format(d[columnName] || '').length
               );
               const maxLength = max([columnName.length * 0.6, ...values]);
               const numberOfChars = min([maxLength + 3, 19]);
@@ -306,7 +322,7 @@ export const createGridStore = () =>
           draft.columnWidths = columnWidths;
         }),
       updateColumnNames: () =>
-        set(draft => {
+        set((draft) => {
           if (!draft.data.length) {
             draft.columnNames = [];
             draft.stickyColumnName = undefined;
@@ -314,7 +330,7 @@ export const createGridStore = () =>
           }
 
           const rawColumnNames = Object.keys(draft.data[0]).filter(
-            d => !utilKeys.includes(d)
+            (d) => !utilKeys.includes(d)
           );
           if (
             !draft.stickyColumnName ||
@@ -324,9 +340,52 @@ export const createGridStore = () =>
           } else {
             draft.columnNames = [
               draft.stickyColumnName || '',
-              ...rawColumnNames.filter(d => d !== draft.stickyColumnName),
+              ...rawColumnNames.filter((d) => d !== draft.stickyColumnName),
             ];
           }
+        }),
+      isEditable: false,
+      handleIsEditableChange: (isEditable: boolean) =>
+        set((draft) => {
+          draft.isEditable = isEditable;
+        }),
+      updatedData: null,
+      onCellChange: (rowIndex: number, columnName: string, value: any) => {
+        set((draft) => {
+          const filteredRow = draft.filteredData[rowIndex];
+          const rowIndexInFullDataset = filteredRow[originalRowIndexColumnName];
+          const newData = [...draft.rawData];
+          const row = newData[rowIndexInFullDataset];
+          if (!row) return;
+          if (value === row[columnName]) return;
+          const newRow = { ...row, [columnName]: value };
+          newData[rowIndexInFullDataset] = newRow;
+          draft.updatedData = newData;
+        });
+      },
+      onHeaderCellChange: (oldColumnName: string, newColumnName: string) => {
+        set((draft) => {
+          const columnKeys = Object.keys(draft.rawData[0]);
+          const newData = [...draft.rawData].map((row) => {
+            // keep same order of keys so it matches when the data updates
+            return columnKeys.reduce((acc, columnKey) => {
+              if (columnKey === oldColumnName) {
+                // @ts-ignore
+                acc[newColumnName] = row[oldColumnName];
+              } else {
+                // @ts-ignore
+                acc[columnKey] = row[columnKey];
+              }
+              return acc;
+            }, {});
+          });
+          draft.updatedData = newData;
+        });
+      },
+      focusedCellPosition: null,
+      handleFocusedCellPositionChange: (position: [number, number] | null) =>
+        set((draft) => {
+          draft.focusedCellPosition = position;
         }),
     }))
   );
@@ -336,6 +395,7 @@ const utilKeys = [
   '__modifiedColumnNames__',
   '__rowIndex__',
   '__rawData__',
+  originalRowIndexColumnName,
 ];
 function filterData(
   data: any[],
@@ -347,7 +407,7 @@ function filterData(
 
     if (typeof filterValue === 'string') {
       if (cellTypes[columnName] === 'category') {
-        return rows.filter(row => row[columnName] === filterValue);
+        return rows.filter((row) => row[columnName] === filterValue);
       } else {
         return matchSorter(rows, filterValue, {
           keys: [columnName],
@@ -356,7 +416,7 @@ function filterData(
     }
 
     if (Array.isArray(filterValue)) {
-      return rows.filter(r => isBetween(filterValue, r[columnName]));
+      return rows.filter((r) => isBetween(filterValue, r[columnName]));
     }
 
     return rows;
@@ -401,7 +461,8 @@ function generateSchema(data: any[]) {
     metrics.map((metric: string) => {
       const getFirstValue = (data: any[]) =>
         data.find(
-          d => d[metric] !== undefined && d[metric] !== null && d[metric] !== ''
+          (d) =>
+            d[metric] !== undefined && d[metric] !== null && d[metric] !== ''
         ) || {};
 
       const value = getFirstValue(data)[metric];
@@ -412,7 +473,7 @@ function generateSchema(data: any[]) {
         try {
           if (typeof value === 'string') {
             const currentDate = new Date();
-            return !!validDatePatterns.find(pattern =>
+            return !!validDatePatterns.find((pattern) =>
               isValidDate(parseDate(value, pattern, currentDate))
             );
           } else {
@@ -427,7 +488,7 @@ function generateSchema(data: any[]) {
         try {
           if (typeof value === 'string') {
             const currentDate = new Date();
-            return !!validTimePatterns.find(pattern =>
+            return !!validTimePatterns.find((pattern) =>
               isValidDate(parseDate(value, pattern, currentDate))
             );
           }
@@ -438,13 +499,13 @@ function generateSchema(data: any[]) {
       };
       const isFirstValueADate = isDate(value);
       if (isFirstValueADate) {
-        const values = data.map(d => d[metric]).filter(d => d);
+        const values = data.map((d) => d[metric]).filter((d) => d);
 
         const areMultipleValuesDates = !values
           .slice(0, 30)
-          .find(d => !isDate(d));
+          .find((d) => !isDate(d));
         if (areMultipleValuesDates) {
-          const dateRange = extent(values, d =>
+          const dateRange = extent(values, (d) =>
             new Date(d).getTime()
           ) as number[];
 
@@ -457,17 +518,17 @@ function generateSchema(data: any[]) {
       const isFirstValueATime = isTime(value);
       if (isFirstValueATime) {
         const values = data
-          .map(d => d[metric])
-          .filter(d => d)
+          .map((d) => d[metric])
+          .filter((d) => d)
           .slice(0, 30);
-        const areMultipleValuesTimes = !values.find(d => !isTime(d));
+        const areMultipleValuesTimes = !values.find((d) => !isTime(d));
         if (areMultipleValuesTimes) return [metric, 'time'];
       }
       const isFirstValueAnArray = Array.isArray(value);
       if (isFirstValueAnArray) {
-        const values = data.map(d => d[metric]).filter(d => d);
-        const lengthOfArrays = values.map(d => d.length);
-        const areAnyArraysLong = !!lengthOfArrays.find(d => d > 1);
+        const values = data.map((d) => d[metric]).filter((d) => d);
+        const lengthOfArrays = values.map((d) => d.length);
+        const areAnyArraysLong = !!lengthOfArrays.find((d) => d > 1);
         return [
           metric,
           areAnyArraysLong || typeof value[0] !== 'string'
@@ -489,7 +550,7 @@ function generateSchema(data: any[]) {
 
       // If there are few unique values for the metric,
       // consider the metric as a category
-      const uniqueValues = new Set(data.map(d => d[metric]));
+      const uniqueValues = new Set(data.map((d) => d[metric]));
       const maxUniqueValuesForCategory = Math.min(
         Math.floor(data.length / 3),
         20
@@ -505,7 +566,7 @@ function generateSchema(data: any[]) {
 }
 
 const parseData = (data: any, cellTypes: Record<string, string>) => {
-  const columnParseFunctions = Object.keys(cellTypes).map(columnName => {
+  const columnParseFunctions = Object.keys(cellTypes).map((columnName) => {
     const cellType = cellTypes[columnName];
     // @ts-ignore
     const cellInfo = cellTypeMap[cellType] || {};
@@ -564,15 +625,15 @@ const parseDatetimeString = (str = '', patterns = validDatePatterns) => {
     // @ts-ignore
     date = parseDate(str, pattern, new Date());
     if (isValidDate(date)) {
-      return date
+      return date;
     }
   }
   // @ts-ignore
   date = parseISO(str);
   if (isValidDate(date)) {
-    return date
+    return date;
   }
-  return null
+  return null;
 };
 
 const getDiffs = (data: any[]) => {
