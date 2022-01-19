@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { areEqual } from 'react-window';
 import tw, { TwStyle } from 'twin.macro';
 import anchorme from 'anchorme';
 import { cellTypeMap } from '../store';
 import { DashIcon, DiffModifiedIcon, PlusIcon } from '@primer/octicons-react';
 import DOMPurify from 'dompurify';
+import { EditableCell } from './editable-cell';
 
 interface CellProps {
   type: string;
@@ -19,9 +20,13 @@ interface CellProps {
   isFirstColumn?: boolean;
   hasStatusIndicator?: boolean;
   background?: string;
+  isEditable: boolean;
+  onCellChange?: (value: any) => void;
+  isFocused: boolean;
+  onFocusChange: (value: [number, number] | null) => void;
   onMouseEnter?: Function;
 }
-export const Cell = React.memo(function(props: CellProps) {
+export const Cell = React.memo(function (props: CellProps) {
   const {
     type,
     value,
@@ -32,36 +37,45 @@ export const Cell = React.memo(function(props: CellProps) {
     isFirstColumn,
     isNearRightEdge,
     isNearBottomEdge,
+    isEditable,
+    onCellChange,
+    isFocused,
+    onFocusChange,
     background,
     style = {},
-    onMouseEnter = () => {},
+    onMouseEnter = () => { },
   } = props;
 
   // @ts-ignore
   const cellInfo = cellTypeMap[type];
-  if (!cellInfo) return null;
 
-  const { cell: CellComponent } = cellInfo;
+  const { cell: CellComponent } = cellInfo || {}
 
   const displayValue = formattedValue || value;
   const isLongValue = (displayValue || '').length > 23;
-  const stringWithLinks = displayValue
-    ? React.useMemo(
-        () =>
-          DOMPurify.sanitize(
-            anchorme({
-              input: displayValue + '',
-              options: {
-                attributes: {
-                  target: '_blank',
-                  rel: 'noopener',
-                },
-              },
-            })
-          ),
-        [value]
+  const stringWithLinks = React.useMemo(
+    () => displayValue ? (
+      DOMPurify.sanitize(
+        anchorme({
+          input: displayValue + '',
+          options: {
+            attributes: {
+              target: '_blank',
+              rel: 'noopener',
+            },
+          },
+        })
       )
-    : '';
+    ) : "",
+    [value]
+  )
+
+  useEffect(() => {
+    if (!isFocused) return
+    onMouseEnter()
+  }, [isFocused])
+
+  if (!cellInfo) return null;
 
   const StatusIcon =
     isFirstColumn &&
@@ -86,54 +100,66 @@ export const Cell = React.memo(function(props: CellProps) {
     <div
       className="cell group"
       css={[
-        tw`flex flex-none items-center px-4 border-b border-r`,
-
-        typeof value === 'undefined' ||
-          (Number.isNaN(value) && tw`text-gray-300`),
+        tw`flex border-b border-r`,
         status === 'new' && tw`border-green-200`,
         status === 'old' && tw`border-pink-200`,
         status === 'modified' && tw`border-yellow-200`,
-        !status && tw`border-gray-200`,
+        !status && tw`border-gray-200`
       ]}
-      onMouseEnter={() => onMouseEnter()}
       style={{
         ...style,
         background: background || '#fff',
-      }}
-    >
-      {isFirstColumn && (
-        <div css={[tw`w-6 flex-none`, statusColor]}>
-          {StatusIcon && <StatusIcon />}
-        </div>
-      )}
-
-      <CellComponent
-        value={value}
-        formattedValue={stringWithLinks}
-        rawValue={rawValue}
-        categoryColor={categoryColor}
-      />
-
-      {isLongValue && (
+      }}>
+      <EditableCell
+        type={type}
+        value={rawValue}
+        isEditable={isEditable}
+        onChange={onCellChange}
+        isFocused={isFocused}
+        onFocusChange={onFocusChange}>
         <div
-          className="cell__long-value"
           css={[
-            tw` absolute p-4 py-2 bg-white opacity-0 group-hover:opacity-100 z-30 border border-gray-200 shadow-md pointer-events-none`,
-            isNearBottomEdge ? tw`bottom-0` : tw`top-0`,
-            isNearRightEdge ? tw`right-0` : tw`left-0`,
+            tw`w-full h-full flex flex-none items-center px-4`,
+            typeof value === 'undefined' ||
+            (Number.isNaN(value) && tw`text-gray-300`),
           ]}
-          style={{
-            width: 'max-content',
-            maxWidth: '27em',
-          }}
-          title={rawValue}
+          onMouseEnter={() => onMouseEnter()}
         >
-          <div
-            tw="line-clamp-9"
-            dangerouslySetInnerHTML={{ __html: stringWithLinks }}
+          {isFirstColumn && (
+            <div css={[tw`w-6 flex-none`, statusColor]}>
+              {StatusIcon && <StatusIcon />}
+            </div>
+          )}
+
+          <CellComponent
+            value={value}
+            formattedValue={stringWithLinks}
+            rawValue={rawValue}
+            categoryColor={categoryColor}
           />
+
+          {isLongValue && (
+            <div
+              className="cell__long-value"
+              css={[
+                tw` absolute p-4 py-2 bg-white opacity-0 group-hover:opacity-100 z-30 border border-gray-200 shadow-md pointer-events-none`,
+                isNearBottomEdge ? tw`bottom-0` : tw`top-0`,
+                isNearRightEdge ? tw`right-0` : tw`left-0`,
+              ]}
+              style={{
+                width: 'max-content',
+                maxWidth: '27em',
+              }}
+              title={rawValue}
+            >
+              <div
+                tw="line-clamp-9"
+                dangerouslySetInnerHTML={{ __html: stringWithLinks }}
+              />
+            </div>
+          )}
         </div>
-      )}
+      </EditableCell>
     </div>
   );
 }, areEqual);

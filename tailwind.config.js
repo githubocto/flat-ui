@@ -6,6 +6,9 @@ module.exports = {
       lineClamp: {
         9: '9',
       },
+      cursor: {
+        "cell": "cell",
+      }
     },
   },
   variants: {
