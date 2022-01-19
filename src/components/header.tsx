@@ -69,7 +69,6 @@ export function Header(props: HeaderProps) {
         className="header"
         tw="relative border-b border-gray-200 bg-white flex items-center flex-shrink-0"
         style={{ height: 37 }}
-      // ref={popoverAnchorRef}
       >
         <div
           className="header__title group"
@@ -87,20 +86,21 @@ export function Header(props: HeaderProps) {
           </button>
           <div
             className="group"
-            tw="flex justify-between items-center h-full border-white focus:bg-white hover:bg-white appearance-none flex-1 min-w-0"
+            css={[
+              tw`flex justify-between items-center h-full border-white focus:bg-white hover:bg-white appearance-none flex-1 min-w-0`,
+              ['integer', 'number'].includes(cellType) && tw`text-right`,
+            ]}
           >
             <EditableHeader
               value={columnName}
               isEditable={isEditable}
               onChange={onChange}
             >
-              <span
+              <div
                 css={[
-                  tw`p-2 text-sm font-medium truncate text-left`,
-                  ['integer', 'number'].includes(cellType) && tw`text-right`,
+                  tw`w-full p-2 text-sm font-medium truncate`,
                 ]}
                 title={columnName}
-                style={{ minWidth: 'calc(100% - 1.5em)' }}
               >
                 {columnName}
                 {!!metadata && (
@@ -108,7 +108,7 @@ export function Header(props: HeaderProps) {
                     <InfoIcon />
                   </span>
                 )}
-              </span>
+              </div>
             </EditableHeader>
             <button
               className="header__icon"

@@ -111,7 +111,6 @@ export const Cell = React.memo(function (props: CellProps) {
         background: background || '#fff',
       }}>
       <EditableCell
-        type={type}
         value={rawValue}
         isEditable={isEditable}
         onChange={onCellChange}

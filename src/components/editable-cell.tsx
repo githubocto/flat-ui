@@ -3,7 +3,6 @@ import { areEqual } from 'react-window';
 import tw from 'twin.macro';
 
 interface EditableCellProps {
-  type: string;
   value: any;
   isEditable: boolean;
   onChange?: (value: any) => void;
@@ -13,7 +12,6 @@ interface EditableCellProps {
 }
 export const EditableCell = React.memo(function (props: EditableCellProps) {
   const {
-    // type,
     value,
     isEditable,
     onChange,
@@ -23,11 +21,15 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
   } = props;
 
   const [isEditing, setIsEditing] = React.useState(false);
+  const isEditingRef = React.useRef(isEditing);
   const [editedValue, setEditedValue] = React.useState(value);
 
   useEffect(() => {
     setEditedValue(value);
   }, [value]);
+  useEffect(() => {
+    isEditingRef.current = isEditing;
+  }, [isEditing]);
 
   const onSubmit = () => {
     onFocusChange?.([1, 0]);
@@ -51,8 +53,11 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
         onFocusChange?.(diff)
         e.stopPropagation()
         e.preventDefault()
-      } else if (e.key === 'Enter') {
-        setIsEditing(true);
+      } else if (e.key === 'Enter' && !isEditingRef.current) {
+        setTimeout(() => {
+          // without the timeout, the form was submitting immediately
+          setIsEditing(true);
+        }, 0)
       } else if (e.key === 'Escape') {
         onFocusChange?.(null)
       }
@@ -65,8 +70,38 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
 
   if (!isEditable) return children
 
-  return (
-    <div
+  return isEditing ? (
+    <form onSubmit={e => {
+      e.preventDefault();
+      e.stopPropagation();
+      onSubmit();
+    }}
+      css={[
+        tw`w-full h-full border-[3px] border-transparent border-indigo-500`,
+      ]}>
+      <input
+        type="text"
+        autoFocus
+        onFocus={e => {
+          e.target.select();
+        }}
+        css={[
+          tw`w-full h-full py-2 px-4 font-mono text-sm focus:outline-none bg-transparent`,
+        ]}
+        value={editedValue}
+        onChange={e => setEditedValue(e.target.value)}
+        onKeyDown={e => {
+          if (e.key === 'Escape') {
+            onFocusChange?.(null)
+          } else if (cellDiffs[e.key]) {
+            e.stopPropagation()
+          }
+        }}
+        onBlur={onSubmit}
+      />
+    </form>
+  ) : (
+    <button
       css={[
         tw`w-full h-full flex items-center cursor-cell border-[3px] border-transparent`,
         isFocused && tw`border-indigo-500`,
@@ -74,34 +109,9 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
       onClick={() => onFocusChange?.([0, 0])}
       onDoubleClick={() => setIsEditing(true)}
     >
-      {isEditing ? (
-        <input
-          type="text"
-          autoFocus
-          onFocus={e => {
-            e.target.select();
-          }}
-          css={[
-            tw`w-full h-full py-2 px-4 font-mono text-sm focus:outline-none bg-transparent`,
-          ]}
-          value={editedValue}
-          onChange={e => setEditedValue(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              onSubmit()
-            } else if (e.key === 'Escape') {
-              onFocusChange?.(null)
-            }
-            if (cellDiffs[e.key]) {
-              e.stopPropagation()
-            }
-          }}
-          onBlur={onSubmit}
-        />
-      ) : (
-        children
-      )}
-    </div>
+      {children}
+    </button>
+
   );
 }, areEqual);
 
