@@ -24,7 +24,6 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [editedValue, setEditedValue] = React.useState(value);
-  const cellElement = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setEditedValue(value);
@@ -68,7 +67,6 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
 
   return (
     <div
-      ref={cellElement}
       css={[
         tw`w-full h-full flex items-center cursor-cell border-[3px] border-transparent`,
         isFocused && tw`border-indigo-500`,
