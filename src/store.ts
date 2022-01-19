@@ -280,7 +280,7 @@ export const createGridStore = () =>
               return [
                 columnName,
                 Array.from(values)
-                  .filter((d) => (d || '').trim().length)
+                  .filter((d) => (d || '')?.trim().length)
                   .map(
                     (value: string, index): CategoryValue => {
                       return {

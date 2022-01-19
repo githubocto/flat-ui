@@ -22,6 +22,7 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
 
   const [isEditing, setIsEditing] = React.useState(false);
   const isEditingRef = React.useRef(isEditing);
+  const buttonElement = React.useRef<HTMLButtonElement>(null);
   const [editedValue, setEditedValue] = React.useState(value);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
 
   const onSubmit = () => {
     onFocusChange?.([1, 0]);
-    if (onChange) onChange(editedValue);
+    onChange?.(editedValue);
   }
 
   useEffect(() => {
@@ -41,6 +42,10 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
       setIsEditing(false);
       setEditedValue(value);
       return
+    } else {
+      if (buttonElement.current) {
+        buttonElement.current.focus();
+      }
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -55,11 +60,13 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
         e.preventDefault()
       } else if (e.key === 'Enter' && !isEditingRef.current) {
         setTimeout(() => {
-          // without the timeout, the form was submitting immediately
+          // without the timeout, the form submits immediately
           setIsEditing(true);
         }, 0)
       } else if (e.key === 'Escape') {
-        onFocusChange?.(null)
+        if (!isEditingRef.current) {
+          onFocusChange?.(null)
+        }
       }
     }
     window.addEventListener('keydown', onKeyDown);
@@ -92,20 +99,25 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
         onChange={e => setEditedValue(e.target.value)}
         onKeyDown={e => {
           if (e.key === 'Escape') {
-            onFocusChange?.(null)
+            setIsEditing(false)
           } else if (cellDiffs[e.key]) {
             e.stopPropagation()
           }
         }}
-        onBlur={onSubmit}
+        onBlur={() => {
+          onChange?.(editedValue)
+          setIsEditing(false)
+        }}
       />
     </form>
   ) : (
     <button
+      ref={buttonElement}
       css={[
-        tw`w-full h-full flex items-center cursor-cell border-[3px] border-transparent`,
+        tw`w-full h-full flex items-center cursor-cell border-[3px] border-transparent focus:outline-none`,
         isFocused && tw`border-indigo-500`,
       ]}
+      onFocus={() => onFocusChange?.([0, 0])}
       onClick={() => onFocusChange?.([0, 0])}
       onDoubleClick={() => setIsEditing(true)}
     >
