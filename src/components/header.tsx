@@ -77,8 +77,8 @@ export function Header(props: HeaderProps) {
           <button
             className="pin"
             css={[
-              tw`h-full p-2 border-indigo-100 focus:bg-indigo-100 hover:bg-indigo-100 appearance-none focus:opacity-100 group-hover:opacity-100 text-indigo-400 bg-indigo-50 focus:ring-indigo-300`,
-              isSticky ? tw`opacity-100` : tw`opacity-0 -ml-6 shadow-md`,
+              tw`h-full p-2 flex items-center border-indigo-100 focus:bg-indigo-100! hover:bg-indigo-100! appearance-none focus:opacity-100 group-hover:opacity-100 text-indigo-400! bg-indigo-50! focus:ring-indigo-300`,
+              isSticky ? tw`opacity-100` : tw`opacity-0 -ml-6! shadow-md`,
             ]}
             onClick={() => onSticky()}
           >
