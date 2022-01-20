@@ -354,13 +354,16 @@ export const createGridStore = () =>
         set((draft) => {
           const filteredRow = draft.filteredData[rowIndex];
           const rowIndexInFullDataset = filteredRow[originalRowIndexColumnName];
-          const newData = [...draft.rawData];
-          const row = newData[rowIndexInFullDataset];
-          if (!row) return;
-          if (value === row[columnName]) return;
-          let newRow = { ...row, [columnName]: value };
-          delete newRow[originalRowIndexColumnName];
-          newData[rowIndexInFullDataset] = newRow;
+          if (!draft.rawData[rowIndexInFullDataset]) return;
+          if (draft.rawData[rowIndexInFullDataset][columnName] === value)
+            return;
+          const newData = [...draft.rawData].map((d) => {
+            if (d[originalRowIndexColumnName] === rowIndexInFullDataset) {
+              return { ...d, [columnName]: value };
+            }
+            delete d[originalRowIndexColumnName];
+            return d;
+          });
           draft.updatedData = newData;
         });
       },
@@ -373,7 +376,7 @@ export const createGridStore = () =>
               if (columnKey === oldColumnName) {
                 // @ts-ignore
                 acc[newColumnName] = row[oldColumnName];
-              } else {
+              } else if (columnKey !== originalRowIndexColumnName) {
                 // @ts-ignore
                 acc[columnKey] = row[columnKey];
               }

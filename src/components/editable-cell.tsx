@@ -22,6 +22,7 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
 
   const [isEditing, setIsEditing] = React.useState(false);
   const isEditingRef = React.useRef(isEditing);
+  const hasSubmittedFormRef = React.useRef(false);
   const buttonElement = React.useRef<HTMLButtonElement>(null);
   const [editedValue, setEditedValue] = React.useState(value);
 
@@ -35,6 +36,7 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
   const onSubmit = () => {
     onFocusChange?.([1, 0]);
     onChange?.(editedValue);
+    hasSubmittedFormRef.current = true;
   }
 
   useEffect(() => {
@@ -46,6 +48,7 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
       if (buttonElement.current) {
         buttonElement.current.focus();
       }
+      hasSubmittedFormRef.current = false;
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -105,6 +108,7 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
           }
         }}
         onBlur={() => {
+          if (hasSubmittedFormRef.current) return
           onChange?.(editedValue)
           setIsEditing(false)
         }}
