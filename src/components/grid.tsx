@@ -779,6 +779,7 @@ const HeaderWrapper = function (props: CellProps) {
     focusedRowIndex,
     cellTypes,
     isEditable,
+    handleFocusedCellPositionChange,
     onHeaderCellChange,
     onHeaderDelete,
     onHeaderAdd,
@@ -819,6 +820,13 @@ const HeaderWrapper = function (props: CellProps) {
   const onHeaderDeleteLocal = () => {
     onHeaderDelete(columnName);
   }
+  const onHeaderAddLocal = (newColumnName: string) => {
+    onHeaderAdd(newColumnName);
+    handleFocusedCellPositionChange([
+      0,
+      columnNames.length,
+    ])
+  }
 
   return (
     <HeaderWrapperComputed
@@ -841,7 +849,7 @@ const HeaderWrapper = function (props: CellProps) {
       isEditable={isEditable}
       onChange={onHeaderCellChangeLocal}
       onDelete={onHeaderDeleteLocal}
-      onAdd={onHeaderAdd}
+      onAdd={onHeaderAddLocal}
       onSort={handleSortChange}
       onSticky={() => handleStickyColumnNameChange(columnName)}
       onFilterChange={(value: FilterValue) => {
