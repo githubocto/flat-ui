@@ -98,7 +98,7 @@ export const Cell = React.memo(function (props: CellProps) {
       old: 'text-pink-400',
       modified: 'text-yellow-500',
       'modified-row': 'text-yellow-500',
-    }[status || ''];
+    }[status || ''] || ""
 
   return (
     <div
@@ -124,49 +124,95 @@ export const Cell = React.memo(function (props: CellProps) {
         isExtraBlankRow={isExtraBlankRow}
         onFocusChange={onFocusChange}
         onRowDelete={onRowDelete}>
-        <div
-          css={[
-            tw`w-full h-full flex flex-none items-center px-4`,
-            typeof value === 'undefined' ||
-            (Number.isNaN(value) && tw`text-gray-300`),
-          ]}
-          onMouseEnter={() => onMouseEnter()}
-        >
-          {isFirstColumn && (
-            <div css={[tw`w-6 flex-none`, statusColor]}>
-              {StatusIcon && <StatusIcon />}
-            </div>
-          )}
-
-          <CellComponent
-            value={value}
-            formattedValue={stringWithLinks}
-            rawValue={rawValue}
-            categoryColor={categoryColor}
-          />
-
-          {isLongValue && (
-            <div
-              className="cell__long-value"
-              css={[
-                tw` absolute p-4 py-2 bg-white opacity-0 group-hover:opacity-100 z-30 border border-gray-200 shadow-md pointer-events-none`,
-                isNearBottomEdge ? tw`bottom-0` : tw`top-0`,
-                isNearRightEdge ? tw`right-0` : tw`left-0`,
-              ]}
-              style={{
-                width: 'max-content',
-                maxWidth: '27em',
-              }}
-              title={rawValue}
-            >
-              <div
-                tw="line-clamp-9"
-                dangerouslySetInnerHTML={{ __html: stringWithLinks }}
-              />
-            </div>
-          )}
-        </div>
+        <CellInner
+          value={value}
+          isFirstColumn={isFirstColumn}
+          statusColor={statusColor}
+          StatusIcon={StatusIcon}
+          rawValue={rawValue}
+          categoryColor={categoryColor}
+          isLongValue={isLongValue}
+          isNearBottomEdge={isNearBottomEdge}
+          isNearRightEdge={isNearRightEdge}
+          stringWithLinks={stringWithLinks}
+          CellComponent={CellComponent}
+          onMouseEnter={onMouseEnter}
+        />
       </EditableCell>
     </div>
   );
 }, areEqual);
+
+
+const CellInner = React.memo(function CellInner({
+  value,
+  isFirstColumn,
+  statusColor,
+  StatusIcon,
+  rawValue,
+  categoryColor,
+  isLongValue,
+  isNearBottomEdge,
+  isNearRightEdge,
+  stringWithLinks,
+  CellComponent,
+  onMouseEnter,
+}: {
+  value: any;
+  isFirstColumn: boolean;
+  statusColor: string | TwStyle;
+  StatusIcon: any;
+  rawValue: any;
+  categoryColor?: string | TwStyle;
+  isLongValue: boolean;
+  isNearBottomEdge?: boolean;
+  isNearRightEdge?: boolean;
+  stringWithLinks: string;
+  CellComponent?: any;
+  onMouseEnter?: Function;
+}) {
+  return (
+    <div
+      css={[
+        tw`w-full h-full flex flex-none items-center px-4`,
+        typeof value === 'undefined' ||
+        (Number.isNaN(value) && tw`text-gray-300`),
+      ]}
+      onMouseEnter={() => onMouseEnter?.()}
+    >
+      {isFirstColumn && (
+        <div css={[tw`w-6 flex-none`, statusColor]}>
+          {StatusIcon && <StatusIcon />}
+        </div>
+      )}
+
+      <CellComponent
+        value={value}
+        formattedValue={stringWithLinks}
+        rawValue={rawValue}
+        categoryColor={categoryColor}
+      />
+
+      {isLongValue && (
+        <div
+          className="cell__long-value"
+          css={[
+            tw` absolute p-4 py-2 bg-white opacity-0 group-hover:opacity-100 z-30 border border-gray-200 shadow-md pointer-events-none`,
+            isNearBottomEdge ? tw`bottom-0` : tw`top-0`,
+            isNearRightEdge ? tw`right-0` : tw`left-0`,
+          ]}
+          style={{
+            width: 'max-content',
+            maxWidth: '27em',
+          }}
+          title={rawValue}
+        >
+          <div
+            tw="line-clamp-9"
+            dangerouslySetInnerHTML={{ __html: stringWithLinks }}
+          />
+        </div>
+      )}
+    </div>
+  )
+})

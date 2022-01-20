@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import 'twin.macro';
 import debounce from 'lodash/debounce';
 import { HtmlHistogram } from '../HtmlHistogram';
@@ -52,9 +52,11 @@ export function RangeFilter(props: RangeFilterProps) {
     .map(row => row[id])
     .filter(d => Number.isFinite(d) || d instanceof Date);
 
-  const originalHistogramData = originalData
-    .map(row => row[id])
-    .filter(d => Number.isFinite(d) || d instanceof Date);
+  const originalHistogramData = useMemo(() => (
+    originalData
+      .map(row => row[id])
+      .filter(d => Number.isFinite(d) || d instanceof Date)
+  ), [originalData, id]);
 
   return (
     <HtmlHistogram

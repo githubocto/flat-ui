@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import 'twin.macro';
 import AutoSizer from 'react-virtualized-auto-sizer';
 // @ts-ignore
@@ -615,13 +615,39 @@ const CellWrapper = function (props: CellProps) {
     handleFocusedCellPositionChange,
   } = useGridStore();
 
+  const name = columnNames[columnIndex];
   const rowIndex = rawRowIndex - 1;
+
+  const onCellChangeLocal = useCallback((value: any) => {
+    onCellChange(rowIndex, name, value);
+  }, [onCellChange, rowIndex, name]);
+  const onRowDeleteLocal = useCallback(() => {
+    onRowDelete(rowIndex);
+  }, [onRowDelete, rowIndex]);
+
+  const onFocusChangeLocal = useCallback((diff: [number, number] | null) => {
+    if (!diff) {
+      handleFocusedCellPositionChange(null);
+    } else {
+      const [diffRow, diffColumn] = diff
+      const newRowIndex = Math.max(0, Math.min(rowIndex + diffRow, filteredData.length - 1 + (isEditable ? numberOfExtraRowsWhenEditing : 0)))
+      const newColumnIndex = Math.max(0, Math.min(columnIndex + diffColumn, columnNames.length - 1))
+      const newPosition = [
+        newRowIndex,
+        newColumnIndex,
+      ] as [number, number];
+      handleFocusedCellPositionChange(newPosition);
+    }
+  }, [rowIndex, columnIndex, filteredData, isEditable])
+
+  const onMouseEnter = useCallback(() => {
+    setFocusedColumnIndex(columnIndex);
+    handleFocusedRowIndexChange(rowIndex);
+  }, [columnIndex, handleFocusedRowIndexChange, rowIndex, setFocusedColumnIndex])
 
   if (rowIndex == -1) {
     return <HeaderWrapper {...props} />;
   }
-
-  const name = columnNames[columnIndex];
 
   // @ts-ignore
   const type = cellTypes[name];
@@ -667,28 +693,6 @@ const CellWrapper = function (props: CellProps) {
         focusedRowIndex == rowIndex ? '#f3f4f6' :
           '#fff';
 
-  const onCellChangeLocal = (value: any) => {
-    onCellChange(rowIndex, name, value);
-  }
-  const onRowDeleteLocal = () => {
-    onRowDelete(rowIndex);
-  }
-
-  const onFocusChangeLocal = (diff: [number, number] | null) => {
-    if (!diff) {
-      handleFocusedCellPositionChange(null);
-    } else {
-      const [diffRow, diffColumn] = diff
-      const newRowIndex = Math.max(0, Math.min(rowIndex + diffRow, filteredData.length - 1 + (isEditable ? numberOfExtraRowsWhenEditing : 0)))
-      const newColumnIndex = Math.max(0, Math.min(columnIndex + diffColumn, columnNames.length - 1))
-      const newPosition = [
-        newRowIndex,
-        newColumnIndex,
-      ] as [number, number];
-      handleFocusedCellPositionChange(newPosition);
-    }
-  }
-
   return (
     <CellWrapperComputed
       type={type}
@@ -707,10 +711,7 @@ const CellWrapper = function (props: CellProps) {
       onFocusChange={onFocusChangeLocal}
       onCellChange={onCellChangeLocal}
       onRowDelete={onRowDeleteLocal}
-      onMouseEnter={() => {
-        setFocusedColumnIndex(columnIndex);
-        handleFocusedRowIndexChange(rowIndex);
-      }}
+      onMouseEnter={onMouseEnter}
     />
   );
 };
@@ -797,6 +798,30 @@ const HeaderWrapper = function (props: CellProps) {
   // @ts-ignore
   const cellInfo = cellTypeMap[cellType] || {}
 
+  const onHeaderCellChangeLocal = useCallback((value: any) => {
+    onHeaderCellChange(columnName, value);
+  }, [onHeaderCellChange, columnName]);
+
+  const onHeaderDeleteLocal = useCallback(() => {
+    onHeaderDelete(columnName);
+  }, [onHeaderDelete, columnName]);
+
+  const onHeaderAddLocal = useCallback((newColumnName: string) => {
+    onHeaderAdd(newColumnName);
+    handleFocusedCellPositionChange([
+      0,
+      columnNames.length,
+    ])
+  }, [onHeaderAdd, handleFocusedCellPositionChange, columnNames]);
+
+  const onSticky = useCallback(() => {
+    handleStickyColumnNameChange(columnName)
+  }, [handleStickyColumnNameChange, columnName])
+
+  const onFilterChange = useCallback((value: FilterValue) => {
+    handleFilterChange(columnNameRef.current, value);
+  }, [handleFilterChange, columnNameRef])
+
   const maxColumns = isEditable ? columnNames.length + 1 : columnNames.length;
   if (columnIndex >= maxColumns) return null;
 
@@ -813,20 +838,6 @@ const HeaderWrapper = function (props: CellProps) {
 
   let possibleValues =
     cellType === 'category' ? categoryValues[columnName] : undefined;
-
-  const onHeaderCellChangeLocal = (value: any) => {
-    onHeaderCellChange(columnName, value);
-  }
-  const onHeaderDeleteLocal = () => {
-    onHeaderDelete(columnName);
-  }
-  const onHeaderAddLocal = (newColumnName: string) => {
-    onHeaderAdd(newColumnName);
-    handleFocusedCellPositionChange([
-      0,
-      columnNames.length,
-    ])
-  }
 
   return (
     <HeaderWrapperComputed
@@ -851,10 +862,8 @@ const HeaderWrapper = function (props: CellProps) {
       onDelete={onHeaderDeleteLocal}
       onAdd={onHeaderAddLocal}
       onSort={handleSortChange}
-      onSticky={() => handleStickyColumnNameChange(columnName)}
-      onFilterChange={(value: FilterValue) => {
-        handleFilterChange(columnNameRef.current, value);
-      }}
+      onSticky={onSticky}
+      onFilterChange={onFilterChange}
     />
   );
 };

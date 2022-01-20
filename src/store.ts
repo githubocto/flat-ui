@@ -496,14 +496,14 @@ const getSortFunction = (sort: string[], typeOfValue: string) => {
     // @ts-ignore
     let aVal = a[columnName];
     if (typeOfValue === 'string') {
-      aVal = (aVal || '').toUpperCase();
+      aVal = (aVal || '')?.toUpperCase?.() || '';
       if (!aVal || aVal === '\n') aVal = direction === 'asc' ? 'zzzzzz' : '';
       aVal = aVal.trimStart();
     }
     // @ts-ignore
     let bVal = b[columnName];
     if (typeOfValue === 'string') {
-      bVal = (bVal || '').toUpperCase();
+      bVal = (bVal || '')?.toUpperCase?.() || '';
       if (!bVal || bVal === '\n') bVal = direction === 'asc' ? 'zzzzzz' : '';
       bVal = bVal.trimStart();
     }
