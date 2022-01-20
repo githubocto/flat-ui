@@ -30,7 +30,6 @@ export function HtmlHistogram(props: HistogramProps) {
   const height = 30;
 
   const { bins } = useMemo(() => {
-    console.log({ original, maxWidth, value })
     const maxBins = maxWidth
       ? Math.max(0, Math.floor(maxWidth / 6) * 0.55)
       : 11;

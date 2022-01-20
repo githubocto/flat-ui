@@ -199,12 +199,12 @@ export const createGridStore = () =>
             const modifiedFields = columnNames.filter((columnName) => {
               const type = draft.cellTypes[columnName];
               const oldValue =
-                type === 'date' ? d[columnName].toString() : d[columnName];
+                type === 'date' ? d[columnName]?.toString?.() : d[columnName];
               const newD = diffDataMap.get(id);
               const newValue =
                 type === 'date'
                   ? // @ts-ignore
-                    newD[columnName].toString()
+                    newD[columnName]?.toString?.()
                   : // @ts-ignore
                     newD[columnName];
               return type === 'object'
@@ -222,7 +222,10 @@ export const createGridStore = () =>
           });
           const oldData = parseData(
             diffData
-              .filter((d) => !newDataMap.get(d[idColumnName + '']))
+              .filter(
+                (d) =>
+                  !newDataMap.get(d[idColumnName + '']) && d[idColumnName || '']
+              )
               .map((d) => ({ ...d, __status__: 'old' })),
             draft.cellTypes
           );
