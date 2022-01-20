@@ -17,11 +17,13 @@ interface CellProps {
   status?: string;
   isNearRightEdge?: boolean;
   isNearBottomEdge?: boolean;
-  isFirstColumn?: boolean;
+  isFirstColumn: boolean;
+  isExtraBlankRow: boolean;
   hasStatusIndicator?: boolean;
   background?: string;
   isEditable: boolean;
   onCellChange?: (value: any) => void;
+  onRowDelete?: () => void;
   isFocused: boolean;
   onFocusChange: (value: [number, number] | null) => void;
   onMouseEnter?: Function;
@@ -35,10 +37,12 @@ export const Cell = React.memo(function (props: CellProps) {
     categoryColor,
     status,
     isFirstColumn,
+    isExtraBlankRow,
     isNearRightEdge,
     isNearBottomEdge,
     isEditable,
     onCellChange,
+    onRowDelete,
     isFocused,
     onFocusChange,
     background,
@@ -114,9 +118,12 @@ export const Cell = React.memo(function (props: CellProps) {
       <EditableCell
         value={rawValue}
         isEditable={isEditable}
+        isFirstColumn={isFirstColumn}
         onChange={onCellChange}
         isFocused={isFocused}
-        onFocusChange={onFocusChange}>
+        isExtraBlankRow={isExtraBlankRow}
+        onFocusChange={onFocusChange}
+        onRowDelete={onRowDelete}>
         <div
           css={[
             tw`w-full h-full flex flex-none items-center px-4`,

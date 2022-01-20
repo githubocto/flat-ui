@@ -63,7 +63,10 @@ export type GridState = {
   isEditable: boolean;
   handleIsEditableChange: (isEditable: boolean) => void;
   onCellChange: (rowIndex: number, columnName: string, value: any) => void;
+  onRowDelete: (rowIndex: number) => void;
   onHeaderCellChange: (oldColumnName: string, newColumnName: any) => void;
+  onHeaderAdd: (columnName: string) => void;
+  onHeaderDelete: (columnName: string) => void;
   focusedCellPosition: [number, number] | null;
   handleFocusedCellPositionChange: (position: [number, number] | null) => void;
 };
@@ -352,12 +355,28 @@ export const createGridStore = () =>
       updatedData: null,
       onCellChange: (rowIndex: number, columnName: string, value: any) => {
         set((draft) => {
-          const filteredRow = draft.filteredData[rowIndex];
-          const rowIndexInFullDataset = filteredRow[originalRowIndexColumnName];
-          if (!draft.rawData[rowIndexInFullDataset]) return;
-          if (draft.rawData[rowIndexInFullDataset][columnName] === value)
-            return;
-          const newData = [...draft.rawData].map((d) => {
+          const filteredRow = draft.filteredData[rowIndex] || {};
+          let rowIndexInFullDataset = filteredRow[originalRowIndexColumnName];
+          let newData = [...draft.rawData];
+          if (
+            !draft.rawData[rowIndexInFullDataset] &&
+            rowIndex === draft.filteredData.length
+          ) {
+            rowIndexInFullDataset = newData.length;
+            newData.push({
+              [originalRowIndexColumnName]: rowIndexInFullDataset,
+              ...draft.columnNames.reduce(
+                (acc, columnName) => ({
+                  ...acc,
+                  [columnName]: '',
+                }),
+                {}
+              ),
+            });
+          }
+          if (!newData[rowIndexInFullDataset]) return;
+          if (newData[rowIndexInFullDataset][columnName] === value) return;
+          newData = newData.map((d) => {
             const originalRowIndex = d[originalRowIndexColumnName];
             delete d[originalRowIndexColumnName];
             if (originalRowIndex === rowIndexInFullDataset) {
@@ -368,16 +387,54 @@ export const createGridStore = () =>
           draft.updatedData = newData;
         });
       },
+      onRowDelete: (rowIndex: number) => {
+        set((draft) => {
+          const filteredRow = draft.filteredData[rowIndex];
+          const rowIndexInFullDataset = filteredRow[originalRowIndexColumnName];
+          if (!draft.rawData[rowIndexInFullDataset]) return;
+          let newData = [...draft.rawData].map((d) => {
+            delete d[originalRowIndexColumnName];
+            return d;
+          });
+          newData.splice(rowIndexInFullDataset, 1);
+          draft.updatedData = newData;
+        });
+      },
       onHeaderCellChange: (oldColumnName: string, newColumnName: string) => {
         set((draft) => {
-          const columnKeys = Object.keys(draft.rawData[0]);
           const newData = [...draft.rawData].map((row) => {
             // keep same order of keys so it matches when the data updates
-            return columnKeys.reduce((acc, columnKey) => {
+            return draft.columnNames.reduce((acc, columnKey) => {
               if (columnKey === oldColumnName) {
                 // @ts-ignore
                 acc[newColumnName] = row[oldColumnName];
               } else if (columnKey !== originalRowIndexColumnName) {
+                // @ts-ignore
+                acc[columnKey] = row[columnKey];
+              }
+              return acc;
+            }, {});
+          });
+          draft.updatedData = newData;
+        });
+      },
+      onHeaderAdd: (columnName: string) => {
+        set((draft) => {
+          const newData = [...draft.rawData].map((row) => {
+            return {
+              ...row,
+              [columnName]: row[columnName] || '',
+            };
+          });
+          draft.updatedData = newData;
+        });
+      },
+      onHeaderDelete: (columnName: string) => {
+        set((draft) => {
+          const newData = [...draft.rawData].map((row) => {
+            // keep same order of keys so it matches when the data updates
+            return draft.columnNames.reduce((acc, columnKey) => {
+              if (columnKey !== columnName) {
                 // @ts-ignore
                 acc[columnKey] = row[columnKey];
               }
