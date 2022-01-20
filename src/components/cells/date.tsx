@@ -14,7 +14,7 @@ export function DateCell(props: DateCellProps) {
       tw="overflow-ellipsis block whitespace-nowrap overflow-hidden"
       title={props.rawValue}
     >
-      {props.value ? formatDate(props.value) : '-'}
+      {props.value ? formatDate(props.value) : ''}
     </span>
   );
 }

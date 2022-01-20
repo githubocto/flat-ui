@@ -15,7 +15,7 @@ export function TimeCell(props: TimeCellProps) {
       tw="overflow-ellipsis block whitespace-nowrap overflow-hidden"
       title={props.rawValue}
     >
-      {props.value ? formatTime(props.value) : '-'}
+      {props.value ? formatTime(props.value) : ''}
     </span>
   );
 }

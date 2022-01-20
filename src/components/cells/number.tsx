@@ -8,7 +8,7 @@ interface NumberCellProps {
 export function NumberCell(props: NumberCellProps) {
   return (
     <span tw="text-right font-mono text-sm block w-full" title={props.rawValue}>
-      {Number.isFinite(props.value) ? props.value.toLocaleString() : '—'}
+      {Number.isFinite(props.value) ? props.value.toLocaleString() : !props.value ? "" : '—'}
     </span>
   );
 }
