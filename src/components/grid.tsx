@@ -93,10 +93,10 @@ export function Grid(props: GridProps) {
     if (!ref.current) return;
 
     // preserve scroll position
-    if (focusedCellPosition) return;
+    if (focusedCellPosition) return
 
     // @ts-ignore
-    ref.current.scrollToItem({
+    ref.current?.scrollToItem({
       columnIndex: 0,
       rowIndex: 0,
       align: 'center',
@@ -203,15 +203,45 @@ export function Grid(props: GridProps) {
     // @ts-ignore
     ref?.current?.scrollToItem({ rowIndex: 0 });
   };
-  React.useEffect(scrollToTop, [sort]);
+  React.useEffect(scrollToTop, [sort.join(",")]);
 
   const isFiltered = Object.keys(filters).length > 0;
 
   React.useEffect(updateColumnWidths, [columnNames, data]);
 
+  const filteredDataWithOptionalEmptyRows = React.useMemo(() => {
+    let res = [...filteredData]
+    if (props.isEditable) {
+      const emptyRows = new Array(numberOfExtraRowsWhenEditing).fill(null).map(() => ({}))
+      res = [...res, ...emptyRows]
+    }
+    return res
+  }, [filteredData, props.isEditable])
+
+  const columnWidthCallback = React.useCallback(i => columnWidths[i] || 150, [
+    columnWidths.join(','),
+  ]);
+  const rowHeightCallback = React.useCallback(i => (i ? 40 : 117), []);
+
+  const columnNamesWithOptionalEmptyColumn = React.useMemo(() => {
+    let res = [...columnNames]
+    if (props.isEditable) {
+      res = [...res, "__new-blank-column__"]
+    }
+    return res
+  }, [columnNames, props.isEditable])
+
+  const columnWidthsWithOptionalEmptyColumn = React.useMemo(() => {
+    let res = [...columnWidths]
+    if (props.isEditable) {
+      res = [...res, columnWidthCallback(columnWidths.length)]
+    }
+    return res
+  }, [columnNames, props.isEditable])
+
   const columnScales = React.useMemo(() => {
     let scales = {};
-    columnNames.forEach((columnName: string) => {
+    columnNamesWithOptionalEmptyColumn.forEach((columnName: string) => {
       // @ts-ignore
       const cellType = cellTypes[columnName];
       // @ts-ignore
@@ -229,11 +259,6 @@ export function Grid(props: GridProps) {
     return scales;
   }, [data]);
 
-  const columnWidthCallback = React.useCallback(i => columnWidths[i], [
-    columnWidths.join(','),
-  ]);
-  const rowHeightCallback = React.useCallback(i => (i ? 40 : 117), []);
-
   interface AutoSizerType {
     height: number;
     width: number;
@@ -246,7 +271,7 @@ export function Grid(props: GridProps) {
   // @ts-ignore
   const modifiedDiffs = diffs.filter(d => d.__status__ === 'modified');
 
-  const ref = useRespondToColumnChange([columnWidths]);
+  const ref = useRespondToColumnChange([columnWidthsWithOptionalEmptyColumn]);
 
   const handleHighlightDiffChange = (delta: number = 0) => {
     let newHighlight = 0;
@@ -419,22 +444,22 @@ export function Grid(props: GridProps) {
               ref={ref}
               height={height}
               width={width}
-              rowCount={filteredData.length + 1}
+              rowCount={filteredDataWithOptionalEmptyRows.length + 1}
               columnWidth={columnWidthCallback}
-              columnCount={columnNames.length}
+              columnCount={columnNamesWithOptionalEmptyColumn.length}
               rowHeight={rowHeightCallback}
-              columnWidths={columnWidths}
+              columnWidths={columnWidthsWithOptionalEmptyColumn}
               numberOfStickiedColumns={width < 700 ? 0 : 1}
               overscanRowCount={5}
               onScroll={onScroll}
               itemData={{
-                filteredData,
+                filteredData: filteredDataWithOptionalEmptyRows,
                 focusedRowIndex,
                 focusedColumnIndex,
                 setFocusedColumnIndex,
                 // @ts-ignore
                 columnScales,
-                columnNames,
+                columnNames: columnNamesWithOptionalEmptyColumn,
                 showFilters,
               }}
               // // @ts-ignore
@@ -545,6 +570,8 @@ export function Grid(props: GridProps) {
   );
 }
 
+const numberOfExtraRowsWhenEditing = 1
+
 interface StyleObject {
   width?: number;
   top?: number;
@@ -583,6 +610,7 @@ const CellWrapper = function (props: CellProps) {
     cellTypes,
     isEditable,
     onCellChange,
+    onRowDelete,
     focusedCellPosition,
     handleFocusedCellPositionChange,
   } = useGridStore();
@@ -597,9 +625,9 @@ const CellWrapper = function (props: CellProps) {
 
   // @ts-ignore
   const type = cellTypes[name];
-  const cellData = filteredData[rowIndex]
+  const cellData = filteredData[rowIndex] || { [name]: "" }
 
-  if (!cellData) return null;
+  // if (!cellData) return null;
 
   const value = cellData[name];
   const rawValue = cellData['__rawData__']?.[name];
@@ -642,13 +670,16 @@ const CellWrapper = function (props: CellProps) {
   const onCellChangeLocal = (value: any) => {
     onCellChange(rowIndex, name, value);
   }
+  const onRowDeleteLocal = () => {
+    onRowDelete(rowIndex);
+  }
 
   const onFocusChangeLocal = (diff: [number, number] | null) => {
     if (!diff) {
       handleFocusedCellPositionChange(null);
     } else {
       const [diffRow, diffColumn] = diff
-      const newRowIndex = Math.max(0, Math.min(rowIndex + diffRow, filteredData.length - 1))
+      const newRowIndex = Math.max(0, Math.min(rowIndex + diffRow, filteredData.length - 1 + (isEditable ? numberOfExtraRowsWhenEditing : 0)))
       const newColumnIndex = Math.max(0, Math.min(columnIndex + diffColumn, columnNames.length - 1))
       const newPosition = [
         newRowIndex,
@@ -668,12 +699,14 @@ const CellWrapper = function (props: CellProps) {
       style={style}
       status={status}
       isFirstColumn={columnIndex === 0}
+      isExtraBlankRow={rowIndex === filteredData.length}
       isNearRightEdge={columnIndex > columnNames.length - 3}
       isNearBottomEdge={rowIndex > filteredData.length - 3}
       isEditable={isEditable}
       isFocused={!!(focusedCellPosition && focusedCellPosition[0] === rowIndex && focusedCellPosition[1] === columnIndex)}
       onFocusChange={onFocusChangeLocal}
       onCellChange={onCellChangeLocal}
+      onRowDelete={onRowDeleteLocal}
       onMouseEnter={() => {
         setFocusedColumnIndex(columnIndex);
         handleFocusedRowIndexChange(rowIndex);
@@ -690,11 +723,13 @@ interface CellComputedProps {
   background?: string;
   categoryColor?: string | TwStyle;
   status?: string;
-  isFirstColumn?: boolean;
+  isFirstColumn: boolean;
+  isExtraBlankRow: boolean;
   isNearRightEdge?: boolean;
   isNearBottomEdge?: boolean;
   isEditable: boolean;
   onCellChange: (value: any) => void;
+  onRowDelete: () => void;
   isFocused: boolean;
   onFocusChange: (value: [number, number] | null) => void;
   onMouseEnter?: Function;
@@ -712,7 +747,9 @@ const CellWrapperComputed = React.memo(
     if (props.status != newProps.status) return false;
     if (props.isNearRightEdge != newProps.isNearRightEdge) return false;
     if (props.isNearBottomEdge != newProps.isNearBottomEdge) return false;
+    if (props.isExtraBlankRow != newProps.isExtraBlankRow) return false;
     if (props.isEditable != newProps.isEditable) return false;
+    if (props.isFirstColumn != newProps.isFirstColumn) return false;
     if (props.isFocused != newProps.isFocused) return false;
     if (props.style.left != newProps.style.left) return false;
     if (props.style.top != newProps.style.top) return false;
@@ -743,6 +780,8 @@ const HeaderWrapper = function (props: CellProps) {
     cellTypes,
     isEditable,
     onHeaderCellChange,
+    onHeaderDelete,
+    onHeaderAdd,
   } = useGridStore();
   const columnNameRef = React.useRef('');
 
@@ -753,12 +792,14 @@ const HeaderWrapper = function (props: CellProps) {
   const columnWidth = columnWidths[columnIndex];
 
   // @ts-ignore
-  const cellType = cellTypes[columnName];
+  const cellType = cellTypes[columnName] || "string"
   // @ts-ignore
-  const cellInfo = cellTypeMap[cellType];
-  if (!cellInfo) return null;
+  const cellInfo = cellTypeMap[cellType] || {}
 
-  // if (!filteredData[0]) return null;
+  const maxColumns = isEditable ? columnNames.length + 1 : columnNames.length;
+  if (columnIndex >= maxColumns) return null;
+
+  const isNewColumn = isEditable && columnIndex === columnNames.length;
 
   const focusedValue =
     typeof focusedRowIndex == 'number' && filteredData[0]
@@ -774,6 +815,9 @@ const HeaderWrapper = function (props: CellProps) {
 
   const onHeaderCellChangeLocal = (value: any) => {
     onHeaderCellChange(columnName, value);
+  }
+  const onHeaderDeleteLocal = () => {
+    onHeaderDelete(columnName);
   }
 
   return (
@@ -791,10 +835,13 @@ const HeaderWrapper = function (props: CellProps) {
       showFilters={showFilters}
       possibleValues={possibleValues}
       isSticky={isSticky}
+      isNewColumn={isNewColumn}
       metadata={metadata[columnName]}
       isFirstColumn={columnIndex === 0}
       isEditable={isEditable}
       onChange={onHeaderCellChangeLocal}
+      onDelete={onHeaderDeleteLocal}
+      onAdd={onHeaderAdd}
       onSort={handleSortChange}
       onSticky={() => handleStickyColumnNameChange(columnName)}
       onFilterChange={(value: FilterValue) => {
@@ -820,8 +867,11 @@ interface HeaderComputedProps {
   showFilters: boolean;
   isFirstColumn: boolean;
   isSticky: boolean;
+  isNewColumn: boolean;
   isEditable: boolean;
   onChange: (value: any) => void;
+  onDelete: () => void;
+  onAdd: (name: string) => void;
   onFilterChange: Function;
   onSort: Function;
   onSticky: Function;
@@ -838,6 +888,7 @@ const HeaderWrapperComputed = React.memo(
     if (props.filter != newProps.filter) return false;
     if (props.width != newProps.width) return false;
     if (props.isSticky != newProps.isSticky) return false;
+    if (props.isNewColumn != newProps.isNewColumn) return false;
     if (props.isEditable != newProps.isEditable) return false;
     if (props.focusedValue != newProps.focusedValue) return false;
     if (props.style.width != newProps.style.width) return false;

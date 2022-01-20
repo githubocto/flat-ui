@@ -4,9 +4,11 @@ import {
   ArrowDownIcon,
   InfoIcon,
   PinIcon,
+  TrashIcon,
 } from '@primer/octicons-react';
 import { FilterValue, CategoryValue } from '../types';
 import { EditableHeader } from './editable-header';
+import { NewColumnHeader } from './new-column-header';
 
 interface HeaderProps {
   style: object;
@@ -24,8 +26,11 @@ interface HeaderProps {
   showFilters: boolean;
   isFirstColumn: boolean;
   isSticky: boolean;
+  isNewColumn: boolean;
   isEditable: boolean;
   onChange?: (value: any) => void;
+  onDelete?: () => void;
+  onAdd: (name: string) => void;
   onFilterChange: Function;
   onSort: Function;
   onSticky: Function;
@@ -47,8 +52,11 @@ export function Header(props: HeaderProps) {
     showFilters,
     isFirstColumn,
     isSticky,
+    isNewColumn,
     isEditable,
     onChange,
+    onDelete,
+    onAdd,
     onFilterChange,
     onSort,
     onSticky,
@@ -58,6 +66,13 @@ export function Header(props: HeaderProps) {
 
   // @ts-ignore
   const { filter: FilterComponent } = cellInfo;
+
+  if (isNewColumn) return (
+    <NewColumnHeader
+      style={style}
+      onAdd={onAdd}
+    />
+  )
 
   return (
     <div
@@ -110,10 +125,24 @@ export function Header(props: HeaderProps) {
                 )}
               </div>
             </EditableHeader>
+            {isEditable && (
+              <button
+                className="header__icon"
+                css={[
+                  tw`h-full flex items-center justify-center text-red-500!`,
+                  tw`opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto p-0 group-hover:pl-1 group-hover:pr-2`,
+                ]}
+                onClick={() =>
+                  onDelete?.()
+                }
+              >
+                <TrashIcon />
+              </button>
+            )}
             <button
               className="header__icon"
               css={[
-                tw`flex items-center justify-center pl-1 pr-2 -mr-2`,
+                tw`flex items-center justify-center pl-1 pr-1 -mr-2`,
                 activeSortDirection
                   ? tw`opacity-100`
                   : tw`opacity-0 group-hover:opacity-40`,
