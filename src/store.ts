@@ -358,10 +358,11 @@ export const createGridStore = () =>
           if (draft.rawData[rowIndexInFullDataset][columnName] === value)
             return;
           const newData = [...draft.rawData].map((d) => {
-            if (d[originalRowIndexColumnName] === rowIndexInFullDataset) {
+            const originalRowIndex = d[originalRowIndexColumnName];
+            delete d[originalRowIndexColumnName];
+            if (originalRowIndex === rowIndexInFullDataset) {
               return { ...d, [columnName]: value };
             }
-            delete d[originalRowIndexColumnName];
             return d;
           });
           draft.updatedData = newData;
