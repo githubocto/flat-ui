@@ -132,7 +132,7 @@ export const EditableCell = React.memo(function (props: EditableCellProps) {
     ]}>
       {isFirstColumn && (
         <button
-          css={[tw`absolute h-full text-red-500! opacity-0 group-hover:opacity-100 focus:opacity-100`]}
+          css={[tw`absolute h-full text-red-500! opacity-0 focus:opacity-100`]}
           className="delete-button"
           onClick={e => {
             e.stopPropagation();

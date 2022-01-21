@@ -292,6 +292,10 @@ html,
 
 .cell:hover .cell__long-value {
   pointer-events: all;
+  opacity: 1;
+}
+.cell:hover .delete-button {
+  opacity: 1;
 }
 
 .header__title {
@@ -310,8 +314,14 @@ html,
   opacity: 0;
 }
 
-.header:hover .header__pin {
+.header:hover .header__icon {
   opacity: 1;
+}
+.header:hover .header__delete {
+  opacity: 1;
+  width: auto;
+  padding-left: 0.25em;
+  padding-right: 0.5em;
 }
 
 .sticky-grid__header:hover {

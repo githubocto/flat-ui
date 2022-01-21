@@ -102,7 +102,7 @@ export const Cell = React.memo(function (props: CellProps) {
 
   return (
     <div
-      className="cell group"
+      className="cell"
       css={[
         tw`flex border-b border-r`,
         status === 'new' && tw`border-green-200`,
@@ -197,7 +197,7 @@ const CellInner = React.memo(function CellInner({
         <div
           className="cell__long-value"
           css={[
-            tw` absolute p-4 py-2 bg-white opacity-0 group-hover:opacity-100 z-30 border border-gray-200 shadow-md pointer-events-none`,
+            tw` absolute p-4 py-2 bg-white opacity-0 z-30 border border-gray-200 shadow-md pointer-events-none`,
             isNearBottomEdge ? tw`bottom-0` : tw`top-0`,
             isNearRightEdge ? tw`right-0` : tw`left-0`,
           ]}

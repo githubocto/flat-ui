@@ -155,9 +155,9 @@ const HeaderTop = memo(({
         tw="absolute top-0 left-0 bottom-0 z-10 bg-gray-50 text-gray-600 shadow-md flex items-center"
       >
         <button
-          className="pin"
+          className="header__icon header__pin"
           css={[
-            tw`h-full p-2 flex items-center border-indigo-100 focus:bg-indigo-100! hover:bg-indigo-100! appearance-none focus:opacity-100 group-hover:opacity-100 text-indigo-400! bg-indigo-50! focus:ring-indigo-300`,
+            tw`h-full p-2 flex items-center border-indigo-100 focus:bg-indigo-100! hover:bg-indigo-100! appearance-none focus:opacity-100 text-indigo-400! bg-indigo-50! focus:ring-indigo-300`,
             isSticky ? tw`opacity-100` : tw`opacity-0 -ml-6! shadow-md`,
           ]}
           onClick={() => onSticky()}
@@ -192,10 +192,10 @@ const HeaderTop = memo(({
           </EditableHeader>
           {isEditable && (
             <button
-              className="header__icon"
+              className="header__icon header__delete"
               css={[
                 tw`h-full flex items-center justify-center text-red-500!`,
-                tw`opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto p-0 group-hover:pl-1 group-hover:pr-2`,
+                tw`opacity-0 w-0 p-0`,
               ]}
               onClick={() =>
                 onDelete?.()
@@ -210,7 +210,7 @@ const HeaderTop = memo(({
               tw`flex items-center justify-center pl-1 pr-1 -mr-2`,
               activeSortDirection
                 ? tw`opacity-100`
-                : tw`opacity-0 group-hover:opacity-40`,
+                : tw`opacity-0 text-gray-400!`,
             ]}
             onClick={() =>
               onSort(columnName, activeSortDirection == 'asc' ? 'desc' : 'asc')
@@ -224,7 +224,7 @@ const HeaderTop = memo(({
           </button>
         </div>
         {!!metadata && (
-          <div tw="text-sm absolute bottom-0 bg-white p-4 text-indigo-500 transform translate-y-full border border-indigo-300 py-3 shadow-md left-0 right-0 pointer-events-none opacity-0 group-hover:opacity-100">
+          <div className="header__icon" tw="text-sm absolute bottom-0 bg-white p-4 text-indigo-500 transform translate-y-full border border-indigo-300 py-3 shadow-md left-0 right-0 pointer-events-none opacity-0">
             <div tw="pr-2 inline-block text-indigo-200">
               <InfoIcon />
             </div>
