@@ -151,7 +151,7 @@ const HeaderTop = memo(({
       style={{ height: 37 }}
     >
       <div
-        className="header__title group"
+        className="header__title"
         tw="absolute top-0 left-0 bottom-0 z-10 bg-gray-50 text-gray-600 shadow-md flex items-center"
       >
         <button
@@ -165,7 +165,7 @@ const HeaderTop = memo(({
           <PinIcon />
         </button>
         <div
-          className="group"
+          className=""
           css={[
             tw`flex justify-between items-center h-full border-white focus:bg-white hover:bg-white appearance-none flex-1 min-w-0`,
             ['integer', 'number'].includes(cellType) && tw`text-right`,
