@@ -771,7 +771,7 @@ export const cellTypeMap = {
   number: {
     cell: NumberCell,
     filter: RangeFilter,
-    format: (d: number) => d + '',
+    format: (d: number) => d?.toLocaleString() + '',
     shortFormat: (d: number) =>
       d < 1000 && isAlmostInteger(d)
         ? d3Format(',.0f')(d)

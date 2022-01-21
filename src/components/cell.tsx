@@ -55,7 +55,7 @@ export const Cell = React.memo(function (props: CellProps) {
 
   const { cell: CellComponent } = cellInfo || {}
 
-  const displayValue = formattedValue || value;
+  const displayValue = (formattedValue || value || "").toString();
   const isLongValue = (displayValue || '').length > 23;
   const stringWithLinks = React.useMemo(
     () => displayValue ? (
@@ -197,7 +197,7 @@ const CellInner = React.memo(function CellInner({
         <div
           className="cell__long-value"
           css={[
-            tw` absolute p-4 py-2 bg-white opacity-0 z-30 border border-gray-200 shadow-md pointer-events-none`,
+            tw` absolute p-4 py-2 bg-white opacity-0 z-30 border border-gray-200 shadow-md pointer-events-none break-all text-left`,
             isNearBottomEdge ? tw`bottom-0` : tw`top-0`,
             isNearRightEdge ? tw`right-0` : tw`left-0`,
           ]}

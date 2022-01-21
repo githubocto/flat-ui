@@ -650,13 +650,15 @@ const CellWrapper = function (props: CellProps) {
   }
 
   // @ts-ignore
-  const type = cellTypes[name];
+  const type = cellTypes[name]
   const cellData = filteredData[rowIndex] || { [name]: "" }
 
   // if (!cellData) return null;
 
   const value = cellData[name];
   const rawValue = cellData['__rawData__']?.[name];
+  // @ts-ignore
+  const formattedValue = cellTypeMap[type || ""]?.format?.(value, rawValue) || value;
 
   let possibleValues = type === 'category' ? categoryValues[name] : [];
   const possibleValue = possibleValues?.find(d => d.value === value);
@@ -698,6 +700,7 @@ const CellWrapper = function (props: CellProps) {
       type={type}
       value={value}
       rawValue={rawValue}
+      formattedValue={formattedValue}
       categoryColor={categoryColor}
       background={backgroundColor}
       style={style}
@@ -720,6 +723,7 @@ interface CellComputedProps {
   type: string;
   value: any;
   rawValue: any;
+  formattedValue: any;
   style: StyleObject;
   background?: string;
   categoryColor?: string | TwStyle;

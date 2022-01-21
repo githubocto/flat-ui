@@ -9,8 +9,8 @@ interface StringCellProps {
 
 export function StringCell(props: StringCellProps) {
   return (
-    <span
-      tw="overflow-ellipsis block whitespace-nowrap overflow-hidden"
+    <div
+      tw="truncate"
       title={props.rawValue}
       dangerouslySetInnerHTML={{
         __html: DOMPurify.sanitize(props.formattedValue),
