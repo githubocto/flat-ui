@@ -120,17 +120,26 @@ export const createGridStore = () =>
           const columnNames = data.length
             ? Object.keys(data[0]).filter((d) => !utilKeys.includes(d))
             : [];
-          draft.stickyColumnName = columnNames[0];
-          draft.sort = columnNames[0]
-            ? [
-                columnNames[0],
-                // @ts-ignore
-                cellTypeMap[draft.cellTypes[columnNames[0]]]?.sortValueType ===
-                'string'
-                  ? 'asc'
-                  : 'desc',
-              ]
-            : [];
+
+          if (
+            !draft.stickyColumnName ||
+            !columnNames.includes(draft.stickyColumnName)
+          ) {
+            draft.stickyColumnName = columnNames[0];
+          }
+
+          if (!draft.sort.length) {
+            draft.sort = draft.stickyColumnName
+              ? [
+                  draft.stickyColumnName,
+                  // @ts-ignore
+                  cellTypeMap[draft.cellTypes[draft.stickyColumnName]]
+                    ?.sortValueType === 'string'
+                    ? 'asc'
+                    : 'desc',
+                ]
+              : [];
+          }
         }),
       handleMetadataChange: (metadata) =>
         set((draft) => {

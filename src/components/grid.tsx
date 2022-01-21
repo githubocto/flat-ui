@@ -163,13 +163,13 @@ export function Grid(props: GridProps) {
   React.useEffect(() => {
     if (props.defaultSort)
       handleSortChange(props.defaultSort[0], props.defaultSort[1]);
-  }, [props.defaultSort?.join(','), props.data]);
+  }, [props.defaultSort?.join(',')]);
 
   React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(() => {
     if (props.defaultStickyColumnName)
       handleStickyColumnNameChange(props.defaultStickyColumnName);
-  }, [props.defaultStickyColumnName, props.data]);
+  }, [props.defaultStickyColumnName]);
 
   React.useEffect(() => {
     handleIsEditableChange(!!props.isEditable);
