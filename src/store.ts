@@ -8,6 +8,7 @@ import {
   max,
   min,
   extent,
+  rgb,
 } from 'd3';
 import fromPairs from 'lodash/fromPairs';
 import isEqual from 'lodash/isEqual';
@@ -22,6 +23,7 @@ import { TimeCell } from './components/cells/time';
 import { NumberCell } from './components/cells/number';
 import { RawNumberCell } from './components/cells/raw-number';
 import { StringCell } from './components/cells/string';
+import { ColorCell } from './components/cells/color';
 import { CategoryCell } from './components/cells/category';
 import { StringFilter } from './components/filters/string';
 import { CategoryFilter } from './components/filters/category';
@@ -571,6 +573,17 @@ function generateSchema(data: any[]) {
           return false;
         }
       };
+      const isColor = (value: any) => {
+        try {
+          if (typeof value === 'string') {
+            const color = rgb(value);
+            return !!color;
+          }
+          return false;
+        } catch (e) {
+          return false;
+        }
+      };
       const isFirstValueADate = isDate(value);
       if (isFirstValueADate) {
         const values = data.map((d) => d[metric]).filter((d) => d);
@@ -598,6 +611,17 @@ function generateSchema(data: any[]) {
         const areMultipleValuesTimes = !values.find((d) => !isTime(d));
         if (areMultipleValuesTimes) return [metric, 'time'];
       }
+
+      const isFirstValueAColor = isColor(value);
+      if (isFirstValueAColor) {
+        const values = data
+          .map((d) => d[metric])
+          .filter((d) => d)
+          .slice(0, 30);
+        const areMultipleValuesColors = !values.find((d) => !isColor(d));
+        if (areMultipleValuesColors) return [metric, 'color'];
+      }
+
       const isFirstValueAnArray = Array.isArray(value);
       if (isFirstValueAnArray) {
         const values = data.map((d) => d[metric]).filter((d) => d);
@@ -610,6 +634,7 @@ function generateSchema(data: any[]) {
             : 'short-array',
         ];
       }
+
       const isObject = typeof value === 'object';
       if (isObject) {
         return [metric, 'object'];
@@ -724,6 +749,13 @@ const getDiffs = (data: any[]) => {
 export const cellTypeMap = {
   string: {
     cell: StringCell,
+    filter: StringFilter,
+    format: (d: string) => d,
+    shortFormat: (d: string) => d,
+    sortValueType: 'string',
+  },
+  color: {
+    cell: ColorCell,
     filter: StringFilter,
     format: (d: string) => d,
     shortFormat: (d: string) => d,
