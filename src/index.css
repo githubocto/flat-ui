@@ -328,7 +328,7 @@ html,
   z-index: 250 !important;
 }
 .sticky-grid__header:focus-within {
-  z-index: 260 !important;
+  z-index: 240 !important;
 }
 
 @media (max-width: 700px) {
