@@ -11,7 +11,7 @@ interface ColorCellProps {
 export function ColorCell(props: ColorCellProps) {
   return (
     <Fragment>
-      <div tw="absolute top-0 bottom-0 left-0 w-4" style={{
+      <div tw="absolute top-0 bottom-0 left-0 w-[0.9em]" style={{
         background: props.value,
       }} />
       <div
