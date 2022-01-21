@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { VariableSizeGrid } from 'react-window';
+import tw from 'twin.macro';
 import { FilterValue } from '../types';
 
 function getCellIndicies(child) {
@@ -9,18 +10,14 @@ function getCellIndicies(child) {
 }
 
 function getShownIndicies(children) {
-  let minRow = Infinity;
-  let maxRow = 0;
-  let minColumn = Infinity;
-  let maxColumn = 0;
-
-  React.Children.forEach(children, child => {
-    const { row, column } = getCellIndicies(child);
-    minRow = Math.min(minRow, row);
-    maxRow = Math.max(maxRow, row);
-    minColumn = Math.min(minColumn, column);
-    maxColumn = Math.max(maxColumn, column);
-  });
+  const firstCell = children[0]
+  const firstIndices = getCellIndicies(firstCell);
+  const lastCell = children[children.length - 1];
+  const lastIndices = getCellIndicies(lastCell);
+  const minRow = Math.min(firstIndices.row, Infinity)
+  const maxRow = Math.max(lastIndices.row, 0)
+  const minColumn = Math.min(firstIndices.column, Infinity)
+  const maxColumn = Math.max(lastIndices.column, 0)
 
   return {
     from: {
@@ -66,7 +63,7 @@ function useInnerElementType(
         const shownIndicies = getShownIndicies(props.children);
 
         const shownColumnsCount =
-          shownIndicies.to.column - shownIndicies.from.column + 1 ||
+          shownIndicies.to.column - shownIndicies.from.column + 2 ||
           itemData.columnNames.length;
         const shownRowsCount = shownIndicies.to.row - shownIndicies.from.row;
 
@@ -88,58 +85,63 @@ function useInnerElementType(
               backgroundSize: `100% ${rowHeight(1)}px`,
             }}
           >
-            {/* top left cell */}
-            {numberOfStickiedColumns > 0 && (
-              <HeaderComponent
-                key="0:0"
-                rowIndex={0}
-                columnIndex={0}
-                data={itemData}
-                style={{
-                  display: 'inline-flex',
-                  width: columnWidth(0),
-                  height: rowHeight(0),
-                  position: 'sticky',
-                  float: "left",
-                  top: 0,
-                  left: 0,
-                  zIndex: 200,
-                }}
-              />
-            )}
 
-            {shownColumns.map((_, i) => {
-              const columnIndex =
-                i + shownIndicies.from.column + numberOfStickiedColumns;
-              const rowIndex = 0;
+            <div
+              css={[
+                tw`flex sticky top-0 z-[300]`,
+              ]}>
 
-              const width = columnWidth(columnIndex);
-              const height = rowHeight(rowIndex);
-              const marginLeft =
-                i === numberOfStickiedColumns
-                  ? sumColumnWidths(columnIndex - numberOfStickiedColumns)
-                  : undefined;
-
-              // header row
-              return (
+              {/* top left cell */}
+              {numberOfStickiedColumns > 0 && (
                 <HeaderComponent
-                  key={`${rowIndex}:${columnIndex}`}
-                  rowIndex={rowIndex}
-                  columnIndex={columnIndex}
+                  key="0:0"
+                  rowIndex={0}
+                  columnIndex={0}
                   data={itemData}
                   style={{
-                    marginLeft,
-                    display: 'flex',
-                    float: 'left',
-                    width,
-                    height,
+                    flex: "none",
+                    display: 'inline-flex',
+                    width: columnWidth(0),
+                    height: rowHeight(0),
                     position: 'sticky',
                     top: 0,
-                    zIndex: 100,
+                    left: 0,
+                    zIndex: 200,
                   }}
                 />
-              );
-            })}
+              )}
+
+
+              {shownColumns.map((_, i) => {
+                const columnIndex =
+                  i + shownIndicies.from.column + numberOfStickiedColumns;
+                const rowIndex = 0;
+                const width = columnWidth(columnIndex);
+                const height = rowHeight(rowIndex);
+                const marginLeft =
+                  i === numberOfStickiedColumns
+                    ? sumColumnWidths(columnIndex - numberOfStickiedColumns)
+                    : undefined;
+
+                // header row
+                return (
+                  <HeaderComponent
+                    key={`${rowIndex}:${columnIndex}`}
+                    rowIndex={rowIndex}
+                    columnIndex={columnIndex}
+                    data={itemData}
+                    style={{
+                      flex: "none",
+                      marginLeft,
+                      display: 'flex',
+                      width,
+                      height,
+                      zIndex: 100,
+                    }}
+                  />
+                );
+              })}
+            </div>
 
             {numberOfStickiedColumns > 0 &&
               shownRows.map((_, i) => {
