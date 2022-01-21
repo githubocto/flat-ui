@@ -165,6 +165,7 @@ export function Grid(props: GridProps) {
       handleSortChange(props.defaultSort[0], props.defaultSort[1]);
   }, [props.defaultSort?.join(','), props.data]);
 
+  React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(() => {
     if (props.defaultStickyColumnName)
       handleStickyColumnNameChange(props.defaultStickyColumnName);
@@ -180,7 +181,6 @@ export function Grid(props: GridProps) {
     props.onEdit(updatedData);
   }, [updatedData]);
 
-  React.useEffect(updateColumnNames, [props.data, stickyColumnName]);
   React.useEffect(updateFilteredColumns, [data, filters, sort]);
 
   React.useEffect(() => {
