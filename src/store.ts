@@ -577,7 +577,9 @@ function generateSchema(data: any[]) {
         try {
           if (typeof value === 'string') {
             const color = rgb(value);
-            return !!color;
+            const { r, g, b} = color
+            
+            return r && g && b;
           }
           return false;
         } catch (e) {
