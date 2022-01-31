@@ -87,7 +87,6 @@ export function CategoryFilter(props: CategoryFilterProps) {
                   const isFilteredOut =
                     inputValue && !matchSorter([value], inputValue).length;
                   if (isFilteredOut) return null;
-                  console.log({ color });
 
                   return (
                     <li
