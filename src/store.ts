@@ -577,7 +577,7 @@ function generateSchema(data: any[]) {
         try {
           if (typeof value === 'string') {
             const color = rgb(value);
-            return !!color;
+            return !!color && !Number.isNaN(color.r);
           }
           return false;
         } catch (e) {
