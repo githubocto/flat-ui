@@ -513,6 +513,10 @@ const getSortFunction = (sort: string[], typeOfValue: string) => {
       aVal = (aVal || '')?.toUpperCase?.() || '';
       if (!aVal || aVal === '\n') aVal = direction === 'asc' ? 'zzzzzz' : '';
       aVal = aVal.trimStart();
+    } else if (typeOfValue === 'number') {
+      aVal = Number.isFinite(aVal)
+        ? aVal
+        : Infinity * (direction === 'asc' ? 1 : -1);
     }
     // @ts-ignore
     let bVal = b[columnName];
@@ -520,8 +524,11 @@ const getSortFunction = (sort: string[], typeOfValue: string) => {
       bVal = (bVal || '')?.toUpperCase?.() || '';
       if (!bVal || bVal === '\n') bVal = direction === 'asc' ? 'zzzzzz' : '';
       bVal = bVal.trimStart();
+    } else if (typeOfValue === 'number') {
+      bVal = Number.isFinite(bVal)
+        ? bVal
+        : Infinity * (direction === 'asc' ? 1 : -1);
     }
-
     return direction == 'desc'
       ? // @ts-ignore
         descending(aVal, bVal)
