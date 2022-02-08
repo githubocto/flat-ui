@@ -106,7 +106,7 @@
     "date-fns": "^2.19.0",
     "dompurify": "^2.2.9",
     "downshift": "^6.1.1",
-    "immer": "^8.0.2",
+    "immer": "^9.0.12",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "match-sorter": "^6.3.0",
@@ -115,6 +115,6 @@
     "react-virtualized-auto-sizer": "^1.0.5",
     "react-window": "^1.8.6",
     "twin.macro": "^2.6.2",
-    "zustand": "^3.3.3"
+    "zustand": "^3.6.9"
   }
 }
