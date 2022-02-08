@@ -1,6 +1,13 @@
 import tw from 'twin.macro';
-import create, { StateCreator } from 'zustand';
+import create, {
+  GetState,
+  SetState,
+  State,
+  StateCreator,
+  StoreApi,
+} from 'zustand';
 import produce from 'immer';
+import type { Draft } from 'immer';
 import {
   format as d3Format,
   timeFormat,
@@ -29,10 +36,34 @@ import { StringFilter } from './components/filters/string';
 import { CategoryFilter } from './components/filters/category';
 import { RangeFilter } from './components/filters/range';
 
-export const immer = <T extends {}>(
-  config: StateCreator<T, (fn: (draft: T) => void) => void>
-): StateCreator<T> => (set, get, api) =>
-  config((fn) => set(produce(fn) as (state: T) => T), get, api);
+const immer = <
+  T extends State,
+  CustomSetState extends SetState<T>,
+  CustomGetState extends GetState<T>,
+  CustomStoreApi extends StoreApi<T>
+>(
+  config: StateCreator<
+    T,
+    (partial: ((draft: Draft<T>) => void) | T, replace?: boolean) => void,
+    CustomGetState,
+    CustomStoreApi
+  >
+): StateCreator<T, CustomSetState, CustomGetState, CustomStoreApi> => (
+  set,
+  get,
+  api
+) =>
+  config(
+    (partial, replace) => {
+      const nextState =
+        typeof partial === 'function'
+          ? produce(partial as (state: Draft<T>) => T)
+          : (partial as T);
+      return set(nextState, replace);
+    },
+    get,
+    api
+  );
 
 export type GridState = {
   data: any[];
