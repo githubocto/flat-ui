@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { areEqual } from 'react-window';
 import tw, { TwStyle } from 'twin.macro';
-import anchorme from 'anchorme';
+import Linkify from 'linkify-it';
 import { cellTypeMap } from '../store';
 import { DashIcon, DiffModifiedIcon, PlusIcon } from '@primer/octicons-react';
 import DOMPurify from 'dompurify';
 import { EditableCell } from './editable-cell';
+
+const linkify = Linkify().add('ftp:', null).add('mailto:', null);
 
 interface CellProps {
   type: string;
@@ -47,37 +49,39 @@ export const Cell = React.memo(function (props: CellProps) {
     onFocusChange,
     background,
     style = {},
-    onMouseEnter = () => { },
+    onMouseEnter = () => {},
   } = props;
 
   // @ts-ignore
   const cellInfo = cellTypeMap[type];
 
-  const { cell: CellComponent } = cellInfo || {}
+  const { cell: CellComponent } = cellInfo || {};
 
-  const displayValue = (formattedValue || value || "").toString();
+  const displayValue = (formattedValue || value || '').toString();
   const isLongValue = (displayValue || '').length > 23;
-  const stringWithLinks = React.useMemo(
-    () => displayValue ? (
-      DOMPurify.sanitize(
-        anchorme({
-          input: displayValue + '',
-          options: {
-            attributes: {
-              target: '_blank',
-              rel: 'noopener',
-            },
-          },
-        })
-      )
-    ) : "",
-    [value]
-  )
+  const stringWithLinks = React.useMemo(() => {
+    if (!displayValue) return '';
+
+    const sanitized = DOMPurify.sanitize(displayValue);
+    // Does the sanitized string contain any links?
+    if (!linkify.test(sanitized)) return sanitized;
+
+    // If so, we need to linkify it.
+    const matches = linkify.match(sanitized);
+
+    // If there are no matches, we can just return the sanitized string.
+    if (!matches || matches.length === 0) return sanitized;
+
+    // Otherwise, let's naively use the first match.
+    return `<a href="${matches[0].url}" target="_blank" rel="noopener">
+        ${matches[0].url}
+      </a>`;
+  }, [value]);
 
   useEffect(() => {
-    if (!isFocused) return
-    onMouseEnter()
-  }, [isFocused])
+    if (!isFocused) return;
+    onMouseEnter();
+  }, [isFocused]);
 
   if (!cellInfo) return null;
 
@@ -91,14 +95,15 @@ export const Cell = React.memo(function (props: CellProps) {
       'modified-row': DiffModifiedIcon,
     }[status || ''];
   const statusColor =
-    isFirstColumn &&
-    // @ts-ignore
-    {
-      new: 'text-green-400',
-      old: 'text-pink-400',
-      modified: 'text-yellow-500',
-      'modified-row': 'text-yellow-500',
-    }[status || ''] || ""
+    (isFirstColumn &&
+      // @ts-ignore
+      {
+        new: 'text-green-400',
+        old: 'text-pink-400',
+        modified: 'text-yellow-500',
+        'modified-row': 'text-yellow-500',
+      }[status || '']) ||
+    '';
 
   return (
     <div
@@ -109,12 +114,13 @@ export const Cell = React.memo(function (props: CellProps) {
         status === 'old' && tw`border-pink-200`,
         status === 'modified' && tw`border-yellow-200`,
         status === 'modified-row' && tw`border-gray-200`,
-        !status && tw`border-gray-200`
+        !status && tw`border-gray-200`,
       ]}
       style={{
         ...style,
         background: background || '#fff',
-      }}>
+      }}
+    >
       <EditableCell
         value={rawValue}
         isEditable={isEditable}
@@ -123,7 +129,8 @@ export const Cell = React.memo(function (props: CellProps) {
         isFocused={isFocused}
         isExtraBlankRow={isExtraBlankRow}
         onFocusChange={onFocusChange}
-        onRowDelete={onRowDelete}>
+        onRowDelete={onRowDelete}
+      >
         <CellInner
           value={value}
           isFirstColumn={isFirstColumn}
@@ -142,7 +149,6 @@ export const Cell = React.memo(function (props: CellProps) {
     </div>
   );
 }, areEqual);
-
 
 const CellInner = React.memo(function CellInner({
   value,
@@ -176,7 +182,7 @@ const CellInner = React.memo(function CellInner({
       css={[
         tw`w-full h-full flex flex-none items-center px-4`,
         typeof value === 'undefined' ||
-        (Number.isNaN(value) && tw`text-gray-300`),
+          (Number.isNaN(value) && tw`text-gray-300`),
       ]}
       onMouseEnter={() => onMouseEnter?.()}
     >
@@ -214,5 +220,5 @@ const CellInner = React.memo(function CellInner({
         </div>
       )}
     </div>
-  )
-})
+  );
+});
