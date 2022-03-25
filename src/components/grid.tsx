@@ -527,7 +527,7 @@ export function Grid(props: GridProps) {
           <div tw="m-2 text-gray-200 whitespace-nowrap">
             Showing {filteredData.length.toLocaleString()}
             {isFiltered && ` of ${data.length.toLocaleString()}`} row
-            {(isFiltered ? filteredData : data).length === 1 ? '' : 's'}
+            {data.length === 1 ? '' : 's'} × {columnNames.length.toLocaleString()} column{columnNames.length === 1 ? '' : 's'}
           </div>
         </div>
 
