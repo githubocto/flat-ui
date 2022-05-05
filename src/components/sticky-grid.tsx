@@ -6,7 +6,10 @@ import tw from 'twin.macro';
 import { FilterValue } from '../types';
 
 function getCellIndicies(child) {
-  return { row: child.props.rowIndex, column: child.props.columnIndex };
+  return {
+    row: child?.props.rowIndex || 0,
+    column: child?.props.columnIndex || 0
+  };
 }
 
 function getShownIndicies(children) {
