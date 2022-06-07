@@ -88,9 +88,9 @@ The user can interact with the table and update the filters, but the table will 
 
 ### defaultSort
 
-`string`
+`array`
 
-The name of the column you want the table to initialize sorting by. The user can interact with the table and update the sort, but the table will use the default sort when `defaultSort` or `data` changes.
+The name of the column and the order you want the table to initialize sorting by (e.g. `["Location", "desc"]`). The user can interact with the table and update the sort, but the table will use the default sort when `defaultSort` or `data` changes.
 
 ### defaultStickyColumnName
 
