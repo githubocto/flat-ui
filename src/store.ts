@@ -71,6 +71,8 @@ export type GridState = {
   updatedData: any[] | null;
   stickyColumnName?: string;
   handleStickyColumnNameChange: (columnName: string) => void;
+  showFilters: boolean;
+  handleShowFiltersChange: () => void;
   columnNames: string[];
   filteredData: any[];
   diffs: object[];
@@ -121,6 +123,11 @@ export const createGridStore = () =>
           if (!draft.columnNames.includes(columnName)) return;
           draft.stickyColumnName = columnName;
         }),
+      showFilters: true,
+      handleShowFiltersChange: () =>
+        set((draft) => {
+          draft.showFilters = !draft.showFilters
+        }), 
       handleDataChange: (data) =>
         set((draft) => {
           draft.rawData = data.map((d, i) => ({

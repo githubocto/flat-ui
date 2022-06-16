@@ -4,7 +4,7 @@ import {
   ArrowDownIcon,
   InfoIcon,
   PinIcon,
-  TrashIcon,
+  TrashIcon
 } from '@primer/octicons-react';
 import { FilterValue, CategoryValue } from '../types';
 import { EditableHeader } from './editable-header';
@@ -148,7 +148,7 @@ const HeaderTop = memo(({
     <div
       className="header"
       tw="relative border-b border-gray-200 bg-white flex items-center flex-shrink-0"
-      style={{ height: 37 }}
+      style={{ height: 30 }}
     >
       <div
         className="header__title"
