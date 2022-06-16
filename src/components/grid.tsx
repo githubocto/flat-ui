@@ -9,6 +9,7 @@ import { StickyGrid } from './sticky-grid';
 import { Header } from './header';
 import { Cell } from './cell';
 import { Loader } from './loader';
+import { Toggle } from './toggle';
 import { useGridStore } from './store-wrapper';
 import { cellTypeMap } from '../store';
 import {
@@ -56,13 +57,13 @@ export function Grid(props: GridProps) {
     number
   >();
   const currentScrollYOffset = React.useRef<ScrollRefType>();
-  // const [showFilters, setShowFilters] = React.useState(true);
-  const showFilters = true;
 
   const {
     data,
     columnNames,
+    showFilters,
     handleDataChange,
+    handleShowFiltersChange,
     handleDiffDataChange,
     uniqueColumnName,
     diffs,
@@ -425,11 +426,11 @@ export function Grid(props: GridProps) {
 
   return (
     <div tw="flex flex-col h-full bg-white" className="fade-up-in">
-      {/* <div tw="bg-white h-10 flex px-4 border-b border-gray-200">
-        <Toggle onChange={handleShowFiltersChange} checked={showFilters}>
-          Show Filters
-        </Toggle>
-      </div> */}
+        <div tw="bg-white h-10 flex px-4 border-b border-gray-200">
+          <Toggle onChange={handleShowFiltersChange} checked={showFilters}>
+            Show Filters
+          </Toggle>
+        </div>
       <div
         tw="flex-1 w-full h-full"
         style={{
@@ -770,6 +771,7 @@ const HeaderWrapper = function (props: CellProps) {
   const { columnIndex, data, style } = props;
   const {
     data: originalData,
+    showFilters,
     columnNames,
     columnWidths,
     stickyColumnName,
@@ -790,8 +792,6 @@ const HeaderWrapper = function (props: CellProps) {
     onHeaderAdd,
   } = useGridStore();
   const columnNameRef = React.useRef('');
-
-  const { showFilters } = data;
 
   const columnName = columnNames[columnIndex];
   columnNameRef.current = columnName;
@@ -907,6 +907,7 @@ const HeaderWrapperComputed = React.memo(
     if (props.activeSortDirection != newProps.activeSortDirection) return false;
     if (props.filteredData != newProps.filteredData) return false;
     if (props.filter != newProps.filter) return false;
+    if (props.showFilters != newProps.showFilters) return false;
     if (props.width != newProps.width) return false;
     if (props.isSticky != newProps.isSticky) return false;
     if (props.isNewColumn != newProps.isNewColumn) return false;
