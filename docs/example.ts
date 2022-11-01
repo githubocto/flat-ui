@@ -5,8 +5,8 @@ const Spreadsheet = () => {
 };
 
 const data = [
-  { column1: 123, color: "green" },
-  { column1: 234, date: "2022-11-01T02:49:57.038Z" },
+  { column1: 123, color: "pink", date: "2022-11-01T02:49:57.038Z" },
+  { column1: 234 },
 ];
 
 import React from 'react';
