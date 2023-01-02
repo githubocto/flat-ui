@@ -61,8 +61,10 @@ export const Cell = React.memo(function (props: CellProps) {
   const isLongValue = (displayValue || '').length > 23;
   const stringWithLinks = React.useMemo(() => {
     if (!displayValue) return '';
-
-    const sanitized = DOMPurify.sanitize(displayValue);
+    const dompurifyConfig = {
+        FORBID_TAGS: ['style', 'form'],
+    }
+    const sanitized = DOMPurify.sanitize(displayValue, dompurifyConfig);
     // Does the sanitized string contain any links?
     if (!linkify.test(sanitized)) return sanitized;
 
