@@ -104,7 +104,7 @@
     "@types/react-window": "^1.8.2",
     "d3": "^6.6.0",
     "date-fns": "^2.19.0",
-    "dompurify": "^2.2.9",
+    "dompurify": "^3.2.4",
     "downshift": "^6.1.1",
     "immer": "^9.0.12",
     "linkify-it": "^3.0.3",
